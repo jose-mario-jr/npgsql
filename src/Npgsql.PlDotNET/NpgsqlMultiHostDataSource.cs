@@ -14,7 +14,7 @@ using PlDotNET.Handler;
 
 #pragma warning disable CS1591
 
-namespace PlDotNET.Npgsql
+namespace Npgsql.PlDotNET
 {
     public class NpgsqlMultiHostDataSource : NpgsqlMultiHostDataSourceOrig
     {

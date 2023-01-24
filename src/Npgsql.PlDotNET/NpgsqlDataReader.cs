@@ -14,7 +14,7 @@ using PlDotNET.Handler;
 
 #pragma warning disable CS8618, CS8619, CS8604, CS1591
 
-namespace PlDotNET.Npgsql
+namespace Npgsql.PlDotNET
 {
     public class NpgsqlDataReader : NpgsqlDataReaderOrig
     {
