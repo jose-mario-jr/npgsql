@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Npgsql;
 using Npgsql.Internal;
 using Npgsql.PostgresTypes;
+using PlDotNET.Common;
 using PlDotNET.Handler;
 
 #pragma warning disable CS8618, CS8619, CS8604, CS1591
