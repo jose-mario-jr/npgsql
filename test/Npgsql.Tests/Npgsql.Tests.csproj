@@ -8,6 +8,6 @@
     <PackageReference Include="NUnit3TestAdapter" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/Npgsql/Npgsql.csproj" />
+    <ProjectReference Include="../../src/Npgsql.PlDotNET/Npgsql.PlDotNET.csproj" />
   </ItemGroup>
 </Project>

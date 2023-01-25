@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\PlDotNET\TypeHandlers\PlDotNET.Handlers.csproj" />
-    <ProjectReference Include="..\..\test\Npgsql.Tests\Npgsql.Tests.csproj" />
   </ItemGroup>
 
 </Project>
