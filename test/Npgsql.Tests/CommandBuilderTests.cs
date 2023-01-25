@@ -18,7 +18,7 @@ class CommandBuilderTests : TestBase
         using var conn = await OpenConnectionAsync();
         var table = await CreateTempTable(conn, "id int, val text");
 
-        var cmd = new NpgsqlCommand(
+        var cmd = new NpgsqlCommandOrig(
             $@"INSERT INTO {table} VALUES(:x, 'some value');
                     UPDATE {table} SET val = 'changed value' WHERE id = :x;
                     SELECT val FROM {table} WHERE id = :x;",
@@ -39,7 +39,7 @@ class CommandBuilderTests : TestBase
         using var conn = await OpenConnectionAsync();
         var table = await CreateTempTable(conn, "id int, val text");
 
-        var cmd = new NpgsqlCommand(
+        var cmd = new NpgsqlCommandOrig(
             $@"INSERT INTO {table} VALUES(:x, 'some value');
                     UPDATE {table} SET val = 'changed value' WHERE id = :x::double precision;
                     SELECT val FROM {table} WHERE id = :x::numeric;",
@@ -54,7 +54,7 @@ class CommandBuilderTests : TestBase
         using var conn = await OpenConnectionAsync();
         var table = await CreateTempTable(conn, "id int, val text");
 
-        var cmd = new NpgsqlCommand(
+        var cmd = new NpgsqlCommandOrig(
             $@"INSERT INTO {table} VALUES(:x, 'some value');
                     UPDATE {table} SET val = 'changed value' WHERE id = @y::double precision;
                     SELECT val FROM {table} WHERE id = :z::numeric;",
@@ -82,7 +82,7 @@ class CommandBuilderTests : TestBase
         const int answer = 42;
         using var _ = CreateTempPool(ConnectionString, out var connString);
         using var conn = await OpenConnectionAsync(connString);
-        using var cmd = new NpgsqlCommand(query, conn);
+        using var cmd = new NpgsqlCommandOrig(query, conn);
         cmd.Parameters.AddWithValue("@p", NpgsqlDbType.Integer, answer);
         cmd.Prepare();
         Assert.That(conn.Connector!.PreparedStatementManager.NumPrepared, Is.EqualTo(1));
@@ -110,7 +110,7 @@ class CommandBuilderTests : TestBase
     public async Task DeriveParameters_text_array()
     {
         using var conn = await OpenConnectionAsync();
-        var cmd = new NpgsqlCommand("SELECT :a::integer[]", conn);
+        var cmd = new NpgsqlCommandOrig("SELECT :a::integer[]", conn);
         var val = new[] { 7, 42 };
 
         NpgsqlCommandBuilder.DeriveParameters(cmd);
@@ -135,7 +135,7 @@ CREATE DOMAIN {domainType} AS integer CHECK (VALUE > 0);
 CREATE DOMAIN {domainArrayType} AS int[] CHECK(array_length(VALUE, 1) = 2);");
         conn.ReloadTypes();
 
-        var cmd = new NpgsqlCommand($"SELECT :a::{domainType}, :b::{domainType}[], :c::{domainArrayType}", conn);
+        var cmd = new NpgsqlCommandOrig($"SELECT :a::{domainType}, :b::{domainType}[], :c::{domainArrayType}", conn);
         var val = 23;
         var arrayVal = new[] { 7, 42 };
 
@@ -168,7 +168,7 @@ CREATE DOMAIN {domainArrayType} AS int[] CHECK(array_length(VALUE, 1) = 2);");
         await conn.ExecuteNonQueryAsync($@"CREATE TYPE {type} AS ENUM ('Apple', 'Cherry', 'Plum')");
         conn.ReloadTypes();
 
-        var cmd = new NpgsqlCommand($"SELECT :x::{type}", conn);
+        var cmd = new NpgsqlCommandOrig($"SELECT :x::{type}", conn);
         const string val1 = "Apple";
         var val2 = new string[] { "Cherry", "Plum" };
 
@@ -199,7 +199,7 @@ CREATE DOMAIN {domainArrayType} AS int[] CHECK(array_length(VALUE, 1) = 2);");
         await using var dataSource = dataSourceBuilder.Build();
         await using var connection = await dataSource.OpenConnectionAsync();
 
-        var cmd = new NpgsqlCommand($"SELECT :x::{type}, :y::{type}[]", connection);
+        var cmd = new NpgsqlCommandOrig($"SELECT :x::{type}, :y::{type}[]", connection);
         const Fruit val1 = Fruit.Apple;
         var val2 = new[] { Fruit.Cherry, Fruit.Plum };
 
@@ -245,7 +245,7 @@ CREATE DOMAIN {domainArrayType} AS int[] CHECK(array_length(VALUE, 1) = 2);");
         var expected1 = new SomeComposite { X = 8, SomeText = "foo" };
         var expected2 = new[] { expected1, new SomeComposite {X = 9, SomeText = "bar"} };
 
-        await using var cmd = new NpgsqlCommand($"SELECT @p1::{type}, @p2::{type}[]", connection);
+        await using var cmd = new NpgsqlCommandOrig($"SELECT @p1::{type}, @p2::{type}[]", connection);
         NpgsqlCommandBuilder.DeriveParameters(cmd);
         Assert.That(cmd.Parameters, Has.Count.EqualTo(2));
         Assert.That(cmd.Parameters[0].ParameterName, Is.EqualTo("p1"));
@@ -361,7 +361,7 @@ INSERT INTO {table} VALUES('key1', 'description', '2018-07-03', '2018-07-03 07:0
     {
         using var conn = await OpenConnectionAsync();
         var table = await CreateTempTable(conn, "Cod varchar(5) PRIMARY KEY, Descr varchar(40), Data date");
-        using var cmd = new NpgsqlCommand($"SELECT Cod as CodAlias, Descr as DescrAlias, Data as DataAlias FROM {table}", conn);
+        using var cmd = new NpgsqlCommandOrig($"SELECT Cod as CodAlias, Descr as DescrAlias, Data as DataAlias FROM {table}", conn);
         using var daDataAdapter = new NpgsqlDataAdapter(cmd);
         using var cbCommandBuilder = new NpgsqlCommandBuilder(daDataAdapter);
 
