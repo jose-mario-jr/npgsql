@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Transactions;
+using Npgsql.PlDotNET;
 using NUnit.Framework;
 
 namespace Npgsql.Tests;
@@ -13,7 +14,7 @@ public class SystemTransactionTests : TestBase
     [Test, Description("Single connection enlisting explicitly, committing")]
     public void Explicit_enlist()
     {
-        using var conn = new NpgsqlConnectionOrig(ConnectionStringEnlistOff);
+        using var conn = new NpgsqlConnection(ConnectionStringEnlistOff);
         conn.Open();
         using (var scope = new TransactionScope())
         {
@@ -35,7 +36,7 @@ public class SystemTransactionTests : TestBase
     [Test, Description("Single connection enlisting implicitly, committing")]
     public void Implicit_enlist()
     {
-        var conn = new NpgsqlConnectionOrig(ConnectionStringEnlistOn);
+        var conn = new NpgsqlConnection(ConnectionStringEnlistOn);
         using (var scope = new TransactionScope())
         {
             conn.Open();
@@ -153,8 +154,8 @@ public class SystemTransactionTests : TestBase
         Assert.True(PoolManager.Pools.TryGetValue(connString, out var pool));
         Assert.That(pool!.Statistics.Idle, Is.EqualTo(1));
 
-        using (var conn = new NpgsqlConnectionOrig(connString))
-            NpgsqlConnectionOrig.ClearPool(conn);
+        using (var conn = new NpgsqlConnection(connString))
+            NpgsqlConnection.ClearPool(conn);
     }
 
     [Test]
@@ -205,7 +206,7 @@ public class SystemTransactionTests : TestBase
     public void Reuse_connection()
     {
         using (var scope = new TransactionScope())
-        using (var conn = new NpgsqlConnectionOrig(ConnectionStringEnlistOn))
+        using (var conn = new NpgsqlConnection(ConnectionStringEnlistOn))
         {
             conn.Open();
             var processId = conn.ProcessID;
@@ -226,7 +227,7 @@ public class SystemTransactionTests : TestBase
     public void Reuse_connection_rollback()
     {
         using (new TransactionScope())
-        using (var conn = new NpgsqlConnectionOrig(ConnectionStringEnlistOn))
+        using (var conn = new NpgsqlConnection(ConnectionStringEnlistOn))
         {
             conn.Open();
             var processId = conn.ProcessID;
@@ -266,7 +267,7 @@ public class SystemTransactionTests : TestBase
     {
         using var tran = new TransactionScope();
         using var conn = OpenConnection(ConnectionStringEnlistOn);
-        using var cmd = new NpgsqlCommandOrig("SELECT * FROM data", conn);
+        using var cmd = new NpgsqlCommand("SELECT * FROM data", conn);
         using var reader = cmd.ExecuteReader(CommandBehavior.KeyInfo);
         reader.GetColumnSchema();
         AssertNoDistributedIdentifier();
@@ -287,7 +288,7 @@ public class SystemTransactionTests : TestBase
         using var scope = new TransactionScope();
 
         using (var conn = OpenConnection(csb))
-        using (var cmd = new NpgsqlCommandOrig("SELECT 1", conn))
+        using (var cmd = new NpgsqlCommand("SELECT 1", conn))
             cmd.ExecuteNonQuery();
 
         scope.Complete();
@@ -387,7 +388,7 @@ public class SystemTransactionTests : TestBase
     int GetNumberOfPreparedTransactions()
     {
         using var conn = OpenConnection(ConnectionStringEnlistOff);
-        using var cmd = new NpgsqlCommandOrig("SELECT COUNT(*) FROM pg_prepared_xacts WHERE database = @database", conn);
+        using var cmd = new NpgsqlCommand("SELECT COUNT(*) FROM pg_prepared_xacts WHERE database = @database", conn);
         cmd.Parameters.Add(new NpgsqlParameter("database", conn.Database));
         return (int)(long)cmd.ExecuteScalar()!;
     }
@@ -411,7 +412,7 @@ public class SystemTransactionTests : TestBase
         ConnectionStringEnlistOff = new NpgsqlConnectionStringBuilder(ConnectionString) { Enlist = false }.ToString();
     }
 
-    NpgsqlConnectionOrig _controlConn = default!;
+    NpgsqlConnection _controlConn = default!;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()

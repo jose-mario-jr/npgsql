@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Npgsql.PlDotNET;
 using Npgsql.PostgresTypes;
 using NpgsqlTypes;
 using NUnit.Framework;
@@ -39,7 +40,7 @@ public class CompositeTests : MultiplexingTestBase
         var type = await GetTempTypeName(adminConnection);
 
         await adminConnection.ExecuteNonQueryAsync($"CREATE TYPE {type} AS (x int, some_text text)");
-        NpgsqlConnectionOrig.GlobalTypeMapper.MapComposite<SomeComposite>(type);
+        NpgsqlConnection.GlobalTypeMapper.MapComposite<SomeComposite>(type);
 
         try
         {
@@ -58,7 +59,7 @@ public class CompositeTests : MultiplexingTestBase
         }
         finally
         {
-            NpgsqlConnectionOrig.GlobalTypeMapper.Reset();
+            NpgsqlConnection.GlobalTypeMapper.Reset();
         }
     }
 #pragma warning restore CS0618 // GlobalTypeMapper is obsolete
@@ -358,7 +359,7 @@ CREATE TYPE {type1} AS (x int, some_text text);
 CREATE TYPE {type2} AS (comp {type1}, comps {type1}[]);");
         await connection.ReloadTypesAsync();
 
-        await using var cmd = new NpgsqlCommandOrig(
+        await using var cmd = new NpgsqlCommand(
             $"SELECT ROW(ROW(8, 'foo')::{type1}, ARRAY[ROW(9, 'bar')::{type1}, ROW(10, 'baz')::{type1}])::{type2}",
             connection);
         await using var reader = await cmd.ExecuteReaderAsync();

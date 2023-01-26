@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Npgsql.PlDotNET;
+using NUnit.Framework;
 
 namespace Npgsql.Tests;
 
@@ -9,13 +10,13 @@ class PoolManagerTests : TestBase
     public void With_canonical_connection_string()
     {
         var connString = new NpgsqlConnectionStringBuilder(ConnectionString).ToString();
-        using (var conn = new NpgsqlConnectionOrig(connString))
+        using (var conn = new NpgsqlConnection(connString))
             conn.Open();
         var connString2 = new NpgsqlConnectionStringBuilder(ConnectionString)
         {
             ApplicationName = "Another connstring"
         }.ToString();
-        using (var conn = new NpgsqlConnectionOrig(connString2))
+        using (var conn = new NpgsqlConnection(connString2))
             conn.Open();
     }
 
@@ -30,7 +31,7 @@ class PoolManagerTests : TestBase
             {
                 ApplicationName = "App" + i
             }.ToString();
-            using var conn = new NpgsqlConnectionOrig(connString);
+            using var conn = new NpgsqlConnection(connString);
             conn.Open();
         }
         PoolManager.Reset();
@@ -45,7 +46,7 @@ class PoolManagerTests : TestBase
         Assert.That(PoolManager.Pools.TryGetValue(ConnectionString, out var pool), Is.True);
         Assert.That(pool!.Statistics.Idle, Is.EqualTo(1));
 
-        NpgsqlConnectionOrig.ClearAllPools();
+        NpgsqlConnection.ClearAllPools();
         Assert.That(pool.Statistics.Idle, Is.Zero);
         Assert.That(pool.Statistics.Total, Is.Zero);
     }
@@ -59,7 +60,7 @@ class PoolManagerTests : TestBase
             using (OpenConnection()) { }
             // We have one idle, one busy
 
-            NpgsqlConnectionOrig.ClearAllPools();
+            NpgsqlConnection.ClearAllPools();
             Assert.That(PoolManager.Pools.TryGetValue(ConnectionString, out pool), Is.True);
             Assert.That(pool!.Statistics.Idle, Is.Zero);
             Assert.That(pool.Statistics.Total, Is.EqualTo(1));

@@ -1,6 +1,7 @@
 ﻿using Npgsql.Internal;
 using Npgsql.Internal.TypeHandlers;
 using Npgsql.Internal.TypeHandling;
+using Npgsql.PlDotNET;
 using Npgsql.PostgresTypes;
 using NUnit.Framework;
 using System;
@@ -17,7 +18,7 @@ public class TypeMapperTests : TestBase
     {
         await using var adminConnection = await OpenConnectionAsync();
         var type = await GetTempTypeName(adminConnection);
-        NpgsqlConnectionOrig.GlobalTypeMapper.MapEnum<Mood>(type);
+        NpgsqlConnection.GlobalTypeMapper.MapEnum<Mood>(type);
 
         try
         {
@@ -31,7 +32,7 @@ public class TypeMapperTests : TestBase
                 await AssertType(connection, Mood.Happy, "happy", type, npgsqlDbType: null);
             }
 
-            NpgsqlConnectionOrig.GlobalTypeMapper.UnmapEnum<Mood>(type);
+            NpgsqlConnection.GlobalTypeMapper.UnmapEnum<Mood>(type);
 
             // Global mapping changes have no effect on already-built data sources
             await AssertType(dataSource1, Mood.Happy, "happy", type, npgsqlDbType: null);
@@ -42,7 +43,7 @@ public class TypeMapperTests : TestBase
         }
         finally
         {
-            NpgsqlConnectionOrig.GlobalTypeMapper.UnmapEnum<Mood>(type);
+            NpgsqlConnection.GlobalTypeMapper.UnmapEnum<Mood>(type);
         }
     }
 
@@ -51,7 +52,7 @@ public class TypeMapperTests : TestBase
     {
         await using var adminConnection = await OpenConnectionAsync();
         var type = await GetTempTypeName(adminConnection);
-        NpgsqlConnectionOrig.GlobalTypeMapper.MapEnum<Mood>(type);
+        NpgsqlConnection.GlobalTypeMapper.MapEnum<Mood>(type);
 
         try
         {
@@ -64,7 +65,7 @@ public class TypeMapperTests : TestBase
             }
 
             // A global mapping change has no effects on data sources which have already been built
-            NpgsqlConnectionOrig.GlobalTypeMapper.Reset();
+            NpgsqlConnection.GlobalTypeMapper.Reset();
 
             // Global mapping changes have no effect on already-built data sources
             await AssertType(dataSource1, Mood.Happy, "happy", type, npgsqlDbType: null);
@@ -75,7 +76,7 @@ public class TypeMapperTests : TestBase
         }
         finally
         {
-            NpgsqlConnectionOrig.GlobalTypeMapper.Reset();
+            NpgsqlConnection.GlobalTypeMapper.Reset();
         }
     }
 #pragma warning restore CS0618 // GlobalTypeMapper is obsolete
@@ -123,7 +124,7 @@ public class TypeMapperTests : TestBase
         await using var dataSource = dataSourceBuilder.Build();
         await using var connection = await dataSource.OpenConnectionAsync();
 
-        await using var command = new NpgsqlCommandOrig("SELECT @p = 'hello'::citext", connection);
+        await using var command = new NpgsqlCommand("SELECT @p = 'hello'::citext", connection);
         command.Parameters.AddWithValue("p", "HeLLo");
         Assert.That(command.ExecuteScalar(), Is.True);
     }

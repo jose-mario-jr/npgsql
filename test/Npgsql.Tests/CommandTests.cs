@@ -1,5 +1,6 @@
 using Npgsql.BackendMessages;
 using Npgsql.Internal;
+using Npgsql.PlDotNET;
 using Npgsql.Tests.Support;
 using Npgsql.TypeMapping;
 using NpgsqlTypes;
@@ -84,7 +85,7 @@ public class CommandTests : MultiplexingTestBase
             return;
 
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT 1; SELECT 2", conn);
+        using var cmd = new NpgsqlCommand("SELECT 1; SELECT 2", conn);
         if (prepare == PrepareOrNot.Prepared)
             cmd.Prepare();
         using var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SingleRow);
@@ -110,7 +111,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task Multiple_statements_large_first_command()
     {
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig($"SELECT repeat('X', {conn.Settings.WriteBufferSize}); SELECT @p", conn);
+        using var cmd = new NpgsqlCommand($"SELECT repeat('X', {conn.Settings.WriteBufferSize}); SELECT @p", conn);
         var expected1 = new string('X', conn.Settings.WriteBufferSize);
         var expected2 = new string('Y', conn.Settings.WriteBufferSize);
         cmd.Parameters.AddWithValue("p", expected2);
@@ -129,7 +130,7 @@ public class CommandTests : MultiplexingTestBase
         using var _ = DisableSqlRewriting();
 
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT 1; SELECT 2", conn);
+        using var cmd = new NpgsqlCommand("SELECT 1; SELECT 2", conn);
         Assert.That(async () => await cmd.ExecuteReaderAsync(), Throws.Exception.TypeOf<PostgresException>()
             .With.Property(nameof(PostgresException.SqlState)).EqualTo(PostgresErrorCodes.SyntaxError));
     }
@@ -200,14 +201,14 @@ public class CommandTests : MultiplexingTestBase
     [Test]
     public async Task Timeout_from_connection_string()
     {
-        Assert.That(NpgsqlConnector.MinimumInternalCommandTimeout, Is.Not.EqualTo(NpgsqlCommandOrig.DefaultTimeout));
+        Assert.That(NpgsqlConnector.MinimumInternalCommandTimeout, Is.Not.EqualTo(NpgsqlCommand.DefaultTimeout));
         var timeout = NpgsqlConnector.MinimumInternalCommandTimeout;
         var connString = new NpgsqlConnectionStringBuilder(ConnectionString)
         {
             CommandTimeout = timeout
         }.ToString();
-        using var conn = new NpgsqlConnectionOrig(connString);
-        var command = new NpgsqlCommandOrig("SELECT 1", conn);
+        using var conn = new NpgsqlConnection(connString);
+        var command = new NpgsqlCommand("SELECT 1", conn);
         conn.Open();
         Assert.That(command.CommandTimeout, Is.EqualTo(timeout));
         command.CommandTimeout = 10;
@@ -218,7 +219,7 @@ public class CommandTests : MultiplexingTestBase
     [Test, IssueLink("https://github.com/npgsql/npgsql/issues/395")]
     public async Task Timeout_switch_connection()
     {
-        using (var conn = new NpgsqlConnectionOrig(ConnectionString))
+        using (var conn = new NpgsqlConnection(ConnectionString))
         {
             if (conn.CommandTimeout >= 100 && conn.CommandTimeout < 105)
                 TestUtil.IgnoreExceptOnBuildServer("Bad default command timeout");
@@ -229,13 +230,13 @@ public class CommandTests : MultiplexingTestBase
             using (var cmd = c1.CreateCommand())
             {
                 Assert.That(cmd.CommandTimeout, Is.EqualTo(100));
-                using (var c2 = new NpgsqlConnectionOrig(ConnectionString + ";CommandTimeout=101"))
+                using (var c2 = new NpgsqlConnection(ConnectionString + ";CommandTimeout=101"))
                 {
                     cmd.Connection = c2;
                     Assert.That(cmd.CommandTimeout, Is.EqualTo(101));
                 }
                 cmd.CommandTimeout = 102;
-                using (var c2 = new NpgsqlConnectionOrig(ConnectionString + ";CommandTimeout=101"))
+                using (var c2 = new NpgsqlConnection(ConnectionString + ";CommandTimeout=101"))
                 {
                     cmd.Connection = c2;
                     Assert.That(cmd.CommandTimeout, Is.EqualTo(102));
@@ -258,7 +259,7 @@ public class CommandTests : MultiplexingTestBase
 
         var processId = conn.ProcessID;
 
-        var cmd = new NpgsqlCommandOrig("SELECT 1", conn);
+        var cmd = new NpgsqlCommand("SELECT 1", conn);
         Assert.That(async () =>
             {
                 if (async == SyncOrAsync.Sync)
@@ -353,7 +354,7 @@ public class CommandTests : MultiplexingTestBase
         var processId = conn.ProcessID;
 
         using var cancellationSource = new CancellationTokenSource();
-        using var cmd = new NpgsqlCommandOrig("SELECT 1", conn);
+        using var cmd = new NpgsqlCommand("SELECT 1", conn);
         var t = cmd.ExecuteScalarAsync(cancellationSource.Token);
         cancellationSource.Cancel();
 
@@ -385,7 +386,7 @@ public class CommandTests : MultiplexingTestBase
         var processId = conn.ProcessID;
 
         using var cancellationSource = new CancellationTokenSource();
-        using var cmd = new NpgsqlCommandOrig("SELECT 1", conn)
+        using var cmd = new NpgsqlCommand("SELECT 1", conn)
         {
             CommandTimeout = 4
         };
@@ -429,7 +430,7 @@ public class CommandTests : MultiplexingTestBase
     {
         using var conn = await OpenConnectionAsync();
         using var cmd1 = CreateSleepCommand(conn, 2);
-        using var cmd2 = new NpgsqlCommandOrig("SELECT 1", conn);
+        using var cmd2 = new NpgsqlCommand("SELECT 1", conn);
         var cancelTask = Task.Factory.StartNew(() =>
         {
             Thread.Sleep(300);
@@ -454,7 +455,7 @@ public class CommandTests : MultiplexingTestBase
             await conn.ExecuteNonQueryAsync($"INSERT INTO {table} (name) VALUES ('X')");
 
         var i = 0;
-        var command = new NpgsqlCommandOrig($"DECLARE TE CURSOR FOR SELECT * FROM {table}", conn);
+        var command = new NpgsqlCommand($"DECLARE TE CURSOR FOR SELECT * FROM {table}", conn);
         command.ExecuteNonQuery();
         command.CommandText = "FETCH FORWARD 3 IN TE";
         var dr = command.ExecuteReader();
@@ -481,7 +482,7 @@ public class CommandTests : MultiplexingTestBase
     {
         using var connection = await OpenConnectionAsync();
         using var transaction = connection.BeginTransaction();
-        var command = new NpgsqlCommandOrig("DECLARE curs CURSOR FOR SELECT * FROM (VALUES (1), (2), (3)) as t", connection);
+        var command = new NpgsqlCommand("DECLARE curs CURSOR FOR SELECT * FROM (VALUES (1), (2), (3)) as t", connection);
         command.ExecuteNonQuery();
         command.CommandText = "MOVE FORWARD ALL IN curs";
         var count = command.ExecuteNonQuery();
@@ -496,7 +497,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task CloseConnection()
     {
         using var conn = await OpenConnectionAsync();
-        using (var cmd = new NpgsqlCommandOrig("SELECT 1", conn))
+        using (var cmd = new NpgsqlCommand("SELECT 1", conn))
         using (var reader = await cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection))
             while (reader.Read()) {}
         Assert.That(conn.State, Is.EqualTo(ConnectionState.Closed));
@@ -506,7 +507,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task CloseConnection_with_open_reader_with_CloseConnection()
     {
         using var conn = await OpenConnectionAsync();
-        var cmd = new NpgsqlCommandOrig("SELECT 1", conn);
+        var cmd = new NpgsqlCommand("SELECT 1", conn);
         var reader = await cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection);
         var wasClosed = false;
         reader.ReaderClosed += (sender, args) => { wasClosed = true; };
@@ -518,7 +519,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task CloseConnection_with_exception()
     {
         using var conn = await OpenConnectionAsync();
-        using (var cmd = new NpgsqlCommandOrig("SE", conn))
+        using (var cmd = new NpgsqlCommand("SE", conn))
             Assert.That(() => cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection), Throws.Exception.TypeOf<PostgresException>());
         Assert.That(conn.State, Is.EqualTo(ConnectionState.Closed));
     }
@@ -532,7 +533,7 @@ public class CommandTests : MultiplexingTestBase
             return;
 
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT 1, 2 UNION SELECT 3, 4", conn);
+        using var cmd = new NpgsqlCommand("SELECT 1, 2 UNION SELECT 3, 4", conn);
         if (prepare == PrepareOrNot.Prepared)
             cmd.Prepare();
 
@@ -549,7 +550,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task Positional_parameter()
     {
         await using var conn = await OpenConnectionAsync();
-        await using var cmd = new NpgsqlCommandOrig("SELECT $1", conn);
+        await using var cmd = new NpgsqlCommand("SELECT $1", conn);
         cmd.Parameters.Add(new NpgsqlParameter { NpgsqlDbType = NpgsqlDbType.Integer, Value = 8 });
         Assert.That(await cmd.ExecuteScalarAsync(), Is.EqualTo(8));
     }
@@ -558,7 +559,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task Positional_parameters_are_not_supported_with_legacy_batching()
     {
         await using var conn = await OpenConnectionAsync();
-        await using var cmd = new NpgsqlCommandOrig("SELECT $1; SELECT $1", conn);
+        await using var cmd = new NpgsqlCommand("SELECT $1; SELECT $1", conn);
         cmd.Parameters.Add(new NpgsqlParameter { NpgsqlDbType = NpgsqlDbType.Integer, Value = 8 });
         Assert.That(async () => await cmd.ExecuteScalarAsync(), Throws.Exception.TypeOf<PostgresException>()
             .With.Property(nameof(PostgresException.SqlState)).EqualTo(PostgresErrorCodes.SyntaxError));
@@ -571,7 +572,7 @@ public class CommandTests : MultiplexingTestBase
         using var _ = DisableSqlRewriting();
 
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT $1", conn);
+        using var cmd = new NpgsqlCommand("SELECT $1", conn);
         cmd.Parameters.Add(new NpgsqlParameter { NpgsqlDbType = NpgsqlDbType.Integer, Value = 8 });
         Assert.That(await cmd.ExecuteScalarAsync(), Is.EqualTo(8));
     }
@@ -583,7 +584,7 @@ public class CommandTests : MultiplexingTestBase
         using var _ = DisableSqlRewriting();
 
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT @p", conn);
+        using var cmd = new NpgsqlCommand("SELECT @p", conn);
         cmd.Parameters.Add(new NpgsqlParameter("p", 8));
         Assert.That(async () => await cmd.ExecuteScalarAsync(), Throws.Exception.TypeOf<NotSupportedException>());
     }
@@ -592,7 +593,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task Parameter_without_Value()
     {
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT @p", conn);
+        using var cmd = new NpgsqlCommand("SELECT @p", conn);
         cmd.Parameters.Add(new NpgsqlParameter("@p", NpgsqlDbType.Integer));
         Assert.That(() => cmd.ExecuteScalarAsync(), Throws.Exception.TypeOf<InvalidCastException>());
     }
@@ -601,7 +602,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task Unreferenced_named_parameter_works()
     {
         await using var conn = await OpenConnectionAsync();
-        await using var cmd = new NpgsqlCommandOrig("SELECT 1", conn);
+        await using var cmd = new NpgsqlCommand("SELECT 1", conn);
         cmd.Parameters.AddWithValue("not_used", 8);
         Assert.That(await cmd.ExecuteScalarAsync(), Is.EqualTo(1));
     }
@@ -610,7 +611,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task Unreferenced_positional_parameter_works()
     {
         await using var conn = await OpenConnectionAsync();
-        await using var cmd = new NpgsqlCommandOrig("SELECT 1", conn);
+        await using var cmd = new NpgsqlCommand("SELECT 1", conn);
         cmd.Parameters.Add(new NpgsqlParameter { Value = 8 });
         Assert.That(await cmd.ExecuteScalarAsync(), Is.EqualTo(1));
     }
@@ -619,7 +620,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task Mixing_positional_and_named_parameters_is_not_supported()
     {
         await using var conn = await OpenConnectionAsync();
-        await using var cmd = new NpgsqlCommandOrig("SELECT $1, @p", conn);
+        await using var cmd = new NpgsqlCommand("SELECT $1, @p", conn);
         cmd.Parameters.Add(new NpgsqlParameter { Value = 8 });
         cmd.Parameters.Add(new NpgsqlParameter { ParameterName = "p", Value = 9 });
         Assert.That(() => cmd.ExecuteNonQueryAsync(), Throws.Exception.TypeOf<NotSupportedException>());
@@ -670,7 +671,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task Positional_output_parameters_are_not_supported()
     {
         await using var conn = await OpenConnectionAsync();
-        await using var cmd = new NpgsqlCommandOrig("SELECT $1", conn);
+        await using var cmd = new NpgsqlCommand("SELECT $1", conn);
         cmd.Parameters.Add(new NpgsqlParameter { Value = 8, Direction = ParameterDirection.InputOutput });
         Assert.That(() => cmd.ExecuteNonQueryAsync(), Throws.Exception.TypeOf<NotSupportedException>());
     }
@@ -678,7 +679,7 @@ public class CommandTests : MultiplexingTestBase
     [Test]
     public void Parameters_get_name()
     {
-        var command = new NpgsqlCommandOrig();
+        var command = new NpgsqlCommand();
 
         // Add parameters.
         command.Parameters.Add(new NpgsqlParameter(":Parameter1", DbType.Boolean));
@@ -707,7 +708,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task Same_param_multiple_times()
     {
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT @p1, @p1", conn);
+        using var cmd = new NpgsqlCommand("SELECT @p1, @p1", conn);
         cmd.Parameters.AddWithValue("@p1", 8);
         using var reader = await cmd.ExecuteReaderAsync();
         reader.Read();
@@ -719,7 +720,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task Generic_parameter()
     {
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT @p1, @p2, @p3, @p4", conn);
+        using var cmd = new NpgsqlCommand("SELECT @p1, @p2, @p3, @p4", conn);
         cmd.Parameters.Add(new NpgsqlParameter<int>("p1", 8));
         cmd.Parameters.Add(new NpgsqlParameter<short>("p2", 8) { NpgsqlDbType = NpgsqlDbType.Integer });
         cmd.Parameters.Add(new NpgsqlParameter<string>("p3", "hello"));
@@ -738,7 +739,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task CommandText_not_set()
     {
         using var conn = await OpenConnectionAsync();
-        using (var cmd = new NpgsqlCommandOrig())
+        using (var cmd = new NpgsqlCommand())
         {
             cmd.Connection = conn;
             Assert.That(cmd.ExecuteNonQueryAsync, Throws.Exception.TypeOf<InvalidOperationException>());
@@ -756,7 +757,7 @@ public class CommandTests : MultiplexingTestBase
     {
         using var conn = await OpenConnectionAsync();
         var table = await CreateTempTable(conn, "name TEXT");
-        using var command = new NpgsqlCommandOrig($"SELECT name FROM {table}", conn);
+        using var command = new NpgsqlCommand($"SELECT name FROM {table}", conn);
         Assert.That(command.ExecuteScalarAsync, Is.Null);
 
         await conn.ExecuteNonQueryAsync($"INSERT INTO {table} (name) VALUES (NULL)");
@@ -772,7 +773,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task ExecuteNonQuery()
     {
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig { Connection = conn };
+        using var cmd = new NpgsqlCommand { Connection = conn };
         var table = await CreateTempTable(conn, "name TEXT");
 
         cmd.CommandText = $"INSERT INTO {table} (name) VALUES ('John')";
@@ -789,7 +790,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task Dispose()
     {
         using var conn = await OpenConnectionAsync();
-        var cmd = new NpgsqlCommandOrig("SELECT 1", conn);
+        var cmd = new NpgsqlCommand("SELECT 1", conn);
         cmd.Dispose();
         Assert.That(() => cmd.ExecuteScalarAsync(), Throws.Exception.TypeOf<ObjectDisposedException>());
         Assert.That(() => cmd.ExecuteNonQueryAsync(), Throws.Exception.TypeOf<ObjectDisposedException>());
@@ -801,10 +802,10 @@ public class CommandTests : MultiplexingTestBase
     public async Task Command_Dispose_does_not_close_reader()
     {
         using var conn = await OpenConnectionAsync();
-        var cmd = new NpgsqlCommandOrig("SELECT 1, 2", conn);
+        var cmd = new NpgsqlCommand("SELECT 1, 2", conn);
         await cmd.ExecuteReaderAsync();
         cmd.Dispose();
-        cmd = new NpgsqlCommandOrig("SELECT 3", conn);
+        cmd = new NpgsqlCommand("SELECT 3", conn);
         Assert.That(() => cmd.ExecuteScalarAsync(), Throws.Exception.TypeOf<NpgsqlOperationInProgressException>());
     }
 
@@ -832,8 +833,8 @@ public class CommandTests : MultiplexingTestBase
     {
         using var conn = await OpenConnectionAsync();
         //Without parenthesis the meaning of [, . and potentially other characters is
-        //a syntax error. See comment in NpgsqlCommandOrig.GetClearCommandText() on "usually-redundant parenthesis".
-        using var command = new NpgsqlCommandOrig("select :arr[2]", conn);
+        //a syntax error. See comment in NpgsqlCommand.GetClearCommandText() on "usually-redundant parenthesis".
+        using var command = new NpgsqlCommand("select :arr[2]", conn);
         command.Parameters.AddWithValue(":arr", new int[] {5, 4, 3, 2, 1});
         using var rdr = await command.ExecuteReaderAsync();
         rdr.Read();
@@ -846,7 +847,7 @@ public class CommandTests : MultiplexingTestBase
     public async Task Statement_mapped_output_parameters(CommandBehavior behavior)
     {
         using var conn = await OpenConnectionAsync();
-        var command = new NpgsqlCommandOrig("select 3, 4 as param1, 5 as param2, 6;", conn);
+        var command = new NpgsqlCommand("select 3, 4 as param1, 5 as param2, 6;", conn);
 
         var p = new NpgsqlParameter("param2", NpgsqlDbType.Integer);
         p.Direction = ParameterDirection.Output;
@@ -891,10 +892,10 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;";
 
-        var command = new NpgsqlCommandOrig(createFunction, conn);
+        var command = new NpgsqlCommand(createFunction, conn);
         await command.ExecuteNonQueryAsync();
 
-        command = new NpgsqlCommandOrig(sproc, conn);
+        command = new NpgsqlCommand(sproc, conn);
         command.CommandType = CommandType.StoredProcedure;
 
         command.Parameters.Add(new NpgsqlParameter("a", DbType.Int32));
@@ -917,7 +918,7 @@ $$ LANGUAGE plpgsql;";
         using var conn = await OpenConnectionAsync();
         var table = await CreateTempTable(conn, "id SERIAL PRIMARY KEY, name TEXT");
 
-        var command = new NpgsqlCommandOrig($"SELECT * FROM {table}", conn);
+        var command = new NpgsqlCommand($"SELECT * FROM {table}", conn);
         Assert.AreEqual(UpdateRowSource.Both, command.UpdatedRowSource);
 
         var cmdBuilder = new NpgsqlCommandBuilder();
@@ -937,7 +938,7 @@ $$ LANGUAGE plpgsql;";
         var table = await CreateTempTable(conn, "name TEXT");
 
         await conn.ExecuteNonQueryAsync($"INSERT INTO {table} (name) VALUES ('foo')");
-        using var cmd = new NpgsqlCommandOrig(table, conn) { CommandType = CommandType.TableDirect };
+        using var cmd = new NpgsqlCommand(table, conn) { CommandType = CommandType.TableDirect };
         using var rdr = await cmd.ExecuteReaderAsync();
         Assert.That(rdr.Read(), Is.True);
         Assert.That(rdr["name"], Is.EqualTo("foo"));
@@ -949,7 +950,7 @@ $$ LANGUAGE plpgsql;";
     public async Task Input_and_output_parameters(CommandBehavior behavior)
     {
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT @c-1 AS c, @a+2 AS b", conn);
+        using var cmd = new NpgsqlCommand("SELECT @c-1 AS c, @a+2 AS b", conn);
         cmd.Parameters.Add(new NpgsqlParameter("a", 3));
         var b = new NpgsqlParameter { ParameterName = "b", Direction = ParameterDirection.Output };
         cmd.Parameters.Add(b);
@@ -969,7 +970,7 @@ $$ LANGUAGE plpgsql;";
             return;
 
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT @p::TIMESTAMP", conn);
+        using var cmd = new NpgsqlCommand("SELECT @p::TIMESTAMP", conn);
         cmd.CommandText = "SELECT @p::TIMESTAMP";
         cmd.Parameters.Add(new NpgsqlParameter("p", NpgsqlDbType.Unknown) { Value = "2008-1-1" });
         if (prepare == PrepareOrNot.Prepared)
@@ -996,7 +997,7 @@ $$ LANGUAGE plpgsql;";
 
         using var conn1 = await OpenConnectionAsync();
         using var conn2 = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT 1", conn1);
+        using var cmd = new NpgsqlCommand("SELECT 1", conn1);
         if (prepare == PrepareOrNot.Prepared)
             cmd.Prepare();
         cmd.Connection = conn2;
@@ -1010,8 +1011,8 @@ $$ LANGUAGE plpgsql;";
     [IssueLink("https://github.com/npgsql/npgsql/issues/565")]
     public async Task Create_command_before_connection_open()
     {
-        using var conn = new NpgsqlConnectionOrig(ConnectionString);
-        var cmd = new NpgsqlCommandOrig("SELECT 1", conn);
+        using var conn = new NpgsqlConnection(ConnectionString);
+        var cmd = new NpgsqlCommand("SELECT 1", conn);
         conn.Open();
         Assert.That(await cmd.ExecuteScalarAsync(), Is.EqualTo(1));
     }
@@ -1019,7 +1020,7 @@ $$ LANGUAGE plpgsql;";
     [Test]
     public void Connection_not_set_throws()
     {
-        var cmd = new NpgsqlCommandOrig("SELECT 1");
+        var cmd = new NpgsqlCommand("SELECT 1");
         Assert.That(() => cmd.ExecuteScalarAsync(), Throws.Exception.TypeOf<InvalidOperationException>());
     }
 
@@ -1027,7 +1028,7 @@ $$ LANGUAGE plpgsql;";
     public void Connection_not_open_throws()
     {
         using var conn = CreateConnection();
-        var cmd = new NpgsqlCommandOrig("SELECT 1", conn);
+        var cmd = new NpgsqlCommand("SELECT 1", conn);
         Assert.That(() => cmd.ExecuteScalarAsync(), Throws.Exception.TypeOf<InvalidOperationException>());
     }
 
@@ -1141,7 +1142,7 @@ $$ LANGUAGE plpgsql;";
 
         using var conn = await OpenConnectionAsync();
         var table = await CreateTempTable(conn, "some_column INT");
-        using var cmd = new NpgsqlCommandOrig { Connection = conn };
+        using var cmd = new NpgsqlCommand { Connection = conn };
         var sb = new StringBuilder($"INSERT INTO {table} (some_column) VALUES ");
         for (var i = 0; i < ushort.MaxValue; i++)
         {
@@ -1170,7 +1171,7 @@ $$ LANGUAGE plpgsql;";
             return;
 
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig { Connection = conn };
+        using var cmd = new NpgsqlCommand { Connection = conn };
         var sb = new StringBuilder("SOME RANDOM SQL ");
         for (var i = 0; i < ushort.MaxValue + 1; i++)
         {
@@ -1203,7 +1204,7 @@ $$ LANGUAGE plpgsql;";
     {
         // Create a command with 1000 statements which have 70 params each
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig { Connection = conn };
+        using var cmd = new NpgsqlCommand { Connection = conn };
         var paramIndex = 0;
         var sb = new StringBuilder();
         for (var statementIndex = 0; statementIndex < 1000; statementIndex++)
@@ -1238,7 +1239,7 @@ $$ LANGUAGE plpgsql;";
         var sb = new StringBuilder();
         for (var i = 0; i < 500; i++)
             sb.Append("SELECT @p;");
-        using var cmd = new NpgsqlCommandOrig(sb.ToString(), conn);
+        using var cmd = new NpgsqlCommand(sb.ToString(), conn);
         cmd.Parameters.AddWithValue("p", NpgsqlDbType.Text, data);
         using var reader = await cmd.ExecuteReaderAsync();
         for (var i = 0; i < 500; i++)
@@ -1260,7 +1261,7 @@ $$ LANGUAGE plpgsql;";
         // synchronously sending the 2nd statement while PG is stuck sending the results of the 1st.
         using var conn = OpenConnection();
         var data = new string('x', 5_000_000);
-        using var cmd = new NpgsqlCommandOrig("SELECT generate_series(1, 500000); SELECT @p", conn);
+        using var cmd = new NpgsqlCommand("SELECT generate_series(1, 500000); SELECT @p", conn);
         cmd.Parameters.AddWithValue("p", NpgsqlDbType.Text, data);
         cmd.ExecuteNonQuery();
     }
@@ -1269,7 +1270,7 @@ $$ LANGUAGE plpgsql;";
     public async Task Same_command_different_param_values()
     {
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT @p", conn);
+        using var cmd = new NpgsqlCommand("SELECT @p", conn);
         cmd.Parameters.AddWithValue("p", 8);
         await cmd.ExecuteNonQueryAsync();
 
@@ -1281,7 +1282,7 @@ $$ LANGUAGE plpgsql;";
     public async Task Same_command_different_param_instances()
     {
         using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT @p", conn);
+        using var cmd = new NpgsqlCommand("SELECT @p", conn);
         cmd.Parameters.AddWithValue("p", 8);
         await cmd.ExecuteNonQueryAsync();
 
@@ -1347,7 +1348,7 @@ $$ LANGUAGE plpgsql;";
 
         await using var conn = await OpenConnectionAsync();
 
-        await using var command = new NpgsqlCommandOrig("SELECT @p", conn);
+        await using var command = new NpgsqlCommand("SELECT @p", conn);
         command.Parameters.AddWithValue("p", 10);
         await command.ExecuteNonQueryAsync();
 
@@ -1414,7 +1415,7 @@ $$ LANGUAGE plpgsql;";
     {
         await using var dataSource = CreateLoggingDataSource(out var listLoggerProvider);
         await using var conn = await dataSource.OpenConnectionAsync();
-        await using var cmd = new NpgsqlCommandOrig("SELECT 1", conn);
+        await using var cmd = new NpgsqlCommand("SELECT 1", conn);
 
         using (listLoggerProvider.Record())
         {
@@ -1435,7 +1436,7 @@ $$ LANGUAGE plpgsql;";
     {
         await using var dataSource = CreateLoggingDataSource(out var listLoggerProvider);
         await using var conn = await dataSource.OpenConnectionAsync();
-        await using var cmd = new NpgsqlCommandOrig("SELECT $1, $2", conn);
+        await using var cmd = new NpgsqlCommand("SELECT $1, $2", conn);
         cmd.Parameters.Add(new() { Value = 8 });
         cmd.Parameters.Add(new() { NpgsqlDbType = NpgsqlDbType.Integer, Value = DBNull.Value });
 
@@ -1460,7 +1461,7 @@ $$ LANGUAGE plpgsql;";
     {
         await using var dataSource = CreateLoggingDataSource(out var listLoggerProvider);
         await using var conn = await dataSource.OpenConnectionAsync();
-        await using var cmd = new NpgsqlCommandOrig("SELECT @p1, @p2", conn);
+        await using var cmd = new NpgsqlCommand("SELECT @p1, @p2", conn);
         cmd.Parameters.Add(new() { ParameterName = "p1", Value = 8 });
         cmd.Parameters.Add(new() { ParameterName = "p2", NpgsqlDbType = NpgsqlDbType.Integer, Value = DBNull.Value });
 
@@ -1485,7 +1486,7 @@ $$ LANGUAGE plpgsql;";
     {
         await using var dataSource = CreateLoggingDataSource(out var listLoggerProvider, sensitiveDataLoggingEnabled: false);
         await using var conn = await dataSource.OpenConnectionAsync();
-        await using var cmd = new NpgsqlCommandOrig("SELECT $1, $2", conn);
+        await using var cmd = new NpgsqlCommand("SELECT $1, $2", conn);
         cmd.Parameters.Add(new() { Value = 8 });
         cmd.Parameters.Add(new() { Value = 9 });
 

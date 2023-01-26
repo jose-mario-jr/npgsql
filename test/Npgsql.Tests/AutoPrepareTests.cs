@@ -4,6 +4,7 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Npgsql.PlDotNET;
 using static Npgsql.Tests.TestUtil;
 
 namespace Npgsql.Tests;
@@ -21,13 +22,13 @@ public class AutoPrepareTests : TestBase
 
         using var conn = OpenConnection(csb);
         conn.UnprepareAll();
-        using var checkCmd = new NpgsqlCommandOrig(CountPreparedStatements, conn);
+        using var checkCmd = new NpgsqlCommand(CountPreparedStatements, conn);
         checkCmd.Prepare();
 
         conn.ExecuteNonQuery("SELECT 1");
         Assert.That(checkCmd.ExecuteScalar(), Is.EqualTo(0));
 
-        using (var cmd = new NpgsqlCommandOrig("SELECT 1", conn))
+        using (var cmd = new NpgsqlCommand("SELECT 1", conn))
         {
             Assert.That(cmd.IsPrepared, Is.False);
             cmd.ExecuteScalar();
@@ -38,7 +39,7 @@ public class AutoPrepareTests : TestBase
             Assert.That(checkCmd.ExecuteScalar(), Is.EqualTo(1));
         }
 
-        using (var cmd = new NpgsqlCommandOrig("SELECT 1", conn))
+        using (var cmd = new NpgsqlCommand("SELECT 1", conn))
         {
             cmd.ExecuteScalar();
             Assert.That(cmd.IsPrepared, Is.True);
@@ -57,16 +58,16 @@ public class AutoPrepareTests : TestBase
 
         using var conn = OpenConnection(csb);
         conn.UnprepareAll();
-        using var checkCmd = new NpgsqlCommandOrig(CountPreparedStatements, conn);
+        using var checkCmd = new NpgsqlCommand(CountPreparedStatements, conn);
         checkCmd.Prepare();
 
         Assert.That(checkCmd.ExecuteScalar(), Is.EqualTo(0));
-        var cmd1 = new NpgsqlCommandOrig("SELECT 1", conn);
+        var cmd1 = new NpgsqlCommand("SELECT 1", conn);
         cmd1.ExecuteNonQuery(); cmd1.ExecuteNonQuery();
         Assert.That(cmd1.IsPrepared, Is.True);
         Assert.That(checkCmd.ExecuteScalar(), Is.EqualTo(1));
 
-        var cmd2 = new NpgsqlCommandOrig("SELECT 2", conn);
+        var cmd2 = new NpgsqlCommand("SELECT 2", conn);
         cmd2.ExecuteNonQuery(); cmd2.ExecuteNonQuery();
         Assert.That(cmd2.IsPrepared, Is.True);
         Assert.That(checkCmd.ExecuteScalar(), Is.EqualTo(2));
@@ -79,7 +80,7 @@ public class AutoPrepareTests : TestBase
 
         cmd2.ExecuteNonQuery();
         Assert.That(cmd2.IsPrepared, Is.False);
-        using (var getTextCmd = new NpgsqlCommandOrig("SELECT statement FROM pg_prepared_statements WHERE statement NOT LIKE '%COUNT%' ORDER BY statement", conn))
+        using (var getTextCmd = new NpgsqlCommand("SELECT statement FROM pg_prepared_statements WHERE statement NOT LIKE '%COUNT%' ORDER BY statement", conn))
         using (var reader = getTextCmd.ExecuteReader())
         {
             Assert.That(reader.Read(), Is.True);
@@ -101,7 +102,7 @@ public class AutoPrepareTests : TestBase
         using var _ = CreateTempPool(csb, out var connString);
 
         using (var conn = OpenConnection(connString))
-        using (var checkCmd = new NpgsqlCommandOrig(CountPreparedStatements, conn))
+        using (var checkCmd = new NpgsqlCommand(CountPreparedStatements, conn))
         {
             checkCmd.Prepare();
             conn.ExecuteNonQuery("SELECT 1"); conn.ExecuteNonQuery("SELECT 1");
@@ -111,11 +112,11 @@ public class AutoPrepareTests : TestBase
         // We now have two prepared statements which should be persisted
 
         using (var conn = OpenConnection(connString))
-        using (var checkCmd = new NpgsqlCommandOrig(CountPreparedStatements, conn))
+        using (var checkCmd = new NpgsqlCommand(CountPreparedStatements, conn))
         {
             checkCmd.Prepare();
             Assert.That(checkCmd.ExecuteScalar(), Is.EqualTo(1));
-            using (var cmd = new NpgsqlCommandOrig("SELECT 1", conn))
+            using (var cmd = new NpgsqlCommand("SELECT 1", conn))
             {
                 cmd.ExecuteScalar();
                 //Assert.That(cmd.IsPrepared);
@@ -135,10 +136,10 @@ public class AutoPrepareTests : TestBase
 
         await using var conn = await OpenConnectionAsync(csb);
         conn.UnprepareAll();
-        await using var checkCmd = new NpgsqlCommandOrig(CountPreparedStatements, conn);
+        await using var checkCmd = new NpgsqlCommand(CountPreparedStatements, conn);
         await checkCmd.PrepareAsync();
 
-        await using var cmd = new NpgsqlCommandOrig("SELECT $1", conn);
+        await using var cmd = new NpgsqlCommand("SELECT $1", conn);
         cmd.Parameters.Add(new NpgsqlParameter { NpgsqlDbType = NpgsqlDbType.Integer, Value = 8 });
 
         Assert.That(cmd.IsPrepared, Is.False);
@@ -160,9 +161,9 @@ public class AutoPrepareTests : TestBase
         };
         using var conn = OpenConnection(csb);
         conn.UnprepareAll();
-        using var checkCmd = new NpgsqlCommandOrig(CountPreparedStatements, conn);
-        using var cmd1 = new NpgsqlCommandOrig("SELECT 1", conn);
-        using var cmd2 = new NpgsqlCommandOrig("SELECT 1", conn);
+        using var checkCmd = new NpgsqlCommand(CountPreparedStatements, conn);
+        using var cmd1 = new NpgsqlCommand("SELECT 1", conn);
+        using var cmd2 = new NpgsqlCommand("SELECT 1", conn);
         checkCmd.Prepare();
 
         cmd1.ExecuteNonQuery(); cmd1.ExecuteNonQuery();
@@ -230,7 +231,7 @@ public class AutoPrepareTests : TestBase
         };
         using var conn = OpenConnection(csb);
         conn.UnprepareAll();
-        using var cmd = new NpgsqlCommandOrig("SELECT 1; SELECT 1; SELECT 1; SELECT 1", conn);
+        using var cmd = new NpgsqlCommand("SELECT 1; SELECT 1; SELECT 1; SELECT 1", conn);
         //cmd.Prepare();
         //Assert.That(cmd.IsPrepared, Is.True);
         cmd.ExecuteNonQuery();
@@ -246,9 +247,9 @@ public class AutoPrepareTests : TestBase
             AutoPrepareMinUsages = 2
         };
         using var _ = CreateTempPool(csb, out var connString);
-        using var conn1 = new NpgsqlConnectionOrig(connString);
-        using var conn2 = new NpgsqlConnectionOrig(connString);
-        using var cmd = new NpgsqlCommandOrig("SELECT 1", conn1);
+        using var conn1 = new NpgsqlConnection(connString);
+        using var conn2 = new NpgsqlConnection(connString);
+        using var cmd = new NpgsqlCommand("SELECT 1", conn1);
         conn1.Open();
         cmd.ExecuteNonQuery(); cmd.ExecuteNonQuery();
         Assert.That(cmd.IsPrepared, Is.True);
@@ -274,7 +275,7 @@ public class AutoPrepareTests : TestBase
 
         using var conn = OpenConnection(csb);
         conn.UnprepareAll();
-        using var cmd = new NpgsqlCommandOrig("SELECT 1", conn);
+        using var cmd = new NpgsqlCommand("SELECT 1", conn);
         cmd.Prepare();  // Explicit
         conn.ExecuteNonQuery("SELECT 2"); conn.ExecuteNonQuery("SELECT 2");  // Auto
         Assert.That(conn.ExecuteScalar(CountPreparedStatements), Is.EqualTo(2));
@@ -293,14 +294,14 @@ public class AutoPrepareTests : TestBase
 
         using var conn = OpenConnection(csb);
         conn.UnprepareAll();
-        using (var cmd = new NpgsqlCommandOrig("SELECT @p", conn))
+        using (var cmd = new NpgsqlCommand("SELECT @p", conn))
         {
             cmd.Parameters.AddWithValue("p", NpgsqlDbType.Integer, 8);
             cmd.ExecuteNonQuery();
             cmd.ExecuteNonQuery();
             Assert.That(cmd.IsPrepared, Is.True);
         }
-        using (var cmd = new NpgsqlCommandOrig("SELECT @p", conn))
+        using (var cmd = new NpgsqlCommand("SELECT @p", conn))
         {
             cmd.Parameters.AddWithValue("p", NpgsqlDbType.Text, "foo");
             Assert.That(cmd.ExecuteScalar(), Is.EqualTo("foo"));
@@ -327,8 +328,8 @@ public class AutoPrepareTests : TestBase
 
         using var conn = OpenConnection(csb);
         conn.UnprepareAll();
-        using var checkCmd = new NpgsqlCommandOrig(CountPreparedStatements, conn);
-        using var cmd = new NpgsqlCommandOrig(query, conn);
+        using var checkCmd = new NpgsqlCommand(CountPreparedStatements, conn);
+        using var cmd = new NpgsqlCommand(query, conn);
         checkCmd.Prepare();
         cmd.Parameters.AddWithValue("@p", NpgsqlDbType.Integer, answer);
         cmd.ExecuteNonQuery(); cmd.ExecuteNonQuery(); // cmd1 is now autoprepared
@@ -358,8 +359,8 @@ public class AutoPrepareTests : TestBase
         };
         using var conn = OpenConnection(csb);
         conn.UnprepareAll();
-        using var cmd1 = new NpgsqlCommandOrig("SELECT 1 AS foo", conn);
-        using var cmd2 = new NpgsqlCommandOrig("SELECT 1 AS bar", conn);
+        using var cmd1 = new NpgsqlCommand("SELECT 1 AS foo", conn);
+        using var cmd2 = new NpgsqlCommand("SELECT 1 AS bar", conn);
 
         cmd1.ExecuteNonQuery();
         cmd1.ExecuteNonQuery();  // Query is now auto-prepared
@@ -448,7 +449,7 @@ SELECT COUNT(*) FROM pg_prepared_statements
         conn.UnprepareAll();
         await conn.ExecuteNonQueryAsync($"CREATE TABLE {tableName} (id integer)");
 
-        using (var command = new NpgsqlCommandOrig($"INSERT INTO {tableName} (id) VALUES (1)", conn))
+        using (var command = new NpgsqlCommand($"INSERT INTO {tableName} (id) VALUES (1)", conn))
         {
             await command.ExecuteNonQueryAsync();
             await conn.ExecuteNonQueryAsync($"DROP TABLE {tableName}");
@@ -457,7 +458,7 @@ SELECT COUNT(*) FROM pg_prepared_statements
 
         await conn.ExecuteNonQueryAsync($"CREATE TABLE {tableName} (id integer)");
 
-        using (var command = new NpgsqlCommandOrig($"INSERT INTO {tableName} (id) VALUES (1)", conn))
+        using (var command = new NpgsqlCommand($"INSERT INTO {tableName} (id) VALUES (1)", conn))
         {
             await command.ExecuteNonQueryAsync();
             await command.ExecuteNonQueryAsync();
@@ -553,7 +554,7 @@ SELECT COUNT(*) FROM pg_prepared_statements
 
         using var _ = CreateTempPool(csb, out var connString);
         await using var conn = await OpenConnectionAsync(connString);
-        await using var cmd = new NpgsqlCommandOrig("SELECT 1", conn);
+        await using var cmd = new NpgsqlCommand("SELECT 1", conn);
 
         for (var i = 0; i < 5; i++)
         {
@@ -573,7 +574,7 @@ SELECT COUNT(*) FROM pg_prepared_statements
         await using var connection = await OpenConnectionAsync(csb);
         var table = await CreateTempTable(connection, "foo int");
 
-        await using var command = new NpgsqlCommandOrig($"SELECT * FROM {table}", connection);
+        await using var command = new NpgsqlCommand($"SELECT * FROM {table}", connection);
         for (var i = 0; i < 2; i++)
             await command.ExecuteNonQueryAsync();
 
@@ -587,9 +588,9 @@ SELECT COUNT(*) FROM pg_prepared_statements
         Assert.DoesNotThrowAsync(() => command.ExecuteNonQueryAsync());
     }
 
-    void DumpPreparedStatements(NpgsqlConnectionOrig conn)
+    void DumpPreparedStatements(NpgsqlConnection conn)
     {
-        using var cmd = new NpgsqlCommandOrig("SELECT name,statement FROM pg_prepared_statements", conn);
+        using var cmd = new NpgsqlCommand("SELECT name,statement FROM pg_prepared_statements", conn);
         using var reader = cmd.ExecuteReader();
         while (reader.Read())
             Console.WriteLine($"{reader.GetString(0)}: {reader.GetString(1)}");

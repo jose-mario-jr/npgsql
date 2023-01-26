@@ -19,7 +19,7 @@ public partial class CompositeHandlerTests
     {
         await using var dataSource = await OpenAndMapComposite(composite, schema, nameof(Write), out var _);
         await using var connection = await dataSource.OpenConnectionAsync();
-        await using var command = new NpgsqlCommandOrig("SELECT (@c).*", connection);
+        await using var command = new NpgsqlCommand("SELECT (@c).*", connection);
 
         command.Parameters.AddWithValue("c", composite);
         await using var reader = await command.ExecuteReaderAsync();

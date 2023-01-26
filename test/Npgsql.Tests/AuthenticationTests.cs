@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Npgsql.PlDotNET;
 using Npgsql.Properties;
 using Npgsql.Tests.Support;
 using NUnit.Framework;
@@ -295,7 +296,7 @@ public class AuthenticationTests : MultiplexingTestBase
             Password = "bad"
         };
         using (CreateTempPool(builder, out var connectionString))
-        using (var conn = new NpgsqlConnectionOrig(connectionString))
+        using (var conn = new NpgsqlConnection(connectionString))
         {
             Assert.That(() => conn.OpenAsync(), Throws.Exception
                 .TypeOf<PostgresException>()
@@ -326,14 +327,14 @@ public class AuthenticationTests : MultiplexingTestBase
     public void Pool_by_password()
     {
         using var _ = CreateTempPool(ConnectionString, out var connectionString);
-        using (var goodConn = new NpgsqlConnectionOrig(connectionString))
+        using (var goodConn = new NpgsqlConnection(connectionString))
             goodConn.Open();
 
         var badConnectionString = new NpgsqlConnectionStringBuilder(connectionString)
         {
             Password = "badpasswd"
         }.ConnectionString;
-        using (var conn = new NpgsqlConnectionOrig(badConnectionString))
+        using (var conn = new NpgsqlConnection(badConnectionString))
             Assert.That(conn.Open, Throws.Exception.TypeOf<PostgresException>());
     }
 
@@ -361,14 +362,14 @@ public class AuthenticationTests : MultiplexingTestBase
 
         Assume.That(goodPassword, Is.Not.Null);
 
-        using (var conn = new NpgsqlConnectionOrig(builder.ConnectionString) { ProvidePasswordCallback = ProvidePasswordCallback })
+        using (var conn = new NpgsqlConnection(builder.ConnectionString) { ProvidePasswordCallback = ProvidePasswordCallback })
         {
             conn.Open();
             Assert.True(getPasswordDelegateWasCalled, "ProvidePasswordCallback delegate not used");
 
             // Do this again, since with multiplexing the very first connection attempt is done via
             // the non-multiplexing path, to surface any exceptions.
-            NpgsqlConnectionOrig.ClearPool(conn);
+            NpgsqlConnection.ClearPool(conn);
             conn.Close();
             getPasswordDelegateWasCalled = false;
             conn.Open();
@@ -388,13 +389,13 @@ public class AuthenticationTests : MultiplexingTestBase
     {
         using var _ = CreateTempPool(ConnectionString, out var connString);
 
-        using (var conn = new NpgsqlConnectionOrig(connString) { ProvidePasswordCallback = ProvidePasswordCallback })
+        using (var conn = new NpgsqlConnection(connString) { ProvidePasswordCallback = ProvidePasswordCallback })
         {
             conn.Open();
 
             // Do this again, since with multiplexing the very first connection attempt is done via
             // the non-multiplexing path, to surface any exceptions.
-            NpgsqlConnectionOrig.ClearPool(conn);
+            NpgsqlConnection.ClearPool(conn);
             conn.Close();
             conn.Open();
         }
@@ -414,7 +415,7 @@ public class AuthenticationTests : MultiplexingTestBase
             Password = null
         };
 
-        using (var conn = new NpgsqlConnectionOrig(builder.ConnectionString) { ProvidePasswordCallback = ProvidePasswordCallback })
+        using (var conn = new NpgsqlConnection(builder.ConnectionString) { ProvidePasswordCallback = ProvidePasswordCallback })
         {
             Assert.That(() => conn.Open(), Throws.Exception
                 .TypeOf<NpgsqlException>()
@@ -443,7 +444,7 @@ public class AuthenticationTests : MultiplexingTestBase
         string? receivedDatabase = null;
         string? receivedUsername = null;
 
-        using (var conn = new NpgsqlConnectionOrig(builder.ConnectionString) { ProvidePasswordCallback = ProvidePasswordCallback })
+        using (var conn = new NpgsqlConnection(builder.ConnectionString) { ProvidePasswordCallback = ProvidePasswordCallback })
         {
             conn.Open();
             Assert.AreEqual(builder.Host, receivedHost);

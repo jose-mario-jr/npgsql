@@ -52,7 +52,7 @@ public class ConnectionTests : MultiplexingTestBase
         Assert.That(conn.FullState, Is.EqualTo(ConnectionState.Open));
         Assert.That(eventOpen, Is.True);
 
-        await using (var cmd = new NpgsqlCommandOrig("SELECT 1", conn))
+        await using (var cmd = new NpgsqlCommand("SELECT 1", conn))
         await using (var reader = await cmd.ExecuteReaderAsync())
         {
             await reader.ReadAsync();
@@ -750,7 +750,7 @@ public class ConnectionTests : MultiplexingTestBase
     {
         using var conn = await OpenConnectionAsync();
         conn.ChangeDatabase("template1");
-        using var cmd = new NpgsqlCommandOrig("select current_database()", conn);
+        using var cmd = new NpgsqlCommand("select current_database()", conn);
         Assert.That(await cmd.ExecuteScalarAsync(), Is.EqualTo("template1"));
     }
 
@@ -792,7 +792,7 @@ public class ConnectionTests : MultiplexingTestBase
         }
 
         using var conn = await OpenConnectionAsync(csb);
-        using (var cmd = new NpgsqlCommandOrig("SELECT 1", conn))
+        using (var cmd = new NpgsqlCommand("SELECT 1", conn))
         using (var reader = await cmd.ExecuteReaderAsync())
         {
             reader.Read();
@@ -831,7 +831,7 @@ public class ConnectionTests : MultiplexingTestBase
     [Test]
     public async Task Connector_not_initialized_exception()
     {
-        var command = new NpgsqlCommandOrig();
+        var command = new NpgsqlCommand();
         command.CommandText = @"SELECT 123";
 
         for (var i = 0; i < 2; i++)
@@ -916,7 +916,7 @@ LANGUAGE 'plpgsql'");
         if (IsMultiplexing)
             Assert.Ignore("Multiplexing: fails");
         using var conn = await OpenConnectionAsync();
-        using (var cmd = new NpgsqlCommandOrig("SELECT 1", conn))
+        using (var cmd = new NpgsqlCommand("SELECT 1", conn))
         using (await cmd.ExecuteReaderAsync())
             Assert.That(async () => await conn.ExecuteScalarAsync("SELECT 2"),
                 Throws.Exception.TypeOf<NpgsqlOperationInProgressException>()
@@ -1197,7 +1197,7 @@ LANGUAGE 'plpgsql'");
         }
         else
         {
-            using var cmd = new NpgsqlCommandOrig("SELECT $1", conn)
+            using var cmd = new NpgsqlCommand("SELECT $1", conn)
             {
                 Parameters = { new() { Value = DBNull.Value, NpgsqlDbType = NpgsqlDbType.IntegerMultirange } }
             };
@@ -1304,7 +1304,7 @@ CREATE TABLE record ()");
 
             // Read a big row, we should now be using an oversize buffer
             var bigString1 = new string('x', conn.Connector.ReadBuffer.Size + 1);
-            using (var cmd = new NpgsqlCommandOrig($"SELECT '{bigString1}'", conn))
+            using (var cmd = new NpgsqlCommand($"SELECT '{bigString1}'", conn))
             using (var reader = await cmd.ExecuteReaderAsync())
             {
                 reader.Read();
@@ -1315,7 +1315,7 @@ CREATE TABLE record ()");
 
             // Even bigger oversize buffer
             var bigString2 = new string('x', conn.Connector.ReadBuffer.Size + 1);
-            using (var cmd = new NpgsqlCommandOrig($"SELECT '{bigString2}'", conn))
+            using (var cmd = new NpgsqlCommand($"SELECT '{bigString2}'", conn))
             using (var reader = await cmd.ExecuteReaderAsync())
             {
                 reader.Read();
@@ -1534,7 +1534,7 @@ CREATE TABLE record ()");
     public async Task PhysicalConnectionInitializer_async_throws_on_second_open()
     {
         // With multiplexing a physical connection might open on NpgsqlConnection.OpenAsync (if there was no completed bootstrap beforehand)
-        // or on NpgsqlCommandOrig.ExecuteReaderAsync.
+        // or on NpgsqlCommand.ExecuteReaderAsync.
         // We've already tested the first case in PhysicalConnectionInitializer_async_throws above, testing the second one below.
         await using var adminConn = await OpenConnectionAsync();
 

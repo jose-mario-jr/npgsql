@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Npgsql.Internal;
+using Npgsql.PlDotNET;
 using NpgsqlTypes;
 using NUnit.Framework;
 using static Npgsql.Tests.TestUtil;
@@ -71,7 +72,7 @@ public class CopyTests : MultiplexingTestBase
 
             // Preload some data into the table
             using (var cmd =
-                   new NpgsqlCommandOrig($"INSERT INTO {table} (field_text, field_int4) VALUES (@p1, @p2)", conn))
+                   new NpgsqlCommand($"INSERT INTO {table} (field_text, field_int4) VALUES (@p1, @p2)", conn))
             {
                 cmd.Parameters.AddWithValue("p1", NpgsqlDbType.Text, "HELLO");
                 cmd.Parameters.AddWithValue("p2", NpgsqlDbType.Integer, 8);
@@ -180,7 +181,7 @@ INSERT INTO {table} (field_text, field_int4) VALUES ('HELLO', 8)");
         var len = 0;
 
         // Insert a blob with a regular insert
-        using (var cmd = new NpgsqlCommandOrig($"INSERT INTO {table} (blob) VALUES (@p)", conn))
+        using (var cmd = new NpgsqlCommand($"INSERT INTO {table} (blob) VALUES (@p)", conn))
         {
             cmd.Parameters.AddWithValue("p", data);
             await cmd.ExecuteNonQueryAsync();
@@ -515,7 +516,7 @@ INSERT INTO {table} (field_text, field_int4) VALUES ('HELLO', 8)");
         using var conn = await OpenConnectionAsync();
         var len = conn.Settings.WriteBufferSize;
         var table = await CreateTempTable(conn, "foo1 TEXT, foo2 TEXT, foo3 TEXT, foo4 TEXT, foo5 TEXT");
-        using (var cmd = new NpgsqlCommandOrig($"INSERT INTO {table} VALUES (@p, @p, @p, @p, @p)", conn))
+        using (var cmd = new NpgsqlCommand($"INSERT INTO {table} VALUES (@p, @p, @p, @p, @p)", conn))
         {
             cmd.Parameters.AddWithValue("p", new string('x', len));
             for (var i = 0; i < iterations; i++)
@@ -1015,7 +1016,7 @@ INSERT INTO {table} (field_text, field_int4) VALUES ('HELLO', 1)");
             var rowsWritten = writer.Complete();
             Assert.That(rowsWritten, Is.EqualTo(1));
         }
-        using (var cmd = new NpgsqlCommandOrig($"SELECT foo1,foo2,foo3,foo4 FROM {table}", conn))
+        using (var cmd = new NpgsqlCommand($"SELECT foo1,foo2,foo3,foo4 FROM {table}", conn))
         using (var reader = await cmd.ExecuteReaderAsync())
         {
             Assert.That(reader.Read(), Is.True);
@@ -1103,7 +1104,7 @@ INSERT INTO {table} (field_text, field_int4) VALUES ('HELLO', 1)");
     /// <summary>
     /// Checks that the connector state is properly managed for COPY operations
     /// </summary>
-    void StateAssertions(NpgsqlConnectionOrig conn)
+    void StateAssertions(NpgsqlConnection conn)
     {
         Assert.That(conn.Connector!.State, Is.EqualTo(ConnectorState.Copy));
         Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));

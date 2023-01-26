@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using Npgsql.PlDotNET;
 using Npgsql.Properties;
 using static Npgsql.Tests.Support.MockState;
 using static Npgsql.Tests.TestUtil;
@@ -833,7 +834,7 @@ public class MultipleHostsTests : TestBase
 
         async Task Query(string connectionString)
         {
-            await using var conn = new NpgsqlConnectionOrig(connectionString);
+            await using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
 
             await using var cmd = conn.CreateCommand();

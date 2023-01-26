@@ -2,6 +2,7 @@
 using System.Data;
 using System.Threading.Tasks;
 using Npgsql.Internal;
+using Npgsql.PlDotNET;
 using Npgsql.Tests.Support;
 using Npgsql.Util;
 using NUnit.Framework;
@@ -26,7 +27,7 @@ public class TransactionTests : MultiplexingTestBase
         var tx = await conn.BeginTransactionAsync();
         await using (tx)
         {
-            var cmd = new NpgsqlCommandOrig($"INSERT INTO {table} (name) VALUES ('X')", conn, tx);
+            var cmd = new NpgsqlCommand($"INSERT INTO {table} (name) VALUES ('X')", conn, tx);
             if (prepare == PrepareOrNot.Prepared)
                 cmd.Prepare();
             cmd.ExecuteNonQuery();
@@ -55,7 +56,7 @@ public class TransactionTests : MultiplexingTestBase
         var tx = await conn.BeginTransactionAsync();
         await using (tx)
         {
-            var cmd = new NpgsqlCommandOrig($"INSERT INTO {table} (name) VALUES ('X')", conn, tx);
+            var cmd = new NpgsqlCommand($"INSERT INTO {table} (name) VALUES ('X')", conn, tx);
             if (prepare == PrepareOrNot.Prepared)
                 cmd.Prepare();
             await cmd.ExecuteNonQueryAsync();
@@ -81,7 +82,7 @@ public class TransactionTests : MultiplexingTestBase
         var tx = await conn.BeginTransactionAsync();
         await using (tx)
         {
-            var cmd = new NpgsqlCommandOrig($"INSERT INTO {table} (name) VALUES ('X')", conn, tx);
+            var cmd = new NpgsqlCommand($"INSERT INTO {table} (name) VALUES ('X')", conn, tx);
             if (prepare == PrepareOrNot.Prepared)
                 cmd.Prepare();
             cmd.ExecuteNonQuery();
@@ -107,7 +108,7 @@ public class TransactionTests : MultiplexingTestBase
         var tx = await conn.BeginTransactionAsync();
         await using (tx)
         {
-            var cmd = new NpgsqlCommandOrig($"INSERT INTO {table} (name) VALUES ('X')", conn, tx);
+            var cmd = new NpgsqlCommand($"INSERT INTO {table} (name) VALUES ('X')", conn, tx);
             if (prepare == PrepareOrNot.Prepared)
                 cmd.Prepare();
             await cmd.ExecuteNonQueryAsync();
@@ -272,7 +273,7 @@ public class TransactionTests : MultiplexingTestBase
     [Test]
     public void Begin_transaction_on_closed_connection_throws()
     {
-        using var conn = new NpgsqlConnectionOrig();
+        using var conn = new NpgsqlConnection();
         Assert.That(() => conn.BeginTransaction(), Throws.Exception.TypeOf<InvalidOperationException>());
     }
 
@@ -282,7 +283,7 @@ public class TransactionTests : MultiplexingTestBase
         await using var conn = await OpenConnectionAsync();
 
         var tx = conn.BeginTransaction();
-        using var cmd = new NpgsqlCommandOrig("BAD QUERY", conn, tx);
+        using var cmd = new NpgsqlCommand("BAD QUERY", conn, tx);
         Assert.That(cmd.CommandTimeout != 1);
         cmd.CommandTimeout = 1;
         try
@@ -308,7 +309,7 @@ public class TransactionTests : MultiplexingTestBase
         var transaction = conn.BeginTransaction();
         transaction.Save("TestSavePoint");
 
-        using var cmd = new NpgsqlCommandOrig("SELECT unknown_thing", conn);
+        using var cmd = new NpgsqlCommand("SELECT unknown_thing", conn);
         cmd.CommandTimeout = 1;
         try
         {
@@ -334,9 +335,9 @@ public class TransactionTests : MultiplexingTestBase
 
         conn.BeginTransaction();
         var backendProcessId = conn.ProcessID;
-        using (var badCmd = new NpgsqlCommandOrig("SEL", conn))
+        using (var badCmd = new NpgsqlCommand("SEL", conn))
         {
-            badCmd.CommandTimeout = NpgsqlCommandOrig.DefaultTimeout + 1;
+            badCmd.CommandTimeout = NpgsqlCommand.DefaultTimeout + 1;
             Assert.That(() => badCmd.ExecuteNonQuery(), Throws.Exception.TypeOf<PostgresException>());
         }
         // Connection now in failed transaction state, and a custom timeout is in place
@@ -354,7 +355,7 @@ public class TransactionTests : MultiplexingTestBase
             Assert.Ignore("Multiplexing: fails");
 
         // Use application name to make sure we have our very own private connection pool
-        await using var conn = new NpgsqlConnectionOrig(ConnectionString + $";Application Name={GetUniqueIdentifier(nameof(Transaction_on_recycled_connection))}");
+        await using var conn = new NpgsqlConnection(ConnectionString + $";Application Name={GetUniqueIdentifier(nameof(Transaction_on_recycled_connection))}");
         conn.Open();
         var prevConnectorId = conn.Connector!.Id;
         conn.Close();
@@ -363,7 +364,7 @@ public class TransactionTests : MultiplexingTestBase
         var tx = conn.BeginTransaction();
         conn.ExecuteScalar("SELECT 1");
         await tx.CommitAsync();
-        NpgsqlConnectionOrig.ClearPool(conn);
+        NpgsqlConnection.ClearPool(conn);
     }
 
     [Test]
@@ -529,7 +530,7 @@ public class TransactionTests : MultiplexingTestBase
 
         using (var conn = await OpenConnectionAsync(connString))
         {
-            NpgsqlConnectionOrig.ClearPool(conn);
+            NpgsqlConnection.ClearPool(conn);
             conn.ReloadTypes();
         }
 
@@ -729,11 +730,11 @@ public class TransactionTests : MultiplexingTestBase
         var csb = new NpgsqlConnectionStringBuilder(ConnectionString);
         csb.CommandTimeout = 100000;
 
-        using var connTimeoutChanged = new NpgsqlConnectionOrig(csb.ToString());
+        using var connTimeoutChanged = new NpgsqlConnection(csb.ToString());
         connTimeoutChanged.Open();
         using var t = connTimeoutChanged.BeginTransaction();
         try {
-            var command = new NpgsqlCommandOrig("select count(*) from dta", connTimeoutChanged, t);
+            var command = new NpgsqlCommand("select count(*) from dta", connTimeoutChanged, t);
             _ = command.ExecuteScalar();
         } catch (Exception) {
             t.Rollback();

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Npgsql.PlDotNET;
 using NUnit.Framework;
 
 namespace Npgsql.Tests;
@@ -57,7 +58,7 @@ public static class TestUtil
         MinimumPgVersion(connection, minVersion, ignoreText);
     }
 
-    public static void MinimumPgVersion(NpgsqlConnectionOrig conn, string minVersion, string? ignoreText = null)
+    public static void MinimumPgVersion(NpgsqlConnection conn, string minVersion, string? ignoreText = null)
     {
         var min = new Version(minVersion);
         if (conn.PostgreSqlVersion < min)
@@ -69,7 +70,7 @@ public static class TestUtil
         }
     }
 
-    public static void MaximumPgVersionExclusive(NpgsqlConnectionOrig conn, string maxVersion, string? ignoreText = null)
+    public static void MaximumPgVersionExclusive(NpgsqlConnection conn, string maxVersion, string? ignoreText = null)
     {
         var max = new Version(maxVersion);
         if (conn.PostgreSqlVersion >= max)
@@ -83,7 +84,7 @@ public static class TestUtil
 
     static readonly Version MinCreateExtensionVersion = new(9, 1);
 
-    public static void IgnoreOnRedshift(NpgsqlConnectionOrig conn, string? ignoreText = null)
+    public static void IgnoreOnRedshift(NpgsqlConnection conn, string? ignoreText = null)
     {
         if (new NpgsqlConnectionStringBuilder(conn.ConnectionString).ServerCompatibilityMode == ServerCompatibilityMode.Redshift)
         {
@@ -94,16 +95,16 @@ public static class TestUtil
         }
     }
 
-    public static bool IsPgPrerelease(NpgsqlConnectionOrig conn)
+    public static bool IsPgPrerelease(NpgsqlConnection conn)
         => ((string)conn.ExecuteScalar("SELECT version()")!).Contains("beta");
 
-    public static void EnsureExtension(NpgsqlConnectionOrig conn, string extension, string? minVersion = null)
+    public static void EnsureExtension(NpgsqlConnection conn, string extension, string? minVersion = null)
         => EnsureExtension(conn, extension, minVersion, async: false).GetAwaiter().GetResult();
 
-    public static Task EnsureExtensionAsync(NpgsqlConnectionOrig conn, string extension, string? minVersion = null)
+    public static Task EnsureExtensionAsync(NpgsqlConnection conn, string extension, string? minVersion = null)
         => EnsureExtension(conn, extension, minVersion, async: true);
 
-    static async Task EnsureExtension(NpgsqlConnectionOrig conn, string extension, string? minVersion, bool async)
+    static async Task EnsureExtension(NpgsqlConnection conn, string extension, string? minVersion, bool async)
     {
         if (minVersion != null)
             MinimumPgVersion(conn, minVersion, $"The extension '{extension}' only works for PostgreSQL {minVersion} and higher.");
@@ -120,7 +121,7 @@ public static class TestUtil
 
         // Multiplexing doesn't really support reloading types, since each connector uses its own connector type mapper when reading,
         // which is different from the pool-wise connector mapper (which is used when writing).
-        NpgsqlConnectionOrig.ClearPool(conn);
+        NpgsqlConnection.ClearPool(conn);
     }
 
     /// <summary>
@@ -129,7 +130,7 @@ public static class TestUtil
     /// <param name="conn">The connection to execute the test query. The connection needs to be open.</param>
     /// <param name="testQuery">The query to test for the feature.
     /// This query needs to fail with SqlState 0A000 (feature_not_supported) if the feature isn't present.</param>
-    public static void IgnoreIfFeatureNotSupported(NpgsqlConnectionOrig conn, string testQuery)
+    public static void IgnoreIfFeatureNotSupported(NpgsqlConnection conn, string testQuery)
         => IgnoreIfFeatureNotSupported(conn, testQuery, async: false).GetAwaiter().GetResult();
 
     /// <summary>
@@ -138,10 +139,10 @@ public static class TestUtil
     /// <param name="conn">The connection to execute the test query. The connection needs to be open.</param>
     /// <param name="testQuery">The query to test for the feature.
     /// This query needs to fail with SqlState 0A000 (feature_not_supported) if the feature isn't present.</param>
-    public static Task IgnoreIfFeatureNotSupportedAsync(NpgsqlConnectionOrig conn, string testQuery)
+    public static Task IgnoreIfFeatureNotSupportedAsync(NpgsqlConnection conn, string testQuery)
         => IgnoreIfFeatureNotSupported(conn, testQuery, async: true);
 
-    static async Task IgnoreIfFeatureNotSupported(NpgsqlConnectionOrig conn, string testQuery, bool async)
+    static async Task IgnoreIfFeatureNotSupported(NpgsqlConnection conn, string testQuery, bool async)
     {
         try
         {
@@ -156,7 +157,7 @@ public static class TestUtil
         }
     }
 
-    public static async Task EnsurePostgis(NpgsqlConnectionOrig conn)
+    public static async Task EnsurePostgis(NpgsqlConnection conn)
     {
         try
         {
@@ -180,7 +181,7 @@ public static class TestUtil
     /// <summary>
     /// Creates a table with a unique name, usable for a single test.
     /// </summary>
-    internal static async Task<string> CreateTempTable(NpgsqlConnectionOrig conn, string columns)
+    internal static async Task<string> CreateTempTable(NpgsqlConnection conn, string columns)
     {
         var tableName = "temp_table" + Interlocked.Increment(ref _tempTableCounter);
 
@@ -198,7 +199,7 @@ CREATE TABLE {tableName} ({columns});");
     /// Generates a unique table name, usable for a single test, and drops it if it already exists.
     /// Actual creation of the table is the responsibility of the caller.
     /// </summary>
-    internal static async Task<string> GetTempTableName(NpgsqlConnectionOrig conn)
+    internal static async Task<string> GetTempTableName(NpgsqlConnection conn)
     {
         var tableName = "temp_table" + Interlocked.Increment(ref _tempTableCounter);
         await conn.ExecuteNonQueryAsync(@$"
@@ -228,7 +229,7 @@ CREATE TABLE {tableName} ({columns});");
     /// <summary>
     /// Creates a schema with a unique name, usable for a single test.
     /// </summary>
-    internal static async Task<string> CreateTempSchema(NpgsqlConnectionOrig conn)
+    internal static async Task<string> CreateTempSchema(NpgsqlConnection conn)
     {
         var schemaName = "temp_schema" + Interlocked.Increment(ref _tempSchemaCounter);
         await conn.ExecuteNonQueryAsync($"DROP SCHEMA IF EXISTS {schemaName} CASCADE; CREATE SCHEMA {schemaName}");
@@ -239,7 +240,7 @@ CREATE TABLE {tableName} ({columns});");
     /// Generates a unique view name, usable for a single test, and drops it if it already exists.
     /// Actual creation of the view is the responsibility of the caller.
     /// </summary>
-    internal static async Task<string> GetTempViewName(NpgsqlConnectionOrig conn)
+    internal static async Task<string> GetTempViewName(NpgsqlConnection conn)
     {
         var viewName = "temp_view" + Interlocked.Increment(ref _tempViewCounter);
         await conn.ExecuteNonQueryAsync($"DROP VIEW IF EXISTS {viewName} CASCADE");
@@ -250,7 +251,7 @@ CREATE TABLE {tableName} ({columns});");
     /// Generates a unique function name, usable for a single test.
     /// Actual creation of the function is the responsibility of the caller.
     /// </summary>
-    internal static async Task<string> GetTempFunctionName(NpgsqlConnectionOrig conn)
+    internal static async Task<string> GetTempFunctionName(NpgsqlConnection conn)
     {
         var functionName = "temp_func" + Interlocked.Increment(ref _tempFunctionCounter);
         await conn.ExecuteNonQueryAsync($"DROP FUNCTION IF EXISTS {functionName} CASCADE");
@@ -278,7 +279,7 @@ CREATE TABLE {tableName} ({columns});");
     /// <returns>
     /// An <see cref="IDisposable"/> to drop the function at the end of the test.
     /// </returns>
-    internal static async Task<string> GetTempProcedureName(NpgsqlConnectionOrig connection)
+    internal static async Task<string> GetTempProcedureName(NpgsqlConnection connection)
     {
         var procedureName = "temp_procedure" + Interlocked.Increment(ref _tempProcedureCounter);
         await connection.ExecuteNonQueryAsync($"DROP PROCEDURE IF EXISTS {procedureName} CASCADE");
@@ -289,7 +290,7 @@ CREATE TABLE {tableName} ({columns});");
     /// Generates a unique type name, usable for a single test.
     /// Actual creation of the type is the responsibility of the caller.
     /// </summary>
-    internal static async Task<string> GetTempTypeName(NpgsqlConnectionOrig conn)
+    internal static async Task<string> GetTempTypeName(NpgsqlConnection conn)
     {
         var typeName = "temp_type" + Interlocked.Increment(ref _tempTypeCounter);
         await conn.ExecuteNonQueryAsync($"DROP TYPE IF EXISTS {typeName} CASCADE");
@@ -331,8 +332,8 @@ CREATE TABLE {tableName} ({columns});");
 
         public void Dispose()
         {
-            var conn = new NpgsqlConnectionOrig(_connectionString);
-            NpgsqlConnectionOrig.ClearPool(conn);
+            var conn = new NpgsqlConnection(_connectionString);
+            NpgsqlConnection.ClearPool(conn);
         }
     }
 
@@ -367,8 +368,8 @@ CREATE TABLE {tableName} ({columns});");
     internal static IDisposable DisableSqlRewriting()
     {
 #if DEBUG
-        NpgsqlCommandOrig.EnableSqlRewriting = false;
-        return new DeferredExecutionDisposable(() => NpgsqlCommandOrig.EnableSqlRewriting = true);
+        NpgsqlCommand.EnableSqlRewriting = false;
+        return new DeferredExecutionDisposable(() => NpgsqlCommand.EnableSqlRewriting = true);
 #else
             Assert.Ignore("Cannot disable SQL rewriting in RELEASE builds");
             throw new NotSupportedException("Cannot disable SQL rewriting in RELEASE builds");
@@ -419,29 +420,29 @@ CREATE TABLE {tableName} ({columns});");
 
 public static class NpgsqlConnectionExtensions
 {
-    public static int ExecuteNonQuery(this NpgsqlConnectionOrig conn, string sql, NpgsqlTransaction? tx = null)
+    public static int ExecuteNonQuery(this NpgsqlConnection conn, string sql, NpgsqlTransaction? tx = null)
     {
-        using var command = tx == null ? new NpgsqlCommandOrig(sql, conn) : new NpgsqlCommandOrig(sql, conn, tx);
+        using var command = tx == null ? new NpgsqlCommand(sql, conn) : new NpgsqlCommand(sql, conn, tx);
         return command.ExecuteNonQuery();
     }
 
-    public static object? ExecuteScalar(this NpgsqlConnectionOrig conn, string sql, NpgsqlTransaction? tx = null)
+    public static object? ExecuteScalar(this NpgsqlConnection conn, string sql, NpgsqlTransaction? tx = null)
     {
-        using var command = tx == null ? new NpgsqlCommandOrig(sql, conn) : new NpgsqlCommandOrig(sql, conn, tx);
+        using var command = tx == null ? new NpgsqlCommand(sql, conn) : new NpgsqlCommand(sql, conn, tx);
         return command.ExecuteScalar();
     }
 
     public static async Task<int> ExecuteNonQueryAsync(
-        this NpgsqlConnectionOrig conn, string sql, NpgsqlTransaction? tx = null, CancellationToken cancellationToken = default)
+        this NpgsqlConnection conn, string sql, NpgsqlTransaction? tx = null, CancellationToken cancellationToken = default)
     {
-        await using var command = tx == null ? new NpgsqlCommandOrig(sql, conn) : new NpgsqlCommandOrig(sql, conn, tx);
+        await using var command = tx == null ? new NpgsqlCommand(sql, conn) : new NpgsqlCommand(sql, conn, tx);
         return await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
     public static async Task<object?> ExecuteScalarAsync(
-        this NpgsqlConnectionOrig conn, string sql, NpgsqlTransaction? tx = null, CancellationToken cancellationToken = default)
+        this NpgsqlConnection conn, string sql, NpgsqlTransaction? tx = null, CancellationToken cancellationToken = default)
     {
-        await using var command = tx == null ? new NpgsqlCommandOrig(sql, conn) : new NpgsqlCommandOrig(sql, conn, tx);
+        await using var command = tx == null ? new NpgsqlCommand(sql, conn) : new NpgsqlCommand(sql, conn, tx);
         return await command.ExecuteScalarAsync(cancellationToken);
     }
 }
@@ -481,9 +482,9 @@ public static class CommandBehaviorExtensions
         => (behavior & CommandBehavior.SequentialAccess) != 0;
 }
 
-public static class NpgsqlCommandOrigExtensions
+public static class NpgsqlCommandExtensions
 {
-    public static void WaitUntilCommandIsInProgress(this NpgsqlCommandOrig command)
+    public static void WaitUntilCommandIsInProgress(this NpgsqlCommand command)
     {
         while (command.State != CommandState.InProgress)
             Thread.Sleep(50);

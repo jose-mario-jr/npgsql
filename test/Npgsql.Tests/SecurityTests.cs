@@ -3,6 +3,7 @@ using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Npgsql.Properties;
+using Npgsql.PlDotNET;
 using NUnit.Framework;
 using static Npgsql.Tests.TestUtil;
 
@@ -50,7 +51,7 @@ public class SecurityTests : TestBase
         };
 
         using var _ = CreateTempPool(csb, out var connString);
-        using var conn = new NpgsqlConnectionOrig(connString);
+        using var conn = new NpgsqlConnection(connString);
 
         var ex = Assert.Throws<NpgsqlException>(conn.Open)!;
         Assert.That(ex.InnerException, Is.TypeOf<AuthenticationException>());
@@ -94,7 +95,7 @@ public class SecurityTests : TestBase
             Username = username,
             Password = null
         }.ToString();
-        using var conn = new NpgsqlConnectionOrig(connString);
+        using var conn = new NpgsqlConnection(connString);
         try
         {
             conn.Open();
@@ -117,7 +118,7 @@ public class SecurityTests : TestBase
             Username = null,
             Password = null
         }.ToString();
-        using var conn = new NpgsqlConnectionOrig(connString);
+        using var conn = new NpgsqlConnection(connString);
         try
         {
             conn.Open();
@@ -141,7 +142,7 @@ public class SecurityTests : TestBase
             Password = null,
             Database = null
         }.ToString();
-        using var conn = new NpgsqlConnectionOrig(connString);
+        using var conn = new NpgsqlConnection(connString);
         try
         {
             conn.Open();
@@ -384,7 +385,7 @@ public class SecurityTests : TestBase
         };
         using var _ = CreateTempPool(csb, out var connString);
 
-        NpgsqlConnectionOrig conn = default!;
+        NpgsqlConnection conn = default!;
 
         try
         {
@@ -433,7 +434,7 @@ public class SecurityTests : TestBase
         };
         using var _ = CreateTempPool(csb, out var connString);
 
-        NpgsqlConnectionOrig conn = default!;
+        NpgsqlConnection conn = default!;
 
         try
         {

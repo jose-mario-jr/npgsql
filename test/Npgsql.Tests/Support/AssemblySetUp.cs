@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Npgsql;
+using Npgsql.PlDotNET;
 using Npgsql.Tests;
 using Npgsql.Tests.Support;
 using NUnit.Framework;
@@ -13,7 +14,7 @@ public class AssemblySetUp
     public void Setup()
     {
         var connString = TestUtil.ConnectionString;
-        using var conn = new NpgsqlConnectionOrig(connString);
+        using var conn = new NpgsqlConnection(connString);
         try
         {
             conn.Open();
@@ -32,7 +33,7 @@ public class AssemblySetUp
                     Database = "postgres"
                 };
 
-                using var adminConn = new NpgsqlConnectionOrig(builder.ConnectionString);
+                using var adminConn = new NpgsqlConnection(builder.ConnectionString);
                 adminConn.Open();
                 adminConn.ExecuteNonQuery("CREATE DATABASE " + conn.Database);
                 adminConn.Close();

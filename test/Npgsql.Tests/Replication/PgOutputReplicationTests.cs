@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Npgsql.PlDotNET;
 using NUnit.Framework;
 using Npgsql.Replication;
 using Npgsql.Replication.PgOutput;
@@ -76,7 +77,7 @@ public class PgOutputReplicationTests : SafeReplicationTestBase<LogicalReplicati
                 var options = await rc.CreatePgOutputReplicationSlot(slotName);
 
                 using var cmd =
-                    new NpgsqlCommandOrig($"SELECT * FROM pg_replication_slots WHERE slot_name = '{options.Name}'",
+                    new NpgsqlCommand($"SELECT * FROM pg_replication_slots WHERE slot_name = '{options.Name}'",
                         c);
                 await using var reader = await cmd.ExecuteReaderAsync();
 
@@ -803,7 +804,7 @@ CREATE PUBLICATION {publicationName} FOR TABLE {tableName};
                 for (var i = 0; i < 10; i++)
                     bytes[i] = (byte)i;
 
-                using (var command = new NpgsqlCommandOrig($"INSERT INTO {tableName} VALUES ($1)", c))
+                using (var command = new NpgsqlCommand($"INSERT INTO {tableName} VALUES ($1)", c))
                 {
                     command.Parameters.Add(new() { Value = bytes });
                     await command.ExecuteNonQueryAsync();
@@ -1014,7 +1015,7 @@ CREATE TYPE descriptor AS (id bigint, name text);
 CREATE TABLE {tableName} (descriptor_field descriptor);
 CREATE PUBLICATION {publicationName} FOR TABLE {tableName};");
 
-                NpgsqlConnectionOrig.GlobalTypeMapper.MapComposite<Descriptor>("descriptor");
+                NpgsqlConnection.GlobalTypeMapper.MapComposite<Descriptor>("descriptor");
 
                 try
                 {
@@ -1065,7 +1066,7 @@ CREATE PUBLICATION {publicationName} FOR TABLE {tableName};");
                 {
                     await adminConnection.ExecuteNonQueryAsync("DROP TYPE IF EXISTS descriptor CASCADE;");
 
-                    NpgsqlConnectionOrig.GlobalTypeMapper.Reset();
+                    NpgsqlConnection.GlobalTypeMapper.Reset();
                 }
             });
     }

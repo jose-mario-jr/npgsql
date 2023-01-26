@@ -18,16 +18,23 @@ namespace Npgsql.PlDotNET
 {
     public class NpgsqlCommand : NpgsqlCommandOrig
     {
-        private readonly string query;
-        private readonly NpgsqlMultiHostDataSource dataSource;
+        string _commandText;
         private readonly IntPtr cmdPointer;
+
+        internal NpgsqlConnection InternalConnection { get; private set; }
 
         public NpgsqlCommand(string query, NpgsqlMultiHostDataSource dataSource)
         {
-            this.query = query;
-            this.dataSource = dataSource;
+            this._commandText = query;
+            this.InternalConnection = new NpgsqlConnection(dataSource);
 
-            pldotnet_SPIPrepare(this.query, ref this.cmdPointer);
+            pldotnet_SPIPrepare(this._commandText, ref this.cmdPointer);
+        }
+
+        public NpgsqlCommand(string? cmdText, NpgsqlConnection connection)
+        {
+            this._commandText = cmdText ?? string.Empty;
+            this.InternalConnection = connection;
         }
 
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
@@ -45,7 +52,7 @@ namespace Npgsql.PlDotNET
 
             pldotnet_SPICursorOpen(this.cmdPointer, ref cursorPointer);
 
-            var r = new NpgsqlDataReader(new NpgsqlConnector(this.dataSource))
+            var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.DataSource))
             {
                 CursorPointer = cursorPointer,
             };
