@@ -16,15 +16,15 @@ public class ReadArrays
     [Params(1, 10, 1000, 100000)]
     public int NumElements;
 
-    NpgsqlConnection _intConn = default!;
+    NpgsqlConnectionOrig _intConn = default!;
     NpgsqlCommandOrig _intCmd = default!;
     NpgsqlDataReaderOrig _intReader = default!;
 
-    NpgsqlConnection _nullableIntConn = default!;
+    NpgsqlConnectionOrig _nullableIntConn = default!;
     NpgsqlCommandOrig _nullableIntCmd = default!;
     NpgsqlDataReaderOrig _nullableIntReader = default!;
 
-    NpgsqlConnection _stringConn = default!;
+    NpgsqlConnectionOrig _stringConn = default!;
     NpgsqlCommandOrig _stringCmd = default!;
     NpgsqlDataReaderOrig _stringReader = default!;
 

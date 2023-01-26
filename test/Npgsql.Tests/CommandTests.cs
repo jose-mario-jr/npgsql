@@ -206,7 +206,7 @@ public class CommandTests : MultiplexingTestBase
         {
             CommandTimeout = timeout
         }.ToString();
-        using var conn = new NpgsqlConnection(connString);
+        using var conn = new NpgsqlConnectionOrig(connString);
         var command = new NpgsqlCommandOrig("SELECT 1", conn);
         conn.Open();
         Assert.That(command.CommandTimeout, Is.EqualTo(timeout));
@@ -218,7 +218,7 @@ public class CommandTests : MultiplexingTestBase
     [Test, IssueLink("https://github.com/npgsql/npgsql/issues/395")]
     public async Task Timeout_switch_connection()
     {
-        using (var conn = new NpgsqlConnection(ConnectionString))
+        using (var conn = new NpgsqlConnectionOrig(ConnectionString))
         {
             if (conn.CommandTimeout >= 100 && conn.CommandTimeout < 105)
                 TestUtil.IgnoreExceptOnBuildServer("Bad default command timeout");
@@ -229,13 +229,13 @@ public class CommandTests : MultiplexingTestBase
             using (var cmd = c1.CreateCommand())
             {
                 Assert.That(cmd.CommandTimeout, Is.EqualTo(100));
-                using (var c2 = new NpgsqlConnection(ConnectionString + ";CommandTimeout=101"))
+                using (var c2 = new NpgsqlConnectionOrig(ConnectionString + ";CommandTimeout=101"))
                 {
                     cmd.Connection = c2;
                     Assert.That(cmd.CommandTimeout, Is.EqualTo(101));
                 }
                 cmd.CommandTimeout = 102;
-                using (var c2 = new NpgsqlConnection(ConnectionString + ";CommandTimeout=101"))
+                using (var c2 = new NpgsqlConnectionOrig(ConnectionString + ";CommandTimeout=101"))
                 {
                     cmd.Connection = c2;
                     Assert.That(cmd.CommandTimeout, Is.EqualTo(102));
@@ -1010,7 +1010,7 @@ $$ LANGUAGE plpgsql;";
     [IssueLink("https://github.com/npgsql/npgsql/issues/565")]
     public async Task Create_command_before_connection_open()
     {
-        using var conn = new NpgsqlConnection(ConnectionString);
+        using var conn = new NpgsqlConnectionOrig(ConnectionString);
         var cmd = new NpgsqlCommandOrig("SELECT 1", conn);
         conn.Open();
         Assert.That(await cmd.ExecuteScalarAsync(), Is.EqualTo(1));

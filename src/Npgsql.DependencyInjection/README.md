@@ -10,10 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddNpgsqlDataSource("Host=pg_server;Username=test;Password=test;Database=test");
 ```
 
-This registers a transient [`NpgsqlConnection`](https://www.npgsql.org/doc/api/Npgsql.NpgsqlConnection.html) which can get injected into your controllers:
+This registers a transient [`NpgsqlConnectionOrig`](https://www.npgsql.org/doc/api/Npgsql.NpgsqlConnectionOrig.html) which can get injected into your controllers:
 
 ```csharp
-app.MapGet("/", async (NpgsqlConnection connection) =>
+app.MapGet("/", async (NpgsqlConnectionOrig connection) =>
 {
     await connection.OpenAsync();
     await using var command = new NpgsqlCommandOrig("SELECT number FROM data LIMIT 1", connection);

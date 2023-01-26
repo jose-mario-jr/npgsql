@@ -42,8 +42,8 @@ class PoolingDataSource : NpgsqlDataSource
     readonly ILogger _logger;
 
     /// <summary>
-    /// Incremented every time this pool is cleared via <see cref="NpgsqlConnection.ClearPool"/> or
-    /// <see cref="NpgsqlConnection.ClearAllPools"/>. Allows us to identify connections which were
+    /// Incremented every time this pool is cleared via <see cref="NpgsqlConnectionOrig.ClearPool"/> or
+    /// <see cref="NpgsqlConnectionOrig.ClearAllPools"/>. Allows us to identify connections which were
     /// created before the clear.
     /// </summary>
     volatile int _clearCounter;
@@ -117,7 +117,7 @@ class PoolingDataSource : NpgsqlDataSource
     }
 
     internal sealed override ValueTask<NpgsqlConnector> Get(
-        NpgsqlConnection conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken)
+        NpgsqlConnectionOrig conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken)
     {
         CheckDisposed();
 
@@ -126,7 +126,7 @@ class PoolingDataSource : NpgsqlDataSource
             : RentAsync(conn, timeout, async, cancellationToken);
 
         async ValueTask<NpgsqlConnector> RentAsync(
-            NpgsqlConnection conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken)
+            NpgsqlConnectionOrig conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken)
         {
             // First, try to open a new physical connector. This will fail if we're at max capacity.
             var connector = await OpenNewConnector(conn, timeout, async, cancellationToken);
@@ -247,7 +247,7 @@ class PoolingDataSource : NpgsqlDataSource
     }
 
     internal sealed override async ValueTask<NpgsqlConnector?> OpenNewConnector(
-        NpgsqlConnection conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken)
+        NpgsqlConnectionOrig conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken)
     {
         // As long as we're under max capacity, attempt to increase the connector count and open a new connection.
         for (var numConnectors = _numConnectors; numConnectors < _max; numConnectors = _numConnectors)

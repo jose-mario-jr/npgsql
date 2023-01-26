@@ -67,20 +67,20 @@ class ConnectionStringBuilderTests
     public void Removing_resets_to_default()
     {
         var builder = new NpgsqlConnectionStringBuilder();
-        Assert.That(builder.Port, Is.EqualTo(NpgsqlConnection.DefaultPort));
+        Assert.That(builder.Port, Is.EqualTo(NpgsqlConnectionOrig.DefaultPort));
         builder.Port = 8;
         builder.Remove("Port");
-        Assert.That(builder.Port, Is.EqualTo(NpgsqlConnection.DefaultPort));
+        Assert.That(builder.Port, Is.EqualTo(NpgsqlConnectionOrig.DefaultPort));
     }
 
     [Test]
     public void Setting_to_null_resets_to_default()
     {
         var builder = new NpgsqlConnectionStringBuilder();
-        Assert.That(builder.Port, Is.EqualTo(NpgsqlConnection.DefaultPort));
+        Assert.That(builder.Port, Is.EqualTo(NpgsqlConnectionOrig.DefaultPort));
         builder.Port = 8;
         builder["Port"] = null;
-        Assert.That(builder.Port, Is.EqualTo(NpgsqlConnection.DefaultPort));
+        Assert.That(builder.Port, Is.EqualTo(NpgsqlConnectionOrig.DefaultPort));
     }
 
     [Test]
@@ -109,7 +109,7 @@ class ConnectionStringBuilderTests
         var builder2 = builder.Clone();
         Assert.That(builder2.Host, Is.EqualTo("myhost"));
         Assert.That(builder2["Host"], Is.EqualTo("myhost"));
-        Assert.That(builder.Port, Is.EqualTo(NpgsqlConnection.DefaultPort));
+        Assert.That(builder.Port, Is.EqualTo(NpgsqlConnectionOrig.DefaultPort));
     }
 
     [Test]

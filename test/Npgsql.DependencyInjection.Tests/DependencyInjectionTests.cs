@@ -61,7 +61,7 @@ public class DependencyInjectionTests
     }
 
     [Test]
-    public async Task NpgsqlConnection_is_registered_properly([Values] bool async)
+    public async Task NpgsqlConnectionOrig_is_registered_properly([Values] bool async)
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddNpgsqlDataSource(TestUtil.ConnectionString);
@@ -70,7 +70,7 @@ public class DependencyInjectionTests
         using var scope = serviceProvider.CreateScope();
         var scopedServiceProvider = scope.ServiceProvider;
 
-        var connection = scopedServiceProvider.GetRequiredService<NpgsqlConnection>();
+        var connection = scopedServiceProvider.GetRequiredService<NpgsqlConnectionOrig>();
 
         Assert.That(connection.State, Is.EqualTo(ConnectionState.Closed));
 
@@ -81,7 +81,7 @@ public class DependencyInjectionTests
     }
 
     [Test]
-    public void NpgsqlConnection_is_registered_as_transient_by_default()
+    public void NpgsqlConnectionOrig_is_registered_as_transient_by_default()
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddNpgsqlDataSource("Host=localhost;Username=test;Password=test");
@@ -90,15 +90,15 @@ public class DependencyInjectionTests
         using var scope1 = serviceProvider.CreateScope();
         var scopedServiceProvider1 = scope1.ServiceProvider;
 
-        var connection1 = scopedServiceProvider1.GetRequiredService<NpgsqlConnection>();
-        var connection2 = scopedServiceProvider1.GetRequiredService<NpgsqlConnection>();
+        var connection1 = scopedServiceProvider1.GetRequiredService<NpgsqlConnectionOrig>();
+        var connection2 = scopedServiceProvider1.GetRequiredService<NpgsqlConnectionOrig>();
 
         Assert.That(connection2, Is.Not.SameAs(connection1));
 
         using var scope2 = serviceProvider.CreateScope();
         var scopedServiceProvider2 = scope2.ServiceProvider;
 
-        var connection3 = scopedServiceProvider2.GetRequiredService<NpgsqlConnection>();
+        var connection3 = scopedServiceProvider2.GetRequiredService<NpgsqlConnectionOrig>();
         Assert.That(connection3, Is.Not.SameAs(connection1));
     }
 

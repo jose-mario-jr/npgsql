@@ -5,7 +5,7 @@ This package is an Npgsql plugin which allows you to interact with spatial data 
 To use the NetTopologySuite plugin, simply add a dependency on this package and set it up at program startup:
 
 ```csharp
-NpgsqlConnection.GlobalTypeMapper.UseNetTopologySuite();
+NpgsqlConnectionOrig.GlobalTypeMapper.UseNetTopologySuite();
 ```
 
 Once this is done, you can simply use NetTopologySuite types when interacting with PostgreSQL:

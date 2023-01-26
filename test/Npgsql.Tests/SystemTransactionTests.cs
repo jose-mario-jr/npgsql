@@ -13,7 +13,7 @@ public class SystemTransactionTests : TestBase
     [Test, Description("Single connection enlisting explicitly, committing")]
     public void Explicit_enlist()
     {
-        using var conn = new NpgsqlConnection(ConnectionStringEnlistOff);
+        using var conn = new NpgsqlConnectionOrig(ConnectionStringEnlistOff);
         conn.Open();
         using (var scope = new TransactionScope())
         {
@@ -35,7 +35,7 @@ public class SystemTransactionTests : TestBase
     [Test, Description("Single connection enlisting implicitly, committing")]
     public void Implicit_enlist()
     {
-        var conn = new NpgsqlConnection(ConnectionStringEnlistOn);
+        var conn = new NpgsqlConnectionOrig(ConnectionStringEnlistOn);
         using (var scope = new TransactionScope())
         {
             conn.Open();
@@ -153,8 +153,8 @@ public class SystemTransactionTests : TestBase
         Assert.True(PoolManager.Pools.TryGetValue(connString, out var pool));
         Assert.That(pool!.Statistics.Idle, Is.EqualTo(1));
 
-        using (var conn = new NpgsqlConnection(connString))
-            NpgsqlConnection.ClearPool(conn);
+        using (var conn = new NpgsqlConnectionOrig(connString))
+            NpgsqlConnectionOrig.ClearPool(conn);
     }
 
     [Test]
@@ -205,7 +205,7 @@ public class SystemTransactionTests : TestBase
     public void Reuse_connection()
     {
         using (var scope = new TransactionScope())
-        using (var conn = new NpgsqlConnection(ConnectionStringEnlistOn))
+        using (var conn = new NpgsqlConnectionOrig(ConnectionStringEnlistOn))
         {
             conn.Open();
             var processId = conn.ProcessID;
@@ -226,7 +226,7 @@ public class SystemTransactionTests : TestBase
     public void Reuse_connection_rollback()
     {
         using (new TransactionScope())
-        using (var conn = new NpgsqlConnection(ConnectionStringEnlistOn))
+        using (var conn = new NpgsqlConnectionOrig(ConnectionStringEnlistOn))
         {
             conn.Open();
             var processId = conn.ProcessID;
@@ -411,7 +411,7 @@ public class SystemTransactionTests : TestBase
         ConnectionStringEnlistOff = new NpgsqlConnectionStringBuilder(ConnectionString) { Enlist = false }.ToString();
     }
 
-    NpgsqlConnection _controlConn = default!;
+    NpgsqlConnectionOrig _controlConn = default!;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()

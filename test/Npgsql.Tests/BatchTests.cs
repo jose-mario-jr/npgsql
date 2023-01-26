@@ -679,7 +679,7 @@ CREATE OR REPLACE FUNCTION {function}() RETURNS VOID AS
    'BEGIN RAISE EXCEPTION ''testexception'' USING ERRCODE = ''12345''; END;'
 LANGUAGE 'plpgsql'");
 
-        // We use NpgsqlConnection.CreateBatch to test that the batch isn't recycled when referenced in an exception
+        // We use NpgsqlConnectionOrig.CreateBatch to test that the batch isn't recycled when referenced in an exception
         var batch = conn.CreateBatch();
         batch.BatchCommands.Add(new($"SELECT {function}()"));
 
@@ -704,7 +704,7 @@ CREATE OR REPLACE FUNCTION {function}() RETURNS VOID AS
    'BEGIN RAISE EXCEPTION ''testexception'' USING ERRCODE = ''12345''; END;'
 LANGUAGE 'plpgsql'");
 
-        // We use NpgsqlConnection.CreateBatch to test that the batch isn't recycled when referenced in an exception
+        // We use NpgsqlConnectionOrig.CreateBatch to test that the batch isn't recycled when referenced in an exception
         var batch = conn.CreateBatch();
         batch.BatchCommands.Add(new("SELECT 1"));
         batch.BatchCommands.Add(new($"SELECT {function}()"));

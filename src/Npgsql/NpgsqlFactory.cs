@@ -27,7 +27,7 @@ public sealed class NpgsqlFactory : DbProviderFactory, IServiceProvider
     /// <summary>
     /// Returns a strongly typed <see cref="DbConnection"/> instance.
     /// </summary>
-    public override DbConnection CreateConnection() => new NpgsqlConnection();
+    public override DbConnection CreateConnection() => new NpgsqlConnectionOrig();
 
     /// <summary>
     /// Returns a strongly typed <see cref="DbParameter"/> instance.

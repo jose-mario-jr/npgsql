@@ -533,13 +533,13 @@ CREATE TABLE {table} (color {schema}.{enumName});");
     public SchemaTests(SyncOrAsync syncOrAsync) : base(syncOrAsync) { }
 
     // ReSharper disable MethodHasAsyncOverload
-    async Task<DataTable> GetSchema(NpgsqlConnection conn)
+    async Task<DataTable> GetSchema(NpgsqlConnectionOrig conn)
         => IsAsync ? await conn.GetSchemaAsync() : conn.GetSchema();
 
-    async Task<DataTable> GetSchema(NpgsqlConnection conn, string collectionName)
+    async Task<DataTable> GetSchema(NpgsqlConnectionOrig conn, string collectionName)
         => IsAsync ? await conn.GetSchemaAsync(collectionName) : conn.GetSchema(collectionName);
 
-    async Task<DataTable> GetSchema(NpgsqlConnection conn, string collectionName, string?[] restrictions)
+    async Task<DataTable> GetSchema(NpgsqlConnectionOrig conn, string collectionName, string?[] restrictions)
         => IsAsync ? await conn.GetSchemaAsync(collectionName, restrictions) : conn.GetSchema(collectionName, restrictions);
     // ReSharper restore MethodHasAsyncOverload
 }

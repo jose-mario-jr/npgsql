@@ -246,8 +246,8 @@ public class AutoPrepareTests : TestBase
             AutoPrepareMinUsages = 2
         };
         using var _ = CreateTempPool(csb, out var connString);
-        using var conn1 = new NpgsqlConnection(connString);
-        using var conn2 = new NpgsqlConnection(connString);
+        using var conn1 = new NpgsqlConnectionOrig(connString);
+        using var conn2 = new NpgsqlConnectionOrig(connString);
         using var cmd = new NpgsqlCommandOrig("SELECT 1", conn1);
         conn1.Open();
         cmd.ExecuteNonQuery(); cmd.ExecuteNonQuery();
@@ -587,7 +587,7 @@ SELECT COUNT(*) FROM pg_prepared_statements
         Assert.DoesNotThrowAsync(() => command.ExecuteNonQueryAsync());
     }
 
-    void DumpPreparedStatements(NpgsqlConnection conn)
+    void DumpPreparedStatements(NpgsqlConnectionOrig conn)
     {
         using var cmd = new NpgsqlCommandOrig("SELECT name,statement FROM pg_prepared_statements", conn);
         using var reader = cmd.ExecuteReader();

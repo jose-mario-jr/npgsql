@@ -17,7 +17,7 @@ public class TypeMapperTests : TestBase
     {
         await using var adminConnection = await OpenConnectionAsync();
         var type = await GetTempTypeName(adminConnection);
-        NpgsqlConnection.GlobalTypeMapper.MapEnum<Mood>(type);
+        NpgsqlConnectionOrig.GlobalTypeMapper.MapEnum<Mood>(type);
 
         try
         {
@@ -31,7 +31,7 @@ public class TypeMapperTests : TestBase
                 await AssertType(connection, Mood.Happy, "happy", type, npgsqlDbType: null);
             }
 
-            NpgsqlConnection.GlobalTypeMapper.UnmapEnum<Mood>(type);
+            NpgsqlConnectionOrig.GlobalTypeMapper.UnmapEnum<Mood>(type);
 
             // Global mapping changes have no effect on already-built data sources
             await AssertType(dataSource1, Mood.Happy, "happy", type, npgsqlDbType: null);
@@ -42,7 +42,7 @@ public class TypeMapperTests : TestBase
         }
         finally
         {
-            NpgsqlConnection.GlobalTypeMapper.UnmapEnum<Mood>(type);
+            NpgsqlConnectionOrig.GlobalTypeMapper.UnmapEnum<Mood>(type);
         }
     }
 
@@ -51,7 +51,7 @@ public class TypeMapperTests : TestBase
     {
         await using var adminConnection = await OpenConnectionAsync();
         var type = await GetTempTypeName(adminConnection);
-        NpgsqlConnection.GlobalTypeMapper.MapEnum<Mood>(type);
+        NpgsqlConnectionOrig.GlobalTypeMapper.MapEnum<Mood>(type);
 
         try
         {
@@ -64,7 +64,7 @@ public class TypeMapperTests : TestBase
             }
 
             // A global mapping change has no effects on data sources which have already been built
-            NpgsqlConnection.GlobalTypeMapper.Reset();
+            NpgsqlConnectionOrig.GlobalTypeMapper.Reset();
 
             // Global mapping changes have no effect on already-built data sources
             await AssertType(dataSource1, Mood.Happy, "happy", type, npgsqlDbType: null);
@@ -75,7 +75,7 @@ public class TypeMapperTests : TestBase
         }
         finally
         {
-            NpgsqlConnection.GlobalTypeMapper.Reset();
+            NpgsqlConnectionOrig.GlobalTypeMapper.Reset();
         }
     }
 #pragma warning restore CS0618 // GlobalTypeMapper is obsolete

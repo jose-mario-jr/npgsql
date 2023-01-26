@@ -15,7 +15,7 @@ public class NpgsqlLargeObjectManager
     const int InvWrite = 0x00020000;
     const int InvRead = 0x00040000;
 
-    internal NpgsqlConnection Connection { get; }
+    internal NpgsqlConnectionOrig Connection { get; }
 
     /// <summary>
     /// The largest chunk size (in bytes) read and write operations will read/write each roundtrip to the network. Default 4 MB.
@@ -26,7 +26,7 @@ public class NpgsqlLargeObjectManager
     /// Creates an NpgsqlLargeObjectManager for this connection. The connection must be opened to perform remote operations.
     /// </summary>
     /// <param name="connection"></param>
-    public NpgsqlLargeObjectManager(NpgsqlConnection connection)
+    public NpgsqlLargeObjectManager(NpgsqlConnectionOrig connection)
     {
         Connection = connection;
         MaxTransferBlockSize = 4 * 1024 * 1024; // 4MB

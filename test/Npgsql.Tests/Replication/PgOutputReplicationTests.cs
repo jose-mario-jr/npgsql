@@ -1014,7 +1014,7 @@ CREATE TYPE descriptor AS (id bigint, name text);
 CREATE TABLE {tableName} (descriptor_field descriptor);
 CREATE PUBLICATION {publicationName} FOR TABLE {tableName};");
 
-                NpgsqlConnection.GlobalTypeMapper.MapComposite<Descriptor>("descriptor");
+                NpgsqlConnectionOrig.GlobalTypeMapper.MapComposite<Descriptor>("descriptor");
 
                 try
                 {
@@ -1065,7 +1065,7 @@ CREATE PUBLICATION {publicationName} FOR TABLE {tableName};");
                 {
                     await adminConnection.ExecuteNonQueryAsync("DROP TYPE IF EXISTS descriptor CASCADE;");
 
-                    NpgsqlConnection.GlobalTypeMapper.Reset();
+                    NpgsqlConnectionOrig.GlobalTypeMapper.Reset();
                 }
             });
     }

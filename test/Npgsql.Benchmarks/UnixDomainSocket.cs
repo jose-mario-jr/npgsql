@@ -7,9 +7,9 @@ namespace Npgsql.Benchmarks;
 
 public class UnixDomainSocket
 {
-    readonly NpgsqlConnection _tcpipConn;
+    readonly NpgsqlConnectionOrig _tcpipConn;
     readonly NpgsqlCommandOrig _tcpipCmd;
-    readonly NpgsqlConnection _unixConn;
+    readonly NpgsqlConnectionOrig _unixConn;
     readonly NpgsqlCommandOrig _unixCmd;
 
     public UnixDomainSocket()
@@ -28,7 +28,7 @@ public class UnixDomainSocket
         {
             Host = dir
         }.ToString();
-        _unixConn = new NpgsqlConnection(connString);
+        _unixConn = new NpgsqlConnectionOrig(connString);
         _unixConn.Open();
         _unixCmd = new NpgsqlCommandOrig("SELECT @p", _unixConn);
         _unixCmd.Parameters.AddWithValue("p", new string('x', 10000));

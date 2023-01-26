@@ -10,9 +10,9 @@ public class NodaTimeSetupFixture
 {
 #pragma warning disable CS0618 // GlobalTypeMapper is obsolete
     [OneTimeSetUp]
-    public void OneTimeSetUp() => NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
+    public void OneTimeSetUp() => NpgsqlConnectionOrig.GlobalTypeMapper.UseNodaTime();
 
     [OneTimeTearDown]
-    public void OneTimeTearDown() => NpgsqlConnection.GlobalTypeMapper.Reset();
+    public void OneTimeTearDown() => NpgsqlConnectionOrig.GlobalTypeMapper.Reset();
 #pragma warning restore CS0618 // GlobalTypeMapper is obsolete
 }

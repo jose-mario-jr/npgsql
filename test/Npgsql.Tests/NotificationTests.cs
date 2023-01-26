@@ -41,7 +41,7 @@ public class NotificationTests : TestBase
         {
             //After "notify notifytest1", a notification message will be sent to client,
             //And so the notification message will stick with the last response message of "select generate_series(1,10000)" in Npgsql's tcp receiving buffer.
-            using (var conn2 = new NpgsqlConnection(ConnectionString))
+            using (var conn2 = new NpgsqlConnectionOrig(ConnectionString))
             {
                 conn2.Open();
                 using (var command = conn2.CreateCommand())

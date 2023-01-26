@@ -272,7 +272,7 @@ public class TransactionTests : MultiplexingTestBase
     [Test]
     public void Begin_transaction_on_closed_connection_throws()
     {
-        using var conn = new NpgsqlConnection();
+        using var conn = new NpgsqlConnectionOrig();
         Assert.That(() => conn.BeginTransaction(), Throws.Exception.TypeOf<InvalidOperationException>());
     }
 
@@ -354,7 +354,7 @@ public class TransactionTests : MultiplexingTestBase
             Assert.Ignore("Multiplexing: fails");
 
         // Use application name to make sure we have our very own private connection pool
-        await using var conn = new NpgsqlConnection(ConnectionString + $";Application Name={GetUniqueIdentifier(nameof(Transaction_on_recycled_connection))}");
+        await using var conn = new NpgsqlConnectionOrig(ConnectionString + $";Application Name={GetUniqueIdentifier(nameof(Transaction_on_recycled_connection))}");
         conn.Open();
         var prevConnectorId = conn.Connector!.Id;
         conn.Close();
@@ -363,7 +363,7 @@ public class TransactionTests : MultiplexingTestBase
         var tx = conn.BeginTransaction();
         conn.ExecuteScalar("SELECT 1");
         await tx.CommitAsync();
-        NpgsqlConnection.ClearPool(conn);
+        NpgsqlConnectionOrig.ClearPool(conn);
     }
 
     [Test]
@@ -529,7 +529,7 @@ public class TransactionTests : MultiplexingTestBase
 
         using (var conn = await OpenConnectionAsync(connString))
         {
-            NpgsqlConnection.ClearPool(conn);
+            NpgsqlConnectionOrig.ClearPool(conn);
             conn.ReloadTypes();
         }
 
@@ -729,7 +729,7 @@ public class TransactionTests : MultiplexingTestBase
         var csb = new NpgsqlConnectionStringBuilder(ConnectionString);
         csb.CommandTimeout = 100000;
 
-        using var connTimeoutChanged = new NpgsqlConnection(csb.ToString());
+        using var connTimeoutChanged = new NpgsqlConnectionOrig(csb.ToString());
         connTimeoutChanged.Open();
         using var t = connTimeoutChanged.BeginTransaction();
         try {

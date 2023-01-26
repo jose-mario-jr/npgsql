@@ -17,10 +17,10 @@ namespace Npgsql.Schema;
 sealed class DbColumnSchemaGenerator
 {
     readonly RowDescriptionMessage _rowDescription;
-    readonly NpgsqlConnection _connection;
+    readonly NpgsqlConnectionOrig _connection;
     readonly bool _fetchAdditionalInfo;
 
-    internal DbColumnSchemaGenerator(NpgsqlConnection connection, RowDescriptionMessage rowDescription, bool fetchAdditionalInfo)
+    internal DbColumnSchemaGenerator(NpgsqlConnectionOrig connection, RowDescriptionMessage rowDescription, bool fetchAdditionalInfo)
     {
         _connection = connection;
         _rowDescription = rowDescription;
@@ -125,7 +125,7 @@ ORDER BY attnum";
                 using var scope = new TransactionScope(
                     TransactionScopeOption.Suppress,
                     async ? TransactionScopeAsyncFlowOption.Enabled : TransactionScopeAsyncFlowOption.Suppress);
-                using var connection = (NpgsqlConnection)((ICloneable)_connection).Clone();
+                using var connection = (NpgsqlConnectionOrig)((ICloneable)_connection).Clone();
 
                 await connection.Open(async, cancellationToken);
 

@@ -435,7 +435,7 @@ Exception {2}",
         }
     }
 
-    void AssertNumberOfRows(NpgsqlConnection connection, string table, int expected)
+    void AssertNumberOfRows(NpgsqlConnectionOrig connection, string table, int expected)
         => Assert.That(connection.ExecuteScalar($"SELECT COUNT(*) FROM {table}"), Is.EqualTo(expected), "Unexpected data count");
 
     static void AssertNoDistributedIdentifier()
@@ -612,7 +612,7 @@ Start formatting event queue, going to sleep a bit for late events
     public void SetUp()
         => EnlistResource.Counter = 0;
 
-    internal static string CreateTempTable(NpgsqlConnection conn, string columns)
+    internal static string CreateTempTable(NpgsqlConnectionOrig conn, string columns)
     {
         var tableName = "temp_table" + Interlocked.Increment(ref _tempTableCounter);
         conn.ExecuteNonQuery(@$"

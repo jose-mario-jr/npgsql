@@ -17,10 +17,10 @@ public sealed class NpgsqlTransaction : DbTransaction
     #region Fields and Properties
 
     /// <summary>
-    /// Specifies the <see cref="NpgsqlConnection"/> object associated with the transaction.
+    /// Specifies the <see cref="NpgsqlConnectionOrig"/> object associated with the transaction.
     /// </summary>
-    /// <value>The <see cref="NpgsqlConnection"/> object associated with the transaction.</value>
-    public new NpgsqlConnection? Connection
+    /// <value>The <see cref="NpgsqlConnectionOrig"/> object associated with the transaction.</value>
+    public new NpgsqlConnectionOrig? Connection
     {
         get
         {
@@ -34,9 +34,9 @@ public sealed class NpgsqlTransaction : DbTransaction
     NpgsqlConnector _connector;
 
     /// <summary>
-    /// Specifies the <see cref="NpgsqlConnection"/> object associated with the transaction.
+    /// Specifies the <see cref="NpgsqlConnectionOrig"/> object associated with the transaction.
     /// </summary>
-    /// <value>The <see cref="NpgsqlConnection"/> object associated with the transaction.</value>
+    /// <value>The <see cref="NpgsqlConnectionOrig"/> object associated with the transaction.</value>
     protected override DbConnection? DbConnection => Connection;
 
     /// <summary>

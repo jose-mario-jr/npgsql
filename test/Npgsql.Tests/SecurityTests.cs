@@ -50,7 +50,7 @@ public class SecurityTests : TestBase
         };
 
         using var _ = CreateTempPool(csb, out var connString);
-        using var conn = new NpgsqlConnection(connString);
+        using var conn = new NpgsqlConnectionOrig(connString);
 
         var ex = Assert.Throws<NpgsqlException>(conn.Open)!;
         Assert.That(ex.InnerException, Is.TypeOf<AuthenticationException>());
@@ -94,7 +94,7 @@ public class SecurityTests : TestBase
             Username = username,
             Password = null
         }.ToString();
-        using var conn = new NpgsqlConnection(connString);
+        using var conn = new NpgsqlConnectionOrig(connString);
         try
         {
             conn.Open();
@@ -117,7 +117,7 @@ public class SecurityTests : TestBase
             Username = null,
             Password = null
         }.ToString();
-        using var conn = new NpgsqlConnection(connString);
+        using var conn = new NpgsqlConnectionOrig(connString);
         try
         {
             conn.Open();
@@ -141,7 +141,7 @@ public class SecurityTests : TestBase
             Password = null,
             Database = null
         }.ToString();
-        using var conn = new NpgsqlConnection(connString);
+        using var conn = new NpgsqlConnectionOrig(connString);
         try
         {
             conn.Open();
@@ -384,7 +384,7 @@ public class SecurityTests : TestBase
         };
         using var _ = CreateTempPool(csb, out var connString);
 
-        NpgsqlConnection conn = default!;
+        NpgsqlConnectionOrig conn = default!;
 
         try
         {
@@ -433,7 +433,7 @@ public class SecurityTests : TestBase
         };
         using var _ = CreateTempPool(csb, out var connString);
 
-        NpgsqlConnection conn = default!;
+        NpgsqlConnectionOrig conn = default!;
 
         try
         {

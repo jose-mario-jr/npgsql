@@ -1103,7 +1103,7 @@ INSERT INTO {table} (field_text, field_int4) VALUES ('HELLO', 1)");
     /// <summary>
     /// Checks that the connector state is properly managed for COPY operations
     /// </summary>
-    void StateAssertions(NpgsqlConnection conn)
+    void StateAssertions(NpgsqlConnectionOrig conn)
     {
         Assert.That(conn.Connector!.State, Is.EqualTo(ConnectorState.Copy));
         Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));

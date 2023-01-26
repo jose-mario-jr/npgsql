@@ -26,7 +26,7 @@ public abstract class NpgsqlDataSource : DbDataSource
     public override string ConnectionString { get; }
 
     /// <summary>
-    /// Contains the connection string returned to the user from <see cref="NpgsqlConnection.ConnectionString"/>
+    /// Contains the connection string returned to the user from <see cref="NpgsqlConnectionOrig.ConnectionString"/>
     /// after the connection has been opened. Does not contain the password unless Persist Security Info=true.
     /// </summary>
     internal NpgsqlConnectionStringBuilder Settings { get; }
@@ -51,8 +51,8 @@ public abstract class NpgsqlDataSource : DbDataSource
     readonly Func<NpgsqlConnectionStringBuilder, CancellationToken, ValueTask<string>>? _periodicPasswordProvider;
     readonly TimeSpan _periodicPasswordSuccessRefreshInterval, _periodicPasswordFailureRefreshInterval;
 
-    internal Action<NpgsqlConnection>? ConnectionInitializer { get; }
-    internal Func<NpgsqlConnection, Task>? ConnectionInitializerAsync { get; }
+    internal Action<NpgsqlConnectionOrig>? ConnectionInitializer { get; }
+    internal Func<NpgsqlConnectionOrig, Task>? ConnectionInitializerAsync { get; }
 
     readonly Timer? _passwordProviderTimer;
     readonly CancellationTokenSource? _timerPasswordProviderCancellationTokenSource;
@@ -121,11 +121,11 @@ public abstract class NpgsqlDataSource : DbDataSource
     }
 
     /// <inheritdoc />
-    public new NpgsqlConnection CreateConnection()
-        => NpgsqlConnection.FromDataSource(this);
+    public new NpgsqlConnectionOrig CreateConnection()
+        => NpgsqlConnectionOrig.FromDataSource(this);
 
     /// <inheritdoc />
-    public new NpgsqlConnection OpenConnection()
+    public new NpgsqlConnectionOrig OpenConnection()
     {
         var connection = CreateConnection();
 
@@ -146,7 +146,7 @@ public abstract class NpgsqlDataSource : DbDataSource
         => OpenConnection();
 
     /// <inheritdoc />
-    public new async ValueTask<NpgsqlConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
+    public new async ValueTask<NpgsqlConnectionOrig> OpenConnectionAsync(CancellationToken cancellationToken = default)
     {
         var connection = CreateConnection();
 
@@ -303,12 +303,12 @@ public abstract class NpgsqlDataSource : DbDataSource
     #endregion Password management
 
     internal abstract ValueTask<NpgsqlConnector> Get(
-        NpgsqlConnection conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken);
+        NpgsqlConnectionOrig conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken);
 
     internal abstract bool TryGetIdleConnector([NotNullWhen(true)] out NpgsqlConnector? connector);
 
     internal abstract ValueTask<NpgsqlConnector?> OpenNewConnector(
-        NpgsqlConnection conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken);
+        NpgsqlConnectionOrig conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken);
 
     internal abstract void Return(NpgsqlConnector connector);
 
@@ -374,7 +374,7 @@ public abstract class NpgsqlDataSource : DbDataSource
         }
     }
 
-    internal virtual bool TryRentEnlistedPending(Transaction transaction, NpgsqlConnection connection,
+    internal virtual bool TryRentEnlistedPending(Transaction transaction, NpgsqlConnectionOrig connection,
         [NotNullWhen(true)] out NpgsqlConnector? connector)
     {
         lock (_pendingEnlistedConnectors)

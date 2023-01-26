@@ -232,7 +232,7 @@ public class PrepareTests: TestBase
         Assert.That(cmd.ExecuteScalar(), Is.EqualTo(1));
         cmd.Prepare();
         Assert.That(cmd.ExecuteScalar(), Is.EqualTo(1));
-        NpgsqlConnection.ClearPool(conn);
+        NpgsqlConnectionOrig.ClearPool(conn);
     }
 
     [Test]
@@ -242,8 +242,8 @@ public class PrepareTests: TestBase
         {
             ApplicationName = nameof(PrepareTests) + '.' + nameof(Across_close_open_different_connector)
         }.ToString();
-        using var conn1 = new NpgsqlConnection(connString);
-        using var conn2 = new NpgsqlConnection(connString);
+        using var conn1 = new NpgsqlConnectionOrig(connString);
+        using var conn2 = new NpgsqlConnectionOrig(connString);
         using var cmd = new NpgsqlCommandOrig("SELECT 1", conn1);
         conn1.Open();
         cmd.Prepare();
@@ -257,7 +257,7 @@ public class PrepareTests: TestBase
         Assert.That(cmd.ExecuteScalar(), Is.EqualTo(1));  // Execute unprepared
         cmd.Prepare();
         Assert.That(cmd.ExecuteScalar(), Is.EqualTo(1));
-        NpgsqlConnection.ClearPool(conn1);
+        NpgsqlConnectionOrig.ClearPool(conn1);
     }
 
     [Test]
@@ -286,7 +286,7 @@ public class PrepareTests: TestBase
             Assert.That(cmd2.InternalBatchCommands[0].PreparedStatement!.Name, Is.EqualTo(preparedStatement));
             Assert.That(cmd2.ExecuteScalar(), Is.EqualTo(8));
         }
-        NpgsqlConnection.ClearPool(conn1);
+        NpgsqlConnectionOrig.ClearPool(conn1);
     }
 
     [Test]
@@ -565,7 +565,7 @@ public class PrepareTests: TestBase
         AssertNumPreparedStatements(conn, 1, "Prepared statement deallocated");
         Assert.That(GetPreparedStatements(conn).Single(), Is.EqualTo(stmtName), "Prepared statement name changed unexpectedly");
 
-        NpgsqlConnection.ClearPool(conn);
+        NpgsqlConnectionOrig.ClearPool(conn);
     }
 
     [Test, Description("Makes sure that calling Prepare() twice on a command does not deallocate or make a new one after the first prepared statement when command does not change")]
@@ -777,23 +777,23 @@ public class PrepareTests: TestBase
         Assert.False(command.IsPrepared);
     }
 
-    NpgsqlConnection OpenConnectionAndUnprepare(string? connectionString = null)
+    NpgsqlConnectionOrig OpenConnectionAndUnprepare(string? connectionString = null)
     {
         var conn = OpenConnection(connectionString);
         conn.UnprepareAll();
         return conn;
     }
 
-    NpgsqlConnection OpenConnectionAndUnprepare(NpgsqlConnectionStringBuilder csb)
+    NpgsqlConnectionOrig OpenConnectionAndUnprepare(NpgsqlConnectionStringBuilder csb)
         => OpenConnectionAndUnprepare(csb.ToString());
 
-    void AssertNumPreparedStatements(NpgsqlConnection conn, int expected)
+    void AssertNumPreparedStatements(NpgsqlConnectionOrig conn, int expected)
         => Assert.That(conn.ExecuteScalar("SELECT COUNT(*) FROM pg_prepared_statements WHERE statement NOT LIKE '%FROM pg_prepared_statements%'"), Is.EqualTo(expected));
 
-    void AssertNumPreparedStatements(NpgsqlConnection conn, int expected, string message)
+    void AssertNumPreparedStatements(NpgsqlConnectionOrig conn, int expected, string message)
         => Assert.That(conn.ExecuteScalar("SELECT COUNT(*) FROM pg_prepared_statements WHERE statement NOT LIKE '%FROM pg_prepared_statements%'"), Is.EqualTo(expected), message);
 
-    List<string> GetPreparedStatements(NpgsqlConnection conn)
+    List<string> GetPreparedStatements(NpgsqlConnectionOrig conn)
     {
         var statements = new List<string>();
         using var cmd = new NpgsqlCommandOrig("SELECT name FROM pg_prepared_statements WHERE statement NOT LIKE '%FROM pg_prepared_statement%'", conn);

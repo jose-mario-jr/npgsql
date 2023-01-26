@@ -67,7 +67,7 @@ public class NpgsqlCommandOrig : DbCommand, ICloneable, IComponent
     bool IsExplicitlyPrepared => _connectorPreparedOn != null;
 
     /// <summary>
-    /// Whether this command is cached by <see cref="NpgsqlConnection" /> and returned by <see cref="NpgsqlConnection.CreateCommand" />.
+    /// Whether this command is cached by <see cref="NpgsqlConnectionOrig" /> and returned by <see cref="NpgsqlConnectionOrig.CreateCommand" />.
     /// </summary>
     internal bool IsCached { get; set; }
 
@@ -115,12 +115,12 @@ public class NpgsqlCommandOrig : DbCommand, ICloneable, IComponent
 
     /// <summary>
     /// Initializes a new instance of the <see cref="NpgsqlCommandOrig"/> class with the text of the query and a
-    /// <see cref="NpgsqlConnection"/>.
+    /// <see cref="NpgsqlConnectionOrig"/>.
     /// </summary>
     /// <param name="cmdText">The text of the query.</param>
-    /// <param name="connection">A <see cref="NpgsqlConnection"/> that represents the connection to a PostgreSQL server.</param>
+    /// <param name="connection">A <see cref="NpgsqlConnectionOrig"/> that represents the connection to a PostgreSQL server.</param>
     // ReSharper disable once IntroduceOptionalParameters.Global
-    public NpgsqlCommandOrig(string? cmdText, NpgsqlConnection? connection)
+    public NpgsqlCommandOrig(string? cmdText, NpgsqlConnectionOrig? connection)
     {
         GC.SuppressFinalize(this);
         InternalBatchCommands = new List<NpgsqlBatchCommand>(1);
@@ -132,19 +132,19 @@ public class NpgsqlCommandOrig : DbCommand, ICloneable, IComponent
 
     /// <summary>
     /// Initializes a new instance of the <see cref="NpgsqlCommandOrig"/> class with the text of the query, a
-    /// <see cref="NpgsqlConnection"/>, and the <see cref="NpgsqlTransaction"/>.
+    /// <see cref="NpgsqlConnectionOrig"/>, and the <see cref="NpgsqlTransaction"/>.
     /// </summary>
     /// <param name="cmdText">The text of the query.</param>
-    /// <param name="connection">A <see cref="NpgsqlConnection"/> that represents the connection to a PostgreSQL server.</param>
+    /// <param name="connection">A <see cref="NpgsqlConnectionOrig"/> that represents the connection to a PostgreSQL server.</param>
     /// <param name="transaction">The <see cref="NpgsqlTransaction"/> in which the <see cref="NpgsqlCommandOrig"/> executes.</param>
-    public NpgsqlCommandOrig(string? cmdText, NpgsqlConnection? connection, NpgsqlTransaction? transaction)
+    public NpgsqlCommandOrig(string? cmdText, NpgsqlConnectionOrig? connection, NpgsqlTransaction? transaction)
         : this(cmdText, connection)
         => Transaction = transaction;
 
     /// <summary>
     /// Used when this <see cref="NpgsqlCommandOrig"/> instance is wrapped inside an <see cref="NpgsqlBatch"/>.
     /// </summary>
-    internal NpgsqlCommandOrig(int batchCommandCapacity, NpgsqlConnection? connection = null)
+    internal NpgsqlCommandOrig(int batchCommandCapacity, NpgsqlConnectionOrig? connection = null)
     {
         GC.SuppressFinalize(this);
         InternalBatchCommands = new List<NpgsqlBatchCommand>(batchCommandCapacity);
@@ -167,7 +167,7 @@ public class NpgsqlCommandOrig : DbCommand, ICloneable, IComponent
         : this(batchCommandCapacity)
         => _connector = connector;
 
-    internal static NpgsqlCommandOrig CreateCachedCommand(NpgsqlConnection connection)
+    internal static NpgsqlCommandOrig CreateCachedCommand(NpgsqlConnectionOrig connection)
         => new(null, connection) { IsCached = true };
 
     #endregion Constructors
@@ -224,7 +224,7 @@ public class NpgsqlCommandOrig : DbCommand, ICloneable, IComponent
     [Category("Data")]
     public override CommandType CommandType { get; set; }
 
-    internal NpgsqlConnection? InternalConnection { get; private set; }
+    internal NpgsqlConnectionOrig? InternalConnection { get; private set; }
 
     /// <summary>
     /// DB connection.
@@ -238,7 +238,7 @@ public class NpgsqlCommandOrig : DbCommand, ICloneable, IComponent
                 return;
 
             InternalConnection = State == CommandState.Idle
-                ? (NpgsqlConnection?)value
+                ? (NpgsqlConnectionOrig?)value
                 : throw new InvalidOperationException("An open data reader exists for this command.");
 
             Transaction = null;
@@ -246,14 +246,14 @@ public class NpgsqlCommandOrig : DbCommand, ICloneable, IComponent
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="NpgsqlConnection"/> used by this instance of the <see cref="NpgsqlCommandOrig"/>.
+    /// Gets or sets the <see cref="NpgsqlConnectionOrig"/> used by this instance of the <see cref="NpgsqlCommandOrig"/>.
     /// </summary>
     /// <value>The connection to a data source. The default value is <see langword="null"/>.</value>
     [DefaultValue(null)]
     [Category("Behavior")]
-    public new NpgsqlConnection? Connection
+    public new NpgsqlConnectionOrig? Connection
     {
-        get => (NpgsqlConnection?)DbConnection;
+        get => (NpgsqlConnectionOrig?)DbConnection;
         set => DbConnection = value;
     }
 
@@ -1548,7 +1548,7 @@ GROUP BY pg_proc.proargnames, pg_proc.proargtypes, pg_proc.proallargtypes, pg_pr
     /// <summary>
     /// This property is ignored by Npgsql. PostgreSQL only supports a single transaction at a given time on
     /// a given connection, and all commands implicitly run inside the current transaction started via
-    /// <see cref="NpgsqlConnection.BeginTransaction()"/>
+    /// <see cref="NpgsqlConnectionOrig.BeginTransaction()"/>
     /// </summary>
     public new NpgsqlTransaction? Transaction
     {
@@ -1772,7 +1772,7 @@ GROUP BY pg_proc.proargnames, pg_proc.proargtypes, pg_proc.proallargtypes, pg_pr
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    NpgsqlConnection? CheckAndGetConnection()
+    NpgsqlConnectionOrig? CheckAndGetConnection()
     {
         if (State == CommandState.Disposed)
             throw new ObjectDisposedException(GetType().FullName);

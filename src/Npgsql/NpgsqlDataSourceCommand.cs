@@ -15,8 +15,8 @@ public class NpgsqlDataSourceCommand : NpgsqlCommandOrig
     /// <summary>
     /// Initializes a new instance of the <see cref="NpgsqlDataSourceCommand"/> class
     /// </summary>
-    /// <param name="connection">An instance of <see cref="NpgsqlConnection"/></param>
-    internal NpgsqlDataSourceCommand(NpgsqlConnection connection)
+    /// <param name="connection">An instance of <see cref="NpgsqlConnectionOrig"/></param>
+    internal NpgsqlDataSourceCommand(NpgsqlConnectionOrig connection)
         : base(cmdText: null, connection)
     {
     }
@@ -25,8 +25,8 @@ public class NpgsqlDataSourceCommand : NpgsqlCommandOrig
     /// Initializes a new instance of the <see cref="NpgsqlDataSourceCommand"/> class
     /// </summary>
     /// <param name="batchCommandCapacity">The initial command capacity for batching commands.</param>
-    /// <param name="connection">An instance of <see cref="NpgsqlConnection"/></param>
-    internal NpgsqlDataSourceCommand(int batchCommandCapacity, NpgsqlConnection connection)
+    /// <param name="connection">An instance of <see cref="NpgsqlConnectionOrig"/></param>
+    internal NpgsqlDataSourceCommand(int batchCommandCapacity, NpgsqlConnectionOrig connection)
         : base(batchCommandCapacity, connection)
     {
     }

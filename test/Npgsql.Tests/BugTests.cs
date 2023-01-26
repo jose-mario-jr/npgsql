@@ -158,7 +158,7 @@ public class BugTests : TestBase
             Enlist = true
         };
         using var tx = new TransactionScope();
-        using var conn = new NpgsqlConnection(csb.ToString());
+        using var conn = new NpgsqlConnectionOrig(csb.ToString());
         conn.Open();
     }
 
@@ -382,7 +382,7 @@ CREATE TYPE {compositeType} AS (value {domainType})");
             AutoPrepareMinUsages = 2,
             MaxAutoPrepare = 2
         };
-        using var conn = new NpgsqlConnection(builder.ConnectionString);
+        using var conn = new NpgsqlConnectionOrig(builder.ConnectionString);
         using var cmd = new NpgsqlCommandOrig();
         conn.Open();
         cmd.Connection = conn;
@@ -1215,7 +1215,7 @@ $$;");
     {
         const string OkCommand = "SELECT 1";
         const string ErrorCommand = "SELECT * FROM public.imnotexist";
-        using (var conn = new NpgsqlConnection(ConnectionString))
+        using (var conn = new NpgsqlConnectionOrig(ConnectionString))
         {
             conn.Open();
             var okCommand = new NpgsqlCommandOrig(OkCommand, conn);
@@ -1228,7 +1228,7 @@ $$;");
                 .With.Property(nameof(PostgresException.SqlState)).EqualTo(PostgresErrorCodes.UndefinedTable));
         }
 
-        using (var conn = new NpgsqlConnection(ConnectionString))
+        using (var conn = new NpgsqlConnectionOrig(ConnectionString))
         {
             conn.Open();
             var okCommand = new NpgsqlCommandOrig(OkCommand, conn);

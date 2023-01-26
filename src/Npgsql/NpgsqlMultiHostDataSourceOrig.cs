@@ -68,14 +68,14 @@ public class NpgsqlMultiHostDataSourceOrig : NpgsqlDataSource
     /// Returns a new, unopened connection from this data source.
     /// </summary>
     /// <param name="targetSessionAttributes">Specifies the server type (e.g. primary, standby).</param>
-    public NpgsqlConnection CreateConnection(TargetSessionAttributes targetSessionAttributes)
-        => NpgsqlConnection.FromDataSource(_wrappers[(int)targetSessionAttributes]);
+    public NpgsqlConnectionOrig CreateConnection(TargetSessionAttributes targetSessionAttributes)
+        => NpgsqlConnectionOrig.FromDataSource(_wrappers[(int)targetSessionAttributes]);
 
     /// <summary>
     /// Returns a new, opened connection from this data source.
     /// </summary>
     /// <param name="targetSessionAttributes">Specifies the server type (e.g. primary, standby).</param>
-    public NpgsqlConnection OpenConnection(TargetSessionAttributes targetSessionAttributes)
+    public NpgsqlConnectionOrig OpenConnection(TargetSessionAttributes targetSessionAttributes)
     {
         var connection = CreateConnection(targetSessionAttributes);
 
@@ -98,7 +98,7 @@ public class NpgsqlMultiHostDataSourceOrig : NpgsqlDataSource
     /// <param name="cancellationToken">
     /// An optional token to cancel the asynchronous operation. The default value is <see cref="CancellationToken.None"/>.
     /// </param>
-    public async ValueTask<NpgsqlConnection> OpenConnectionAsync(
+    public async ValueTask<NpgsqlConnectionOrig> OpenConnectionAsync(
         TargetSessionAttributes targetSessionAttributes,
         CancellationToken cancellationToken = default)
     {
@@ -157,7 +157,7 @@ public class NpgsqlMultiHostDataSourceOrig : NpgsqlDataSource
     }
 
     async ValueTask<NpgsqlConnector?> TryGetIdleOrNew(
-        NpgsqlConnection conn,
+        NpgsqlConnectionOrig conn,
         TimeSpan timeoutPerHost,
         bool async,
         TargetSessionAttributes preferredType, Func<DatabaseState, TargetSessionAttributes, bool> stateValidator,
@@ -231,7 +231,7 @@ public class NpgsqlMultiHostDataSourceOrig : NpgsqlDataSource
     }
 
     async ValueTask<NpgsqlConnector?> TryGet(
-        NpgsqlConnection conn,
+        NpgsqlConnectionOrig conn,
         TimeSpan timeoutPerHost,
         bool async,
         TargetSessionAttributes preferredType,
@@ -286,7 +286,7 @@ public class NpgsqlMultiHostDataSourceOrig : NpgsqlDataSource
     }
 
     internal override async ValueTask<NpgsqlConnector> Get(
-        NpgsqlConnection conn,
+        NpgsqlConnectionOrig conn,
         NpgsqlTimeout timeout,
         bool async,
         CancellationToken cancellationToken)
@@ -351,7 +351,7 @@ public class NpgsqlMultiHostDataSourceOrig : NpgsqlDataSource
     internal override bool TryGetIdleConnector([NotNullWhen(true)] out NpgsqlConnector? connector)
         => throw new NpgsqlException("Npgsql bug: trying to get an idle connector from " + nameof(NpgsqlMultiHostDataSourceOrig));
 
-    internal override ValueTask<NpgsqlConnector?> OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken)
+    internal override ValueTask<NpgsqlConnector?> OpenNewConnector(NpgsqlConnectionOrig conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken)
         => throw new NpgsqlException("Npgsql bug: trying to open a new connector from " + nameof(NpgsqlMultiHostDataSourceOrig));
 
     internal override void Clear()
@@ -392,7 +392,7 @@ public class NpgsqlMultiHostDataSourceOrig : NpgsqlDataSource
 
     internal override bool TryRentEnlistedPending(
         Transaction transaction,
-        NpgsqlConnection connection,
+        NpgsqlConnectionOrig connection,
         [NotNullWhen(true)] out NpgsqlConnector? connector)
     {
         lock (_pendingEnlistedConnectors)
@@ -443,7 +443,7 @@ public class NpgsqlMultiHostDataSourceOrig : NpgsqlDataSource
         }
     }
 
-    static TargetSessionAttributes GetTargetSessionAttributes(NpgsqlConnection connection)
+    static TargetSessionAttributes GetTargetSessionAttributes(NpgsqlConnectionOrig connection)
         => connection.Settings.TargetSessionAttributesParsed ??
            (PostgresEnvironment.TargetSessionAttributes is { } s
                ? NpgsqlConnectionStringBuilder.ParseTargetSessionAttributes(s)

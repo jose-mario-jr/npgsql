@@ -16,14 +16,14 @@ namespace Npgsql;
 
 /// <summary>
 /// Provides a simple way to create and manage the contents of connection strings used by
-/// the <see cref="NpgsqlConnection"/> class.
+/// the <see cref="NpgsqlConnectionOrig"/> class.
 /// </summary>
 public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBuilder, IDictionary<string, object?>
 {
     #region Fields
 
     /// <summary>
-    /// Cached DataSource value to reduce allocations on NpgsqlConnection.DataSource.get
+    /// Cached DataSource value to reduce allocations on NpgsqlConnectionOrig.DataSource.get
     /// </summary>
     string? _dataSourceCached;
 
@@ -227,7 +227,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Description("The TCP port of the PostgreSQL server.")]
     [DisplayName("Port")]
     [NpgsqlConnectionStringProperty]
-    [DefaultValue(NpgsqlConnection.DefaultPort)]
+    [DefaultValue(NpgsqlConnectionOrig.DefaultPort)]
     public int Port
     {
         get => _port;
@@ -823,8 +823,8 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
         get => _timeout;
         set
         {
-            if (value < 0 || value > NpgsqlConnection.TimeoutLimit)
-                throw new ArgumentOutOfRangeException(nameof(value), value, "Timeout must be between 0 and " + NpgsqlConnection.TimeoutLimit);
+            if (value < 0 || value > NpgsqlConnectionOrig.TimeoutLimit)
+                throw new ArgumentOutOfRangeException(nameof(value), value, "Timeout must be between 0 and " + NpgsqlConnectionOrig.TimeoutLimit);
 
             _timeout = value;
             SetValue(nameof(Timeout), value);

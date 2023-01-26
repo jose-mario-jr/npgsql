@@ -30,7 +30,7 @@ public class DataAdapterTests : TestBase
         var da = new NpgsqlDataAdapter(command);
         var ds = new DataSet();
         da.Fill(ds);
-        //ds.WriteXml("TestUseDataAdapterNpgsqlConnectionConstructor.xml");
+        //ds.WriteXml("TestUseDataAdapterNpgsqlConnectionOrigConstructor.xml");
     }
 
     [Test]
@@ -40,7 +40,7 @@ public class DataAdapterTests : TestBase
         var da = new NpgsqlDataAdapter("SELECT 1", conn);
         var ds = new DataSet();
         da.Fill(ds);
-        //ds.WriteXml("TestUseDataAdapterStringNpgsqlConnectionConstructor.xml");
+        //ds.WriteXml("TestUseDataAdapterStringNpgsqlConnectionOrigConstructor.xml");
     }
 
     [Test]
@@ -536,7 +536,7 @@ INSERT INTO {table} (interval) VALUES ('1 hour'::INTERVAL);");
         Assert.AreEqual(5, dt.Columns[1].MaxLength);
     }
 
-    public Task<string> SetupTempTable(NpgsqlConnection conn)
+    public Task<string> SetupTempTable(NpgsqlConnectionOrig conn)
         => CreateTempTable(conn, @"
 field_pk SERIAL PRIMARY KEY,
 field_serial SERIAL,

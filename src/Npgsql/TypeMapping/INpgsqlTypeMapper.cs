@@ -12,7 +12,7 @@ namespace Npgsql.TypeMapping;
 /// </summary>
 /// <remarks>
 /// The preferred way to manage type mappings is on <see cref="NpgsqlDataSourceBuilder" />. An alternative, but discouraged, method, is to
-/// manage them globally via <see cref="NpgsqlConnection.GlobalTypeMapper"/>).
+/// manage them globally via <see cref="NpgsqlConnectionOrig.GlobalTypeMapper"/>).
 /// </remarks>
 public interface INpgsqlTypeMapper
 {

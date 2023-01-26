@@ -20,19 +20,19 @@ public class ConnectionOpenCloseBenchmarks
     readonly NpgsqlCommandOrig _openCloseCmd = new("SET lock_timeout = 1000");
     readonly SqlCommand _sqlOpenCloseCmd = new("SET LOCK_TIMEOUT 1000");
 
-    NpgsqlConnection _openCloseSameConn;
+    NpgsqlConnectionOrig _openCloseSameConn;
     NpgsqlCommandOrig _openCloseSameCmd;
 
     SqlConnection _sqlOpenCloseSameConn;
     SqlCommand _sqlOpenCloseSameCmd;
 
-    NpgsqlConnection _connWithPrepared;
+    NpgsqlConnectionOrig _connWithPrepared;
     NpgsqlCommandOrig _withPreparedCmd;
 
-    NpgsqlConnection _noResetConn;
+    NpgsqlConnectionOrig _noResetConn;
     NpgsqlCommandOrig _noResetCmd;
 
-    NpgsqlConnection _nonPooledConnection;
+    NpgsqlConnectionOrig _nonPooledConnection;
     NpgsqlCommandOrig _nonPooledCmd;
 #pragma warning restore CS8618
 
@@ -44,19 +44,19 @@ public class ConnectionOpenCloseBenchmarks
     public void GlobalSetup()
     {
         var csb = new NpgsqlConnectionStringBuilder(BenchmarkEnvironment.ConnectionString) { ApplicationName = nameof(NoOpenClose)};
-        var noOpenCloseConn = new NpgsqlConnection(csb.ToString());
+        var noOpenCloseConn = new NpgsqlConnectionOrig(csb.ToString());
         noOpenCloseConn.Open();
         _noOpenCloseCmd = new NpgsqlCommandOrig("SET lock_timeout = 1000", noOpenCloseConn);
 
         csb = new NpgsqlConnectionStringBuilder(BenchmarkEnvironment.ConnectionString) { ApplicationName = nameof(OpenCloseSameConnection) };
-        _openCloseSameConn = new NpgsqlConnection(csb.ToString());
+        _openCloseSameConn = new NpgsqlConnectionOrig(csb.ToString());
         _openCloseSameCmd = new NpgsqlCommandOrig("SET lock_timeout = 1000", _openCloseSameConn);
 
         _sqlOpenCloseSameConn = new SqlConnection(SqlClientConnectionString);
         _sqlOpenCloseSameCmd = new SqlCommand("SET LOCK_TIMEOUT 1000", _sqlOpenCloseSameConn);
 
         csb = new NpgsqlConnectionStringBuilder(BenchmarkEnvironment.ConnectionString) { ApplicationName = nameof(WithPrepared) };
-        _connWithPrepared = new NpgsqlConnection(csb.ToString());
+        _connWithPrepared = new NpgsqlConnectionOrig(csb.ToString());
         _connWithPrepared.Open();
         using (var somePreparedCmd = new NpgsqlCommandOrig("SELECT 1", _connWithPrepared))
             somePreparedCmd.Prepare();
@@ -68,13 +68,13 @@ public class ConnectionOpenCloseBenchmarks
             ApplicationName = nameof(NoResetOnClose),
             NoResetOnClose = true
         };
-        _noResetConn = new NpgsqlConnection(csb.ToString());
+        _noResetConn = new NpgsqlConnectionOrig(csb.ToString());
         _noResetCmd = new NpgsqlCommandOrig("SET lock_timeout = 1000", _noResetConn);
         csb = new NpgsqlConnectionStringBuilder(BenchmarkEnvironment.ConnectionString) {
             ApplicationName = nameof(NonPooled),
             Pooling = false
         };
-        _nonPooledConnection = new NpgsqlConnection(csb.ToString());
+        _nonPooledConnection = new NpgsqlConnectionOrig(csb.ToString());
         _nonPooledCmd = new NpgsqlCommandOrig("SET lock_timeout = 1000", _nonPooledConnection);
     }
 
@@ -82,7 +82,7 @@ public class ConnectionOpenCloseBenchmarks
     public void GlobalCleanup()
     {
         _noOpenCloseCmd.Connection?.Close();
-        NpgsqlConnection.ClearAllPools();
+        NpgsqlConnectionOrig.ClearAllPools();
         SqlConnection.ClearAllPools();
     }
 
@@ -96,7 +96,7 @@ public class ConnectionOpenCloseBenchmarks
     [Benchmark]
     public void OpenClose()
     {
-        using (var conn = new NpgsqlConnection(_openCloseConnString))
+        using (var conn = new NpgsqlConnectionOrig(_openCloseConnString))
         {
             conn.Open();
             _openCloseCmd.Connection = conn;

@@ -39,7 +39,7 @@ public class CompositeTests : MultiplexingTestBase
         var type = await GetTempTypeName(adminConnection);
 
         await adminConnection.ExecuteNonQueryAsync($"CREATE TYPE {type} AS (x int, some_text text)");
-        NpgsqlConnection.GlobalTypeMapper.MapComposite<SomeComposite>(type);
+        NpgsqlConnectionOrig.GlobalTypeMapper.MapComposite<SomeComposite>(type);
 
         try
         {
@@ -58,7 +58,7 @@ public class CompositeTests : MultiplexingTestBase
         }
         finally
         {
-            NpgsqlConnection.GlobalTypeMapper.Reset();
+            NpgsqlConnectionOrig.GlobalTypeMapper.Reset();
         }
     }
 #pragma warning restore CS0618 // GlobalTypeMapper is obsolete

@@ -82,7 +82,7 @@ public class ArrayTests : MultiplexingTestBase
     public async Task Bind_int_then_array_of_int()
     {
         using var pool = CreateTempPool(ConnectionString, out var connString);
-        using var conn = new NpgsqlConnection(connString);
+        using var conn = new NpgsqlConnectionOrig(connString);
         await conn.OpenAsync();
 
         using var cmd = new NpgsqlCommandOrig("SELECT 1", conn);
@@ -617,7 +617,7 @@ public class ArrayTests : MultiplexingTestBase
         Assert.AreNotSame(reader.GetFieldValue<List<int>>(0), reader.GetFieldValue<List<int>>(1));
     }
 
-    async Task AssertIListRoundtrips<TElement>(NpgsqlConnection conn, IEnumerable<TElement> value)
+    async Task AssertIListRoundtrips<TElement>(NpgsqlConnectionOrig conn, IEnumerable<TElement> value)
     {
         using var cmd = new NpgsqlCommandOrig("SELECT @p", conn);
         cmd.Parameters.Add(new NpgsqlParameter { ParameterName = "p", Value = value });

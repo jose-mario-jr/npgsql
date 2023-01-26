@@ -36,7 +36,7 @@ public class NpgsqlDataReaderOrig : DbDataReader, IDbColumnSchemaGenerator
 {
     internal NpgsqlCommandOrig Command { get; private set; } = default!;
     internal NpgsqlConnector Connector { get; }
-    NpgsqlConnection? _connection;
+    NpgsqlConnectionOrig? _connection;
 
     /// <summary>
     /// The behavior of the command with which this reader was executed.

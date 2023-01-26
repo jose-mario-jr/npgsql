@@ -11,7 +11,7 @@ namespace Npgsql;
 ///
 /// </summary>
 /// <remarks>
-/// Note that a connection may be closed before its TransactionScope completes. In this case we close the NpgsqlConnection
+/// Note that a connection may be closed before its TransactionScope completes. In this case we close the NpgsqlConnectionOrig
 /// as usual but the connector in a special list in the pool; it will be closed only when the scope completes.
 /// </remarks>
 sealed class VolatileResourceManager : ISinglePhaseNotification
@@ -28,7 +28,7 @@ sealed class VolatileResourceManager : ISinglePhaseNotification
 
     const int MaximumRollbackAttempts = 20;
 
-    internal VolatileResourceManager(NpgsqlConnection connection, Transaction transaction)
+    internal VolatileResourceManager(NpgsqlConnectionOrig connection, Transaction transaction)
     {
         _connector = connection.Connector!;
         _transaction = transaction;
@@ -121,7 +121,7 @@ sealed class VolatileResourceManager : ISinglePhaseNotification
                 // if the user continues to use their connection after disposing the scope, and the MSDTC
                 // requests a commit at that exact time.
                 // To avoid this, we open a new connection for performing the 2nd phase.
-                using var conn2 = (NpgsqlConnection)((ICloneable)_connector.Connection).Clone();
+                using var conn2 = (NpgsqlConnectionOrig)((ICloneable)_connector.Connection).Clone();
                 conn2.Open();
 
                 var connector = conn2.Connector!;
@@ -236,7 +236,7 @@ sealed class VolatileResourceManager : ISinglePhaseNotification
                 // if the user continues to use their connection after disposing the scope, and the MSDTC
                 // requests a commit at that exact time.
                 // To avoid this, we open a new connection for performing the 2nd phase.
-                using var conn2 = (NpgsqlConnection)((ICloneable)_connector.Connection).Clone();
+                using var conn2 = (NpgsqlConnectionOrig)((ICloneable)_connector.Connection).Clone();
                 conn2.Open();
 
                 var connector = conn2.Connector!;

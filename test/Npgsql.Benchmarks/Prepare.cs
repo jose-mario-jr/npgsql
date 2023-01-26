@@ -12,7 +12,7 @@ namespace Npgsql.Benchmarks;
 
 public class Prepare
 {
-    NpgsqlConnection _conn = default!, _autoPreparingConn = default!;
+    NpgsqlConnectionOrig _conn = default!, _autoPreparingConn = default!;
     static readonly string[] Queries;
     string _query = default!;
     NpgsqlCommandOrig _preparedCmd = default!;
@@ -28,7 +28,7 @@ public class Prepare
     public void GlobalSetup()
     {
         _conn = BenchmarkEnvironment.OpenConnection();
-        _autoPreparingConn = new NpgsqlConnection(new NpgsqlConnectionStringBuilder(BenchmarkEnvironment.ConnectionString)
+        _autoPreparingConn = new NpgsqlConnectionOrig(new NpgsqlConnectionStringBuilder(BenchmarkEnvironment.ConnectionString)
         {
             MaxAutoPrepare = 10
         }.ToString());

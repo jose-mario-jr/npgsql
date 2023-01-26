@@ -833,7 +833,7 @@ public class MultipleHostsTests : TestBase
 
         async Task Query(string connectionString)
         {
-            await using var conn = new NpgsqlConnection(connectionString);
+            await using var conn = new NpgsqlConnectionOrig(connectionString);
             await conn.OpenAsync();
 
             await using var cmd = conn.CreateCommand();

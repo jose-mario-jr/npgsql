@@ -21,7 +21,7 @@ sealed class UnpooledDataSource : NpgsqlDataSource
     internal override bool OwnsConnectors => true;
 
     internal override async ValueTask<NpgsqlConnector> Get(
-        NpgsqlConnection conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken)
+        NpgsqlConnectionOrig conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken)
     {
         CheckDisposed();
 
@@ -38,7 +38,7 @@ sealed class UnpooledDataSource : NpgsqlDataSource
     }
 
     internal override ValueTask<NpgsqlConnector?> OpenNewConnector(
-        NpgsqlConnection conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken)
+        NpgsqlConnectionOrig conn, NpgsqlTimeout timeout, bool async, CancellationToken cancellationToken)
         => new((NpgsqlConnector?)null);
 
     internal override void Return(NpgsqlConnector connector)
@@ -49,7 +49,7 @@ sealed class UnpooledDataSource : NpgsqlDataSource
 
     internal override void Clear() {}
 
-    internal override bool TryRentEnlistedPending(Transaction transaction, NpgsqlConnection connection,
+    internal override bool TryRentEnlistedPending(Transaction transaction, NpgsqlConnectionOrig connection,
         [NotNullWhen(true)] out NpgsqlConnector? connector)
     {
         connector = null;

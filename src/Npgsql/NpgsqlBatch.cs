@@ -27,7 +27,7 @@ public class NpgsqlBatch : DbBatch
     }
 
     /// <inheritdoc cref="DbBatch.Connection"/>
-    public new NpgsqlConnection? Connection
+    public new NpgsqlConnectionOrig? Connection
     {
         get => Command.Connection;
         set => Command.Connection = value;
@@ -37,7 +37,7 @@ public class NpgsqlBatch : DbBatch
     protected override DbConnection? DbConnection
     {
         get => Connection;
-        set => Connection = (NpgsqlConnection?)value;
+        set => Connection = (NpgsqlConnectionOrig?)value;
     }
 
     /// <inheritdoc cref="DbBatch.Transaction"/>
@@ -94,9 +94,9 @@ public class NpgsqlBatch : DbBatch
     /// <summary>
     /// Initializes a new <see cref="NpgsqlBatch"/>.
     /// </summary>
-    /// <param name="connection">A <see cref="NpgsqlConnection"/> that represents the connection to a PostgreSQL server.</param>
+    /// <param name="connection">A <see cref="NpgsqlConnectionOrig"/> that represents the connection to a PostgreSQL server.</param>
     /// <param name="transaction">The <see cref="NpgsqlTransaction"/> in which the <see cref="NpgsqlCommandOrig"/> executes.</param>
-    public NpgsqlBatch(NpgsqlConnection? connection = null, NpgsqlTransaction? transaction = null)
+    public NpgsqlBatch(NpgsqlConnectionOrig? connection = null, NpgsqlTransaction? transaction = null)
     {
         Command = new(DefaultBatchCommandsSize);
         BatchCommands = new NpgsqlBatchCommandCollection(Command.InternalBatchCommands);

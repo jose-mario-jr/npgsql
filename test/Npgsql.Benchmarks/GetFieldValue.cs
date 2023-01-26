@@ -7,7 +7,7 @@ namespace Npgsql.Benchmarks;
 [Config(typeof(Config))]
 public class GetFieldValue
 {
-    readonly NpgsqlConnection _conn;
+    readonly NpgsqlConnectionOrig _conn;
     readonly NpgsqlCommandOrig _cmd;
     readonly NpgsqlDataReaderOrig _reader;
 

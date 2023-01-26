@@ -29,7 +29,7 @@ public abstract class ReplicationConnection : IAsyncDisposable
     static readonly Version FirstVersionWithTwoPhaseSupport = new(15, 0);
     static readonly Version FirstVersionWithoutDropSlotDoubleCommandCompleteMessage = new(13, 0);
     static readonly Version FirstVersionWithTemporarySlotsAndSlotSnapshotInitMode = new(10, 0);
-    readonly NpgsqlConnection _npgsqlConnection;
+    readonly NpgsqlConnectionOrig _npgsqlConnection;
     readonly SemaphoreSlim _feedbackSemaphore = new(1, 1);
     string? _userFacingConnectionString;
     TimeSpan? _commandTimeout;
@@ -62,7 +62,7 @@ public abstract class ReplicationConnection : IAsyncDisposable
 
     private protected ReplicationConnection()
     {
-        _npgsqlConnection = new NpgsqlConnection();
+        _npgsqlConnection = new NpgsqlConnectionOrig();
         _requestFeedbackInterval = new TimeSpan(_walReceiverTimeout.Ticks / 2);
     }
 

@@ -13,7 +13,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class NpgsqlServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers an <see cref="NpgsqlDataSource" /> and an <see cref="NpgsqlConnection" /> in the <see cref="IServiceCollection" />.
+    /// Registers an <see cref="NpgsqlDataSource" /> and an <see cref="NpgsqlConnectionOrig" /> in the <see cref="IServiceCollection" />.
     /// </summary>
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <param name="connectionString">An Npgsql connection string.</param>
@@ -21,7 +21,7 @@ public static class NpgsqlServiceCollectionExtensions
     /// An action to configure the <see cref="NpgsqlDataSourceBuilder" /> for further customizations of the <see cref="NpgsqlDataSource" />.
     /// </param>
     /// <param name="connectionLifetime">
-    /// The lifetime with which to register the <see cref="NpgsqlConnection" /> in the container.
+    /// The lifetime with which to register the <see cref="NpgsqlConnectionOrig" /> in the container.
     /// Defaults to <see cref="ServiceLifetime.Scoped" />.
     /// </param>
     /// <param name="dataSourceLifetime">
@@ -38,12 +38,12 @@ public static class NpgsqlServiceCollectionExtensions
         => AddNpgsqlDataSourceCore(serviceCollection, connectionString, dataSourceBuilderAction, connectionLifetime, dataSourceLifetime);
 
     /// <summary>
-    /// Registers an <see cref="NpgsqlDataSource" /> and an <see cref="NpgsqlConnection" /> in the <see cref="IServiceCollection" />.
+    /// Registers an <see cref="NpgsqlDataSource" /> and an <see cref="NpgsqlConnectionOrig" /> in the <see cref="IServiceCollection" />.
     /// </summary>
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <param name="connectionString">An Npgsql connection string.</param>
     /// <param name="connectionLifetime">
-    /// The lifetime with which to register the <see cref="NpgsqlConnection" /> in the container.
+    /// The lifetime with which to register the <see cref="NpgsqlConnectionOrig" /> in the container.
     /// Defaults to <see cref="ServiceLifetime.Scoped" />.
     /// </param>
     /// <param name="dataSourceLifetime">
@@ -60,7 +60,7 @@ public static class NpgsqlServiceCollectionExtensions
             serviceCollection, connectionString, dataSourceBuilderAction: null, connectionLifetime, dataSourceLifetime);
 
     /// <summary>
-    /// Registers an <see cref="NpgsqlMultiHostDataSourceOrig" /> and an <see cref="NpgsqlConnection" /> in the
+    /// Registers an <see cref="NpgsqlMultiHostDataSourceOrig" /> and an <see cref="NpgsqlConnectionOrig" /> in the
     /// </summary>
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <param name="connectionString">An Npgsql connection string.</param>
@@ -68,7 +68,7 @@ public static class NpgsqlServiceCollectionExtensions
     /// An action to configure the <see cref="NpgsqlDataSourceBuilder" /> for further customizations of the <see cref="NpgsqlDataSource" />.
     /// </param>
     /// <param name="connectionLifetime">
-    /// The lifetime with which to register the <see cref="NpgsqlConnection" /> in the container.
+    /// The lifetime with which to register the <see cref="NpgsqlConnectionOrig" /> in the container.
     /// Defaults to <see cref="ServiceLifetime.Scoped" />.
     /// </param>
     /// <param name="dataSourceLifetime">
@@ -86,13 +86,13 @@ public static class NpgsqlServiceCollectionExtensions
             serviceCollection, connectionString, dataSourceBuilderAction, connectionLifetime, dataSourceLifetime);
 
     /// <summary>
-    /// Registers an <see cref="NpgsqlMultiHostDataSourceOrig" /> and an <see cref="NpgsqlConnection" /> in the
+    /// Registers an <see cref="NpgsqlMultiHostDataSourceOrig" /> and an <see cref="NpgsqlConnectionOrig" /> in the
     /// <see cref="IServiceCollection" />.
     /// </summary>
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <param name="connectionString">An Npgsql connection string.</param>
     /// <param name="connectionLifetime">
-    /// The lifetime with which to register the <see cref="NpgsqlConnection" /> in the container.
+    /// The lifetime with which to register the <see cref="NpgsqlConnectionOrig" /> in the container.
     /// Defaults to <see cref="ServiceLifetime.Scoped" />.
     /// </param>
     /// <param name="dataSourceLifetime">
@@ -169,7 +169,7 @@ public static class NpgsqlServiceCollectionExtensions
     {
         serviceCollection.TryAdd(
             new ServiceDescriptor(
-                typeof(NpgsqlConnection),
+                typeof(NpgsqlConnectionOrig),
                 sp => sp.GetRequiredService<NpgsqlDataSource>().CreateConnection(),
                 connectionLifetime));
 
@@ -182,7 +182,7 @@ public static class NpgsqlServiceCollectionExtensions
         serviceCollection.TryAdd(
             new ServiceDescriptor(
                 typeof(DbConnection),
-                sp => sp.GetRequiredService<NpgsqlConnection>(),
+                sp => sp.GetRequiredService<NpgsqlConnectionOrig>(),
                 connectionLifetime));
     }
 }

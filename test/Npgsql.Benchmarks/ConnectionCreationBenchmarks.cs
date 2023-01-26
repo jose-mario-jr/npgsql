@@ -14,7 +14,7 @@ public class ConnectionCreationBenchmarks
     const string SqlClientConnectionString = @"Data Source=(localdb)\mssqllocaldb";
 
     [Benchmark]
-    public NpgsqlConnection Npgsql() => new(NpgsqlConnectionString);
+    public NpgsqlConnectionOrig Npgsql() => new(NpgsqlConnectionString);
 
     [Benchmark]
     public SqlConnection SqlClient() => new(SqlClientConnectionString);
