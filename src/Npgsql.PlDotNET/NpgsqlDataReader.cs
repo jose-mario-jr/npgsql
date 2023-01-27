@@ -15,11 +15,11 @@ using PlDotNET.Handler;
 
 #pragma warning disable CS8618, CS8619, CS8604, CS1591
 
-/// <summary>
-/// Represents a data reader for PostgreSQL data.
-/// </summary>
 namespace Npgsql.PlDotNET
 {
+    /// <summary>
+    /// Represents a data reader for PostgreSQL data.
+    /// </summary>
     public class NpgsqlDataReader : NpgsqlDataReaderOrig
     {
         /// <summary>
