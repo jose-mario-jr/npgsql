@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Npgsql.PlDotNET;
 using Npgsql.Tests.Support;
 using NpgsqlTypes;
 using NUnit.Framework;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Npgsql.PlDotNET;
 using Npgsql.PostgresTypes;
 using NpgsqlTypes;
 using NUnit.Framework;

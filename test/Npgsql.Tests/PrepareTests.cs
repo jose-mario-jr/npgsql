@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Npgsql.PlDotNET;
 using NpgsqlTypes;
 using NUnit.Framework;
 using static Npgsql.Tests.TestUtil;

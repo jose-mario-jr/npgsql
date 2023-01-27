@@ -12,7 +12,7 @@ using Npgsql.Internal;
 using Npgsql.PostgresTypes;
 using PlDotNET.Handler;
 
-namespace Npgsql.PlDotNET
+namespace Npgsql
 {
 
     /// <inheritdoc />
@@ -33,6 +33,24 @@ namespace Npgsql.PlDotNET
         }
 
         /// <inheritdoc />
+        public NpgsqlConnection(NpgsqlMultiHostDataSource dataSource) : this()
+        {
+            this._dataSource = dataSource;
+        }
+
+        /// <summary>
+        /// Get private attribute DataSource
+        /// </summary>
+        public NpgsqlMultiHostDataSource getDataSource()
+        {
+            if (this._dataSource == null)
+            {
+                this._dataSource = NpgsqlMultiHostDataSource.Create();
+            }
+            return this._dataSource;
+        }
+
+        /// <inheritdoc />
         public override Task OpenAsync(CancellationToken cancellationToken)
         {
             using (NoSynchronizationContextScope.Enter())
@@ -44,5 +62,12 @@ namespace Npgsql.PlDotNET
             this._dataSource = NpgsqlMultiHostDataSource.Create();
             return Task.CompletedTask;
         }
+
+        internal static NpgsqlConnection FromDataSource(NpgsqlMultiHostDataSource dataSource)
+        => new()
+        {
+            _dataSource = dataSource
+        };
+
     }
 }

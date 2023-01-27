@@ -12,7 +12,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using Npgsql.PlDotNET;
 using Npgsql.Properties;
 using static Npgsql.Tests.Support.MockState;
 using static Npgsql.Tests.TestUtil;

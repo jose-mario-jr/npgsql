@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Npgsql.Internal;
-using Npgsql.PlDotNET;
 using NpgsqlTypes;
 using NUnit.Framework;
 using static Npgsql.Tests.TestUtil;

@@ -14,27 +14,45 @@ using PlDotNET.Handler;
 
 #pragma warning disable CS1591
 
-namespace Npgsql.PlDotNET
+namespace Npgsql
 {
     public class NpgsqlCommand : NpgsqlCommandOrig
     {
         string _commandText;
-        private readonly IntPtr cmdPointer;
+        IntPtr _cmdPointer;
 
         internal NpgsqlConnection InternalConnection { get; private set; }
 
-        public NpgsqlCommand(string query, NpgsqlMultiHostDataSource dataSource)
+        public NpgsqlCommand()
         {
-            this._commandText = query;
-            this.InternalConnection = new NpgsqlConnection(dataSource);
+            this._commandText = this._commandText ?? string.Empty;
+            this.InternalConnection = this.InternalConnection  ?? new NpgsqlConnection();
 
-            pldotnet_SPIPrepare(this._commandText, ref this.cmdPointer);
+            this.Prepare();
+        }
+        public NpgsqlCommand(string cmdText, NpgsqlMultiHostDataSource dataSource) : this()
+        {
+            this._commandText = cmdText;
+            this.InternalConnection = new NpgsqlConnection(dataSource);
         }
 
         public NpgsqlCommand(string? cmdText, NpgsqlConnection connection)
         {
             this._commandText = cmdText ?? string.Empty;
             this.InternalConnection = connection;
+        }
+
+        public NpgsqlCommand(NpgsqlConnection connection)
+        {
+            this._commandText = string.Empty;
+            this.InternalConnection = connection;
+        }
+
+        Task Prepare(bool async, CancellationToken cancellationToken = default)
+        {
+            pldotnet_SPIPrepare(this._commandText, ref this._cmdPointer);
+
+            return Task.CompletedTask;
         }
 
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
@@ -50,14 +68,35 @@ namespace Npgsql.PlDotNET
         {
             IntPtr cursorPointer = IntPtr.Zero;
 
-            pldotnet_SPICursorOpen(this.cmdPointer, ref cursorPointer);
+            pldotnet_SPICursorOpen(this._cmdPointer, ref cursorPointer);
 
-            var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.DataSource))
+            var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.getDataSource()))
             {
                 CursorPointer = cursorPointer,
             };
 
             return r;
         }
+
+
+        /// <summary>
+        /// Execute reader
+        /// </summary>
+        public new async ValueTask<NpgsqlDataReader> ExecuteReader(CommandBehavior behavior, bool async, CancellationToken cancellationToken)
+        {
+
+            IntPtr cursorPointer = IntPtr.Zero;
+
+            pldotnet_SPICursorOpen(this._cmdPointer, ref cursorPointer);
+
+            var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.getDataSource()))
+            {
+                CursorPointer = cursorPointer,
+            };
+
+            return await Task.FromResult(r);
+
+        }
+
     }
 }

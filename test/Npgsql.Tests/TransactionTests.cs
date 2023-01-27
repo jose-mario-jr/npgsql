@@ -2,7 +2,6 @@
 using System.Data;
 using System.Threading.Tasks;
 using Npgsql.Internal;
-using Npgsql.PlDotNET;
 using Npgsql.Tests.Support;
 using Npgsql.Util;
 using NUnit.Framework;

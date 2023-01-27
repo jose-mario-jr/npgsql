@@ -14,7 +14,7 @@ using PlDotNET.Handler;
 
 #pragma warning disable CS1591
 
-namespace Npgsql.PlDotNET
+namespace Npgsql
 {
     public class NpgsqlMultiHostDataSource : NpgsqlMultiHostDataSourceOrig
     {
@@ -36,11 +36,35 @@ namespace Npgsql.PlDotNET
             return new NpgsqlMultiHostDataSource(Sts, Dsb.PrepareConfiguration());
         }
 
+        /// <summary>
+        /// Returns a new, unopened connection from this data source.
+        /// </summary>
+        /// <param name="targetSessionAttributes">Specifies the server type (e.g. primary, standby).</param>
+        public new NpgsqlConnection CreateConnection(TargetSessionAttributes targetSessionAttributes)
+            => new NpgsqlConnection();
+
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
         [return: MarshalAs(UnmanagedType.I1)]
         public static extern bool pldotnet_SPIReady();
 
         public new NpgsqlCommand CreateCommand(string query)
             => new (query, this);
+
+        /// <inheritdoc />
+        public new async ValueTask<NpgsqlConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
+        {
+            var connection = this.CreateConnection();
+
+            try
+            {
+                await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+                return (NpgsqlConnection)connection;
+            }
+            catch
+            {
+                await connection.DisposeAsync().ConfigureAwait(false);
+                throw;
+            }
+        }
     }
 }

@@ -6,7 +6,6 @@ using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Npgsql.PlDotNET;
 using static Npgsql.Tests.TestUtil;
 
 namespace Npgsql.Tests;

@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Npgsql.PlDotNET;
 using NUnit.Framework;
 using Npgsql.Replication;
 using Npgsql.Replication.PgOutput;

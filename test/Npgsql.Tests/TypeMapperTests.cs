@@ -1,7 +1,6 @@
 ﻿using Npgsql.Internal;
 using Npgsql.Internal.TypeHandlers;
 using Npgsql.Internal.TypeHandling;
-using Npgsql.PlDotNET;
 using Npgsql.PostgresTypes;
 using NUnit.Framework;
 using System;

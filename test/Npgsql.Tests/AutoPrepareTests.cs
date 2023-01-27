@@ -4,7 +4,6 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Npgsql.PlDotNET;
 using static Npgsql.Tests.TestUtil;
 
 namespace Npgsql.Tests;

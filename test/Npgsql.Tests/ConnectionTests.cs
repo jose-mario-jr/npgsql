@@ -15,7 +15,6 @@ using Npgsql.Internal;
 using Npgsql.PostgresTypes;
 using Npgsql.Properties;
 using Npgsql.Util;
-using Npgsql.PlDotNET;
 using NpgsqlTypes;
 using NUnit.Framework;
 using static Npgsql.Tests.TestUtil;

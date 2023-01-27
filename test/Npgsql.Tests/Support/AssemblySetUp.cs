@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Npgsql;
-using Npgsql.PlDotNET;
 using Npgsql.Tests;
 using Npgsql.Tests.Support;
 using NUnit.Framework;
