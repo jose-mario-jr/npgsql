@@ -2,9 +2,9 @@ using AdoNet.Specification.Tests;
 
 namespace Npgsql.Specification.Tests;
 
-public sealed class NpgsqlConnectionOrigTests : ConnectionTestBase<NpgsqlDbFactoryFixture>
+public sealed class NpgsqlConnectionTests : ConnectionTestBase<NpgsqlDbFactoryFixture>
 {
-    public NpgsqlConnectionOrigTests(NpgsqlDbFactoryFixture fixture)
+    public NpgsqlConnectionTests(NpgsqlDbFactoryFixture fixture)
         : base(fixture)
     {
     }

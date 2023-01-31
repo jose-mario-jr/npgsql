@@ -51,15 +51,15 @@ public class LegacyNodaTimeTests : TestBase
 
     #region Support
 
-    protected override async ValueTask<NpgsqlConnectionOrig> OpenConnectionAsync(string? connectionString = null)
+    protected override async ValueTask<NpgsqlConnection> OpenConnectionAsync(string? connectionString = null)
     {
-        var conn = new NpgsqlConnectionOrig(connectionString ?? ConnectionString);
+        var conn = new NpgsqlConnection(connectionString ?? ConnectionString);
         await conn.OpenAsync();
         await conn.ExecuteNonQueryAsync("SET TimeZone='Europe/Berlin'");
         return conn;
     }
 
-    protected override NpgsqlConnectionOrig OpenConnection(string? connectionString = null)
+    protected override NpgsqlConnection OpenConnection(string? connectionString = null)
         => throw new NotSupportedException();
 
 #pragma warning disable CS1998 // Release code blocks below lack await
@@ -72,8 +72,8 @@ public class LegacyNodaTimeTests : TestBase
         Util.Statics.LegacyTimestampBehavior = true;
 
         // Clear any previous cached mappings/handlers in case tests were executed before the legacy flag was set.
-        NpgsqlConnectionOrig.GlobalTypeMapper.Reset();
-        NpgsqlConnectionOrig.GlobalTypeMapper.UseNodaTime();
+        NpgsqlConnection.GlobalTypeMapper.Reset();
+        NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
         await using var connection = await OpenConnectionAsync();
         await connection.ReloadTypesAsync();
 #else
@@ -91,8 +91,8 @@ public class LegacyNodaTimeTests : TestBase
         Util.Statics.LegacyTimestampBehavior = false;
 
         // Clear any previous cached mappings/handlers to not affect test which will run later without the legacy flag
-        NpgsqlConnectionOrig.GlobalTypeMapper.Reset();
-        NpgsqlConnectionOrig.GlobalTypeMapper.UseNodaTime();
+        NpgsqlConnection.GlobalTypeMapper.Reset();
+        NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
 
         await using var connection = await OpenConnectionAsync();
         await connection.ReloadTypesAsync();

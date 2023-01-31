@@ -3,8 +3,8 @@ using Xunit;
 
 namespace Npgsql.Specification.Tests;
 
-public sealed class NpgsqlDataReaderOrigTests : DataReaderTestBase<NpgsqlSelectValueFixture>
+public sealed class NpgsqlDataReaderTests : DataReaderTestBase<NpgsqlSelectValueFixture>
 {
-    public NpgsqlDataReaderOrigTests(NpgsqlSelectValueFixture fixture)
+    public NpgsqlDataReaderTests(NpgsqlSelectValueFixture fixture)
         : base(fixture) {}
 }

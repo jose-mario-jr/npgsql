@@ -12,12 +12,12 @@ static class BenchmarkEnvironment
     /// </summary>
     const string DefaultConnectionString = "Server=localhost;User ID=npgsql_tests;Password=npgsql_tests;Database=npgsql_tests";
 
-    internal static NpgsqlConnectionOrig GetConnection() => new(ConnectionString);
+    internal static NpgsqlConnection GetConnection() => new(ConnectionString);
 
-    internal static NpgsqlConnectionOrig OpenConnection()
+    internal static NpgsqlConnection OpenConnection()
     {
         var conn = GetConnection();
         conn.Open();
         return conn;
-    }
+    } 
 }

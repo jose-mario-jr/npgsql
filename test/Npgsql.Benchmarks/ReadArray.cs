@@ -16,17 +16,17 @@ public class ReadArrays
     [Params(1, 10, 1000, 100000)]
     public int NumElements;
 
-    NpgsqlConnectionOrig _intConn = default!;
-    NpgsqlCommandOrig _intCmd = default!;
-    NpgsqlDataReaderOrig _intReader = default!;
+    NpgsqlConnection _intConn = default!;
+    NpgsqlCommand _intCmd = default!;
+    NpgsqlDataReader _intReader = default!;
 
-    NpgsqlConnectionOrig _nullableIntConn = default!;
-    NpgsqlCommandOrig _nullableIntCmd = default!;
-    NpgsqlDataReaderOrig _nullableIntReader = default!;
+    NpgsqlConnection _nullableIntConn = default!;
+    NpgsqlCommand _nullableIntCmd = default!;
+    NpgsqlDataReader _nullableIntReader = default!;
 
-    NpgsqlConnectionOrig _stringConn = default!;
-    NpgsqlCommandOrig _stringCmd = default!;
-    NpgsqlDataReaderOrig _stringReader = default!;
+    NpgsqlConnection _stringConn = default!;
+    NpgsqlCommand _stringCmd = default!;
+    NpgsqlDataReader _stringReader = default!;
 
     [GlobalSetup]
     public void Setup()
@@ -35,7 +35,7 @@ public class ReadArrays
         for (var i = 0; i < NumElements; i++)
             intArray[i] = 666;
         _intConn = BenchmarkEnvironment.OpenConnection();
-        _intCmd = new NpgsqlCommandOrig("SELECT @p1", _intConn);
+        _intCmd = new NpgsqlCommand("SELECT @p1", _intConn);
         _intCmd.Parameters.AddWithValue("p1", intArray);
         _intReader = _intCmd.ExecuteReader();
         _intReader.Read();
@@ -44,7 +44,7 @@ public class ReadArrays
         for (var i = 0; i < NumElements; i++)
             nullableIntArray[i] = AllNulls ? (int?)null : 666;
         _nullableIntConn = BenchmarkEnvironment.OpenConnection();
-        _nullableIntCmd = new NpgsqlCommandOrig("SELECT @p1", _nullableIntConn);
+        _nullableIntCmd = new NpgsqlCommand("SELECT @p1", _nullableIntConn);
         _nullableIntCmd.Parameters.AddWithValue("p1", nullableIntArray);
         _nullableIntReader = _nullableIntCmd.ExecuteReader();
         _nullableIntReader.Read();
@@ -53,7 +53,7 @@ public class ReadArrays
         for (var i = 0; i < NumElements; i++)
             stringArray[i] = AllNulls ? null : "666";
         _stringConn = BenchmarkEnvironment.OpenConnection();
-        _stringCmd = new NpgsqlCommandOrig("SELECT @p1", _stringConn);
+        _stringCmd = new NpgsqlCommand("SELECT @p1", _stringConn);
         _stringCmd.Parameters.AddWithValue("p1", stringArray);
         _stringReader = _stringCmd.ExecuteReader();
         _stringReader.Read();

@@ -628,7 +628,7 @@ public class NodaTimeTests : TestBase
     public async Task Bug3438()
     {
         await using var conn = await OpenConnectionAsync();
-        using var cmd = new NpgsqlCommandOrig("SELECT @p1, @p2", conn);
+        using var cmd = new NpgsqlCommand("SELECT @p1, @p2", conn);
 
         var expected = Duration.FromSeconds(2148);
 
@@ -646,14 +646,14 @@ public class NodaTimeTests : TestBase
 
     #region Support
 
-    protected override async ValueTask<NpgsqlConnectionOrig> OpenConnectionAsync(string? connectionString = null)
+    protected override async ValueTask<NpgsqlConnection> OpenConnectionAsync(string? connectionString = null)
     {
         var conn = await base.OpenConnectionAsync(connectionString);
         await conn.ExecuteNonQueryAsync("SET TimeZone='Europe/Berlin'");
         return conn;
     }
 
-    protected override NpgsqlConnectionOrig OpenConnection(string? connectionString = null)
+    protected override NpgsqlConnection OpenConnection(string? connectionString = null)
         => throw new NotSupportedException();
 
     #endregion Support

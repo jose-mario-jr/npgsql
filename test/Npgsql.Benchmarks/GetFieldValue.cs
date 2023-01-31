@@ -7,14 +7,14 @@ namespace Npgsql.Benchmarks;
 [Config(typeof(Config))]
 public class GetFieldValue
 {
-    readonly NpgsqlConnectionOrig _conn;
-    readonly NpgsqlCommandOrig _cmd;
-    readonly NpgsqlDataReaderOrig _reader;
+    readonly NpgsqlConnection _conn;
+    readonly NpgsqlCommand _cmd;
+    readonly NpgsqlDataReader _reader;
 
     public GetFieldValue()
     {
         _conn = BenchmarkEnvironment.OpenConnection();
-        _cmd = new NpgsqlCommandOrig("SELECT 0, 'str'", _conn);
+        _cmd = new NpgsqlCommand("SELECT 0, 'str'", _conn);
         _reader = _cmd.ExecuteReader();
         _reader.Read();
     }
