@@ -13,7 +13,7 @@ namespace Npgsql;
 
 /// <summary>
 /// Provides an API for a binary COPY FROM operation, a high-performance data import mechanism to
-/// a PostgreSQL table. Initiated by <see cref="NpgsqlConnection.BeginBinaryImport(string)"/>
+/// a PostgreSQL table. Initiated by <see cref="NpgsqlConnectionOrig.BeginBinaryImport(string)"/>
 /// </summary>
 /// <remarks>
 /// See https://www.postgresql.org/docs/current/static/sql-copy.html.
@@ -465,8 +465,8 @@ public sealed class NpgsqlBinaryImporter : ICancelable
     /// </para>
     /// <para>
     /// Note that if <see cref="Complete()" /> hasn't been invoked before calling this, the import will be cancelled and all changes will
-    /// be reverted. 
-    /// </para> 
+    /// be reverted.
+    /// </para>
     /// </summary>
     public void Dispose() => Close();
 
@@ -476,8 +476,8 @@ public sealed class NpgsqlBinaryImporter : ICancelable
     /// </para>
     /// <para>
     /// Note that if <see cref="CompleteAsync" /> hasn't been invoked before calling this, the import will be cancelled and all changes will
-    /// be reverted. 
-    /// </para> 
+    /// be reverted.
+    /// </para>
     /// </summary>
     public ValueTask DisposeAsync()
     {
@@ -513,8 +513,8 @@ public sealed class NpgsqlBinaryImporter : ICancelable
     /// </para>
     /// <para>
     /// Note that if <see cref="Complete()" /> hasn't been invoked before calling this, the import will be cancelled and all changes will
-    /// be reverted. 
-    /// </para> 
+    /// be reverted.
+    /// </para>
     /// </summary>
     public void Close() => CloseAsync(false).GetAwaiter().GetResult();
 
@@ -524,8 +524,8 @@ public sealed class NpgsqlBinaryImporter : ICancelable
     /// </para>
     /// <para>
     /// Note that if <see cref="CompleteAsync" /> hasn't been invoked before calling this, the import will be cancelled and all changes will
-    /// be reverted. 
-    /// </para> 
+    /// be reverted.
+    /// </para>
     /// </summary>
     public ValueTask CloseAsync(CancellationToken cancellationToken = default)
     {

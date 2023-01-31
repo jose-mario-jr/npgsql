@@ -331,7 +331,7 @@ partial class NpgsqlConnector
             }
             catch (Exception e)
             {
-                throw new NpgsqlException($"Obtaining password using {nameof(NpgsqlConnection)}.{nameof(ProvidePasswordCallback)} delegate failed", e);
+                throw new NpgsqlException($"Obtaining password using {nameof(NpgsqlConnectionOrig)}.{nameof(ProvidePasswordCallback)} delegate failed", e);
             }
         }
 

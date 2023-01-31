@@ -285,7 +285,7 @@ public class GeoJSONTests : TestBase
         }
     }
 
-    ValueTask<NpgsqlConnection> OpenConnectionAsync(GeoJSONOptions options = GeoJSONOptions.None)
+    ValueTask<NpgsqlConnectionOrig> OpenConnectionAsync(GeoJSONOptions options = GeoJSONOptions.None)
         => GetDataSource(options).OpenConnectionAsync();
 
     NpgsqlDataSource GetDataSource(GeoJSONOptions options = GeoJSONOptions.None)

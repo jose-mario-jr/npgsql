@@ -29,7 +29,7 @@ public abstract class ReplicationConnection : IAsyncDisposable
     static readonly Version FirstVersionWithTwoPhaseSupport = new(15, 0);
     static readonly Version FirstVersionWithoutDropSlotDoubleCommandCompleteMessage = new(13, 0);
     static readonly Version FirstVersionWithTemporarySlotsAndSlotSnapshotInitMode = new(10, 0);
-    readonly NpgsqlConnection _npgsqlConnection;
+    readonly NpgsqlConnectionOrig _NpgsqlConnectionOrig;
     readonly SemaphoreSlim _feedbackSemaphore = new(1, 1);
     string? _userFacingConnectionString;
     TimeSpan? _commandTimeout;
@@ -62,7 +62,7 @@ public abstract class ReplicationConnection : IAsyncDisposable
 
     private protected ReplicationConnection()
     {
-        _npgsqlConnection = new NpgsqlConnection();
+        _NpgsqlConnectionOrig = new NpgsqlConnectionOrig();
         _requestFeedbackInterval = new TimeSpan(_walReceiverTimeout.Ticks / 2);
     }
 
@@ -105,7 +105,7 @@ public abstract class ReplicationConnection : IAsyncDisposable
             if (ReplicationMode == ReplicationMode.Physical)
                 cs.ServerCompatibilityMode = ServerCompatibilityMode.NoTypeLoading;
 
-            _npgsqlConnection.ConnectionString = cs.ToString();
+            _NpgsqlConnectionOrig.ConnectionString = cs.ToString();
         }
     }
 
@@ -172,7 +172,7 @@ public abstract class ReplicationConnection : IAsyncDisposable
     /// </p>
     /// </remarks>
     /// </summary>
-    public Version PostgreSqlVersion => _npgsqlConnection.PostgreSqlVersion;
+    public Version PostgreSqlVersion => _NpgsqlConnectionOrig.PostgreSqlVersion;
 
     /// <summary>
     /// The PostgreSQL server version as returned by the server_version option.
@@ -180,10 +180,10 @@ public abstract class ReplicationConnection : IAsyncDisposable
     /// This can only be called when the connection is open.
     /// </remarks>
     /// </summary>
-    public string ServerVersion => _npgsqlConnection.ServerVersion;
+    public string ServerVersion => _NpgsqlConnectionOrig.ServerVersion;
 
     internal NpgsqlConnector Connector
-        => _npgsqlConnection.Connector ??
+        => _NpgsqlConnectionOrig.Connector ??
            throw new InvalidOperationException($"The {nameof(Connector)} property can only be used when there is an active connection");
 
     /// <summary>
@@ -192,8 +192,8 @@ public abstract class ReplicationConnection : IAsyncDisposable
     /// <value>The time to wait for the command to execute. The default value is 30 seconds.</value>
     public TimeSpan CommandTimeout
     {
-        get => _commandTimeout ?? (_npgsqlConnection.CommandTimeout > 0
-            ? TimeSpan.FromSeconds(_npgsqlConnection.CommandTimeout)
+        get => _commandTimeout ?? (_NpgsqlConnectionOrig.CommandTimeout > 0
+            ? TimeSpan.FromSeconds(_NpgsqlConnectionOrig.CommandTimeout)
             : Timeout.InfiniteTimeSpan);
         set
         {
@@ -211,13 +211,13 @@ public abstract class ReplicationConnection : IAsyncDisposable
     /// The client encoding for the connection
     /// This can only be called when there is an active connection.
     /// </summary>
-    public Encoding Encoding => _npgsqlConnection.Connector?.TextEncoding ?? throw new InvalidOperationException($"The {nameof(Encoding)} property can only be used when there is an active connection");
+    public Encoding Encoding => _NpgsqlConnectionOrig.Connector?.TextEncoding ?? throw new InvalidOperationException($"The {nameof(Encoding)} property can only be used when there is an active connection");
 
     /// <summary>
     /// Process id of backend server.
     /// This can only be called when there is an active connection.
     /// </summary>
-    public int ProcessID => _npgsqlConnection.Connector?.BackendProcessId ?? throw new InvalidOperationException($"The {nameof(ProcessID)} property can only be used when there is an active connection");
+    public int ProcessID => _NpgsqlConnectionOrig.Connector?.BackendProcessId ?? throw new InvalidOperationException($"The {nameof(ProcessID)} property can only be used when there is an active connection");
 
     #endregion Properties
 
@@ -235,14 +235,14 @@ public abstract class ReplicationConnection : IAsyncDisposable
     {
         CheckDisposed();
 
-        await _npgsqlConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        await _NpgsqlConnectionOrig.OpenAsync(cancellationToken).ConfigureAwait(false);
 
         // PG versions before 10 ignore cancellations during replication
-        _pgCancellationSupported = _npgsqlConnection.PostgreSqlVersion.IsGreaterOrEqual(10);
+        _pgCancellationSupported = _NpgsqlConnectionOrig.PostgreSqlVersion.IsGreaterOrEqual(10);
 
         SetTimeouts(CommandTimeout, CommandTimeout);
 
-        ReplicationLogger = _npgsqlConnection.Connector!.LoggingConfiguration.ReplicationLogger;
+        ReplicationLogger = _NpgsqlConnectionOrig.Connector!.LoggingConfiguration.ReplicationLogger;
     }
 
     /// <summary>
@@ -260,7 +260,7 @@ public abstract class ReplicationConnection : IAsyncDisposable
             if (_isDisposed)
                 return;
 
-            if (_npgsqlConnection.Connector?.State == ConnectorState.Replication)
+            if (_NpgsqlConnectionOrig.Connector?.State == ConnectorState.Replication)
             {
                 Debug.Assert(_currentEnumerator is not null);
                 Debug.Assert(_replicationCancellationTokenSource is not null);
@@ -288,7 +288,7 @@ public abstract class ReplicationConnection : IAsyncDisposable
 
             try
             {
-                await _npgsqlConnection.Close(async: true);
+                await _NpgsqlConnectionOrig.Close(async: true);
             }
             catch
             {
@@ -445,7 +445,7 @@ public abstract class ReplicationConnection : IAsyncDisposable
     {
         CheckDisposed();
 
-        var connector = _npgsqlConnection.Connector!;
+        var connector = _NpgsqlConnectionOrig.Connector!;
 
         _replicationCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
@@ -660,7 +660,7 @@ public abstract class ReplicationConnection : IAsyncDisposable
 
         try
         {
-            var connector = _npgsqlConnection.Connector!;
+            var connector = _NpgsqlConnectionOrig.Connector!;
             var buf = connector.WriteBuffer;
 
             const int len = 39;
@@ -697,7 +697,7 @@ public abstract class ReplicationConnection : IAsyncDisposable
         }
         catch (Exception e)
         {
-            LogMessages.ReplicationFeedbackMessageSendingFailed(ReplicationLogger, _npgsqlConnection?.Connector?.Id, e);
+            LogMessages.ReplicationFeedbackMessageSendingFailed(ReplicationLogger, _NpgsqlConnectionOrig?.Connector?.Id, e);
         }
         finally
         {

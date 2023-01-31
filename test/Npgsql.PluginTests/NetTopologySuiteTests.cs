@@ -309,7 +309,7 @@ public class NetTopologySuiteTests : TestBase
         })));
     }
 
-    protected ValueTask<NpgsqlConnection> OpenConnectionAsync(string? connectionString = null, Ordinates handleOrdinates = Ordinates.None)
+    protected ValueTask<NpgsqlConnectionOrig> OpenConnectionAsync(string? connectionString = null, Ordinates handleOrdinates = Ordinates.None)
     {
         if (handleOrdinates == Ordinates.None)
             handleOrdinates = Ordinates.XY;

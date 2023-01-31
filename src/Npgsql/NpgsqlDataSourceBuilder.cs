@@ -35,8 +35,8 @@ public class NpgsqlDataSourceBuilder : INpgsqlTypeMapper
     /// <inheritdoc />
     public INpgsqlNameTranslator DefaultNameTranslator { get; set; } = GlobalTypeMapper.Instance.DefaultNameTranslator;
 
-    Action<NpgsqlConnection>? _syncConnectionInitializer;
-    Func<NpgsqlConnection, Task>? _asyncConnectionInitializer;
+    Action<NpgsqlConnectionOrig>? _syncConnectionInitializer;
+    Func<NpgsqlConnectionOrig, Task>? _asyncConnectionInitializer;
 
     /// <summary>
     /// A connection string builder that can be used to configured the connection string on the builder.
@@ -303,12 +303,12 @@ public class NpgsqlDataSourceBuilder : INpgsqlTypeMapper
     /// Register a connection initializer, which allows executing arbitrary commands when a physical database connection is first opened.
     /// </summary>
     /// <param name="connectionInitializer">
-    /// A synchronous connection initialization lambda, which will be called from <see cref="NpgsqlConnection.Open()" /> when a new physical
+    /// A synchronous connection initialization lambda, which will be called from <see cref="NpgsqlConnectionOrig.Open()" /> when a new physical
     /// connection is opened.
     /// </param>
     /// <param name="connectionInitializerAsync">
     /// An asynchronous connection initialization lambda, which will be called from
-    /// <see cref="NpgsqlConnection.OpenAsync(CancellationToken)" /> when a new physical connection is opened.
+    /// <see cref="NpgsqlConnectionOrig.OpenAsync(CancellationToken)" /> when a new physical connection is opened.
     /// </param>
     /// <remarks>
     /// If an initializer is registered, both sync and async versions must be provided. If you do not use sync APIs in your code, simply
@@ -321,8 +321,8 @@ public class NpgsqlDataSourceBuilder : INpgsqlTypeMapper
     /// </remarks>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public NpgsqlDataSourceBuilder UsePhysicalConnectionInitializer(
-        Action<NpgsqlConnection>? connectionInitializer,
-        Func<NpgsqlConnection, Task>? connectionInitializerAsync)
+        Action<NpgsqlConnectionOrig>? connectionInitializer,
+        Func<NpgsqlConnectionOrig, Task>? connectionInitializerAsync)
     {
         if (connectionInitializer is null != connectionInitializerAsync is null)
             throw new ArgumentException(NpgsqlStrings.SyncAndAsyncConnectionInitializersRequired);

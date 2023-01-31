@@ -26,13 +26,13 @@ public class NpgsqlConnectionStringBuilderSourceGenerator : ISourceGenerator
         if (context.Compilation.Assembly.GetTypeByMetadataName("Npgsql.NpgsqlConnectionStringBuilder") is not { } type)
             return;
 
-        if (context.Compilation.Assembly.GetTypeByMetadataName("Npgsql.NpgsqlConnectionStringPropertyAttribute") is not
+        if (context.Compilation.Assembly.GetTypeByMetadataName("Npgsql.NpgsqlConnectionOrigStringPropertyAttribute") is not
             { } connectionStringPropertyAttribute)
         {
             context.ReportDiagnostic(Diagnostic.Create(
                 InternalError,
                 location: null,
-                "Could not find Npgsql.NpgsqlConnectionStringPropertyAttribute"));
+                "Could not find Npgsql.NpgsqlConnectionOrigStringPropertyAttribute"));
             return;
         }
 

@@ -10,11 +10,11 @@ namespace Npgsql.Benchmarks;
 [Config(typeof(Config))]
 public class ConnectionCreationBenchmarks
 {
-    const string NpgsqlConnectionString = "Host=foo;Database=bar;Username=user;Password=password";
+    const string NpgsqlConnectionOrigString = "Host=foo;Database=bar;Username=user;Password=password";
     const string SqlClientConnectionString = @"Data Source=(localdb)\mssqllocaldb";
 
     [Benchmark]
-    public NpgsqlConnection Npgsql() => new(NpgsqlConnectionString);
+    public NpgsqlConnectionOrig Npgsql() => new(NpgsqlConnectionOrigString);
 
     [Benchmark]
     public SqlConnection SqlClient() => new(SqlClientConnectionString);

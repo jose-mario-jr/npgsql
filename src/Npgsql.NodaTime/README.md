@@ -5,7 +5,7 @@ This package is an Npgsql plugin which allows you to use the [NodaTime](https://
 To use the NodaTime plugin, simply add a dependency on this package and set it up at program startup:
 
 ```csharp
-NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
+NpgsqlConnectionOrig.GlobalTypeMapper.UseNodaTime();
 ```
 
 Once this is done, you can simply use NodaTime types when interacting with PostgreSQL, just as you would use e.g. `DateTime`:

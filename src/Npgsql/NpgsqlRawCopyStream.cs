@@ -14,7 +14,7 @@ namespace Npgsql;
 
 /// <summary>
 /// Provides an API for a raw binary COPY operation, a high-performance data import/export mechanism to
-/// a PostgreSQL table. Initiated by <see cref="NpgsqlConnection.BeginRawBinaryCopy(string)"/>
+/// a PostgreSQL table. Initiated by <see cref="NpgsqlConnectionOrig.BeginRawBinaryCopy(string)"/>
 /// </summary>
 /// <remarks>
 /// See https://www.postgresql.org/docs/current/static/sql-copy.html.
@@ -510,7 +510,7 @@ public sealed class NpgsqlRawCopyStream : Stream, ICancelable
 }
 
 /// <summary>
-/// Writer for a text import, initiated by <see cref="NpgsqlConnection.BeginTextImport(string)"/>.
+/// Writer for a text import, initiated by <see cref="NpgsqlConnectionOrig.BeginTextImport(string)"/>.
 /// </summary>
 /// <remarks>
 /// See https://www.postgresql.org/docs/current/static/sql-copy.html.
@@ -548,7 +548,7 @@ public sealed class NpgsqlCopyTextWriter : StreamWriter, ICancelable
 }
 
 /// <summary>
-/// Reader for a text export, initiated by <see cref="NpgsqlConnection.BeginTextExport(string)"/>.
+/// Reader for a text export, initiated by <see cref="NpgsqlConnectionOrig.BeginTextExport(string)"/>.
 /// </summary>
 /// <remarks>
 /// See https://www.postgresql.org/docs/current/static/sql-copy.html.

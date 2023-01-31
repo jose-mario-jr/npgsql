@@ -44,7 +44,7 @@ public abstract class NpgsqlDatabaseInfo
 
     /// <summary>
     /// The version of the PostgreSQL database we're connected to, as reported in the "server_version" parameter.
-    /// Exposed via <see cref="NpgsqlConnection.PostgreSqlVersion"/>.
+    /// Exposed via <see cref="NpgsqlConnectionOrig.PostgreSqlVersion"/>.
     /// </summary>
     public Version Version { get; }
 

@@ -28,7 +28,7 @@ namespace Npgsql;
 /// </summary>
 // ReSharper disable once RedundantNameQualifier
 [System.ComponentModel.DesignerCategory("")]
-public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
+public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
 {
     #region Fields
 
@@ -123,19 +123,19 @@ public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
     #region Constructors / Init / Open
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="NpgsqlConnection"/> class.
+    /// Initializes a new instance of the <see cref="NpgsqlConnectionOrig"/> class.
     /// </summary>
-    public NpgsqlConnection()
+    public NpgsqlConnectionOrig()
         => GC.SuppressFinalize(this);
 
     /// <summary>
-    /// Initializes a new instance of <see cref="NpgsqlConnection"/> with the given connection string.
+    /// Initializes a new instance of <see cref="NpgsqlConnectionOrig"/> with the given connection string.
     /// </summary>
     /// <param name="connectionString">The connection used to open the PostgreSQL database.</param>
-    public NpgsqlConnection(string? connectionString) : this()
+    public NpgsqlConnectionOrig(string? connectionString) : this()
         => ConnectionString = connectionString;
 
-    internal NpgsqlConnection(NpgsqlDataSource dataSource, NpgsqlConnector connector) : this()
+    internal NpgsqlConnectionOrig(NpgsqlDataSource dataSource, NpgsqlConnector connector) : this()
     {
         _dataSource = dataSource;
         Settings = dataSource.Settings;
@@ -147,7 +147,7 @@ public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
         FullState = ConnectionState.Open;
     }
 
-    internal static NpgsqlConnection FromDataSource(NpgsqlDataSource dataSource)
+    internal static NpgsqlConnectionOrig FromDataSource(NpgsqlDataSource dataSource)
         => new()
         {
             _dataSource = dataSource,
@@ -164,7 +164,7 @@ public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
     /// This is the asynchronous version of <see cref="Open()"/>.
     /// </summary>
     /// <remarks>
-    /// Do not invoke other methods and properties of the <see cref="NpgsqlConnection"/> object until the returned Task is complete.
+    /// Do not invoke other methods and properties of the <see cref="NpgsqlConnectionOrig"/> object until the returned Task is complete.
     /// </remarks>
     /// <param name="cancellationToken">
     /// An optional token to cancel the asynchronous operation. The default value is <see cref="CancellationToken.None"/>.
@@ -548,7 +548,7 @@ public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
     protected override DbCommand CreateDbCommand() => CreateCommand();
 
     /// <summary>
-    /// Creates and returns a <see cref="NpgsqlCommandOrig"/> object associated with the <see cref="NpgsqlConnection"/>.
+    /// Creates and returns a <see cref="NpgsqlCommandOrig"/> object associated with the <see cref="NpgsqlConnectionOrig"/>.
     /// </summary>
     /// <returns>A <see cref="NpgsqlCommandOrig"/> object.</returns>
     public new NpgsqlCommandOrig CreateCommand()
@@ -577,7 +577,7 @@ public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
     public new NpgsqlBatch CreateBatch() => new(this);
 #else
     /// <summary>
-    /// Creates and returns a <see cref="NpgsqlBatch"/> object associated with the <see cref="NpgsqlConnection"/>.
+    /// Creates and returns a <see cref="NpgsqlBatch"/> object associated with the <see cref="NpgsqlConnectionOrig"/>.
     /// </summary>
     /// <returns>A <see cref="NpgsqlBatch"/> object.</returns>
     public NpgsqlBatch CreateBatch() => new(this);
@@ -777,7 +777,7 @@ public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
 
     internal Task Close(bool async)
     {
-        // Even though NpgsqlConnection isn't thread safe we'll make sure this part is.
+        // Even though NpgsqlConnectionOrig isn't thread safe we'll make sure this part is.
         // Because we really don't want double returns to the pool.
         if (!TakeCloseLock())
             return Task.CompletedTask;
@@ -909,7 +909,7 @@ public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
     }
 
     /// <summary>
-    /// Releases all resources used by the <see cref="NpgsqlConnection"/>.
+    /// Releases all resources used by the <see cref="NpgsqlConnectionOrig"/>.
     /// </summary>
     /// <param name="disposing"><see langword="true"/> when called from <see cref="Dispose"/>;
     /// <see langword="false"/> when being called from the finalizer.</param>
@@ -923,7 +923,7 @@ public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
     }
 
     /// <summary>
-    /// Releases all resources used by the <see cref="NpgsqlConnection"/>.
+    /// Releases all resources used by the <see cref="NpgsqlConnectionOrig"/>.
     /// </summary>
 #if NETSTANDARD2_0
     public ValueTask DisposeAsync()
@@ -1557,7 +1557,7 @@ public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
     void CheckDisposed()
     {
         if (_disposed)
-            throw new ObjectDisposedException(typeof(NpgsqlConnection).Name);
+            throw new ObjectDisposedException(typeof(NpgsqlConnectionOrig).Name);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1784,7 +1784,7 @@ public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
         CheckDisposed();
 
         var conn = _dataSource is null
-            ? new NpgsqlConnection(_connectionString)
+            ? new NpgsqlConnectionOrig(_connectionString)
             : _dataSource.CreateConnection();
 
         conn.ProvideClientCertificatesCallback = ProvideClientCertificatesCallback;
@@ -1803,7 +1803,7 @@ public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
     /// (password, SSL callbacks) while changing other connection parameters (e.g.
     /// database or pooling)
     /// </summary>
-    public NpgsqlConnection CloneWith(string connectionString)
+    public NpgsqlConnectionOrig CloneWith(string connectionString)
     {
         CheckDisposed();
         var csb = new NpgsqlConnectionStringBuilder(connectionString);
@@ -1811,7 +1811,7 @@ public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
         if (csb.PersistSecurityInfo && !Settings.PersistSecurityInfo)
             csb.PersistSecurityInfo = false;
 
-        return new NpgsqlConnection(csb.ToString())
+        return new NpgsqlConnectionOrig(csb.ToString())
         {
             ProvideClientCertificatesCallback =
                 ProvideClientCertificatesCallback ??
@@ -1858,7 +1858,7 @@ public sealed class NpgsqlConnection : DbConnection, ICloneable, IComponent
     /// immediately closed, and any busy connections which were opened before <see cref="ClearPool"/> was called
     /// will be closed when returned to the pool.
     /// </summary>
-    public static void ClearPool(NpgsqlConnection connection) => PoolManager.Clear(connection._connectionString);
+    public static void ClearPool(NpgsqlConnectionOrig connection) => PoolManager.Clear(connection._connectionString);
 
     /// <summary>
     /// Clear all connection pools. All idle physical connections in all pools are immediately closed, and any busy
@@ -1974,22 +1974,22 @@ enum ConnectorBindingScope
 
 readonly struct EndScopeDisposable : IDisposable
 {
-    readonly NpgsqlConnection _connection;
-    public EndScopeDisposable(NpgsqlConnection connection) => _connection = connection;
+    readonly NpgsqlConnectionOrig _connection;
+    public EndScopeDisposable(NpgsqlConnectionOrig connection) => _connection = connection;
     public void Dispose() => _connection.EndBindingScope(ConnectorBindingScope.Temporary);
 }
 
 #region Delegates
 
 /// <summary>
-/// Represents a method that handles the <see cref="NpgsqlConnection.Notice"/> event.
+/// Represents a method that handles the <see cref="NpgsqlConnectionOrig.Notice"/> event.
 /// </summary>
 /// <param name="sender">The source of the event.</param>
 /// <param name="e">A <see cref="NpgsqlNoticeEventArgs"/> that contains the notice information (e.g. message, severity...).</param>
 public delegate void NoticeEventHandler(object sender, NpgsqlNoticeEventArgs e);
 
 /// <summary>
-/// Represents a method that handles the <see cref="NpgsqlConnection.Notification"/> event.
+/// Represents a method that handles the <see cref="NpgsqlConnectionOrig.Notification"/> event.
 /// </summary>
 /// <param name="sender">The source of the event.</param>
 /// <param name="e">A <see cref="NpgsqlNotificationEventArgs"/> that contains the notification payload.</param>

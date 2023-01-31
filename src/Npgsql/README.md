@@ -7,7 +7,7 @@ Here's a basic code snippet to get you started:
 ```csharp
 var connString = "Host=myserver;Username=mylogin;Password=mypass;Database=mydatabase";
 
-await using var conn = new NpgsqlConnection(connString);
+await using var conn = new NpgsqlConnectionOrig(connString);
 await conn.OpenAsync();
 
 // Insert some data

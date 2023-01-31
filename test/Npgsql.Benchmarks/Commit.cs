@@ -9,7 +9,7 @@ namespace Npgsql.Benchmarks;
 [Config(typeof(Config))]
 public class Commit
 {
-    readonly NpgsqlConnection _conn;
+    readonly NpgsqlConnectionOrig _conn;
     readonly NpgsqlCommandOrig _cmd;
 
     public Commit()

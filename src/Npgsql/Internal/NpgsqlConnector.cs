@@ -28,7 +28,7 @@ using Npgsql.Properties;
 namespace Npgsql.Internal;
 
 /// <summary>
-/// Represents a connection to a PostgreSQL backend. Unlike NpgsqlConnection objects, which are
+/// Represents a connection to a PostgreSQL backend. Unlike NpgsqlConnectionOrig objects, which are
 /// exposed to users, connectors are internal to Npgsql and are recycled by the connection pool.
 /// </summary>
 public partial class NpgsqlConnector : IDisposable
@@ -136,10 +136,10 @@ public partial class NpgsqlConnector : IDisposable
     internal NpgsqlTransaction? UnboundTransaction { get; set; }
 
     /// <summary>
-    /// The NpgsqlConnection that (currently) owns this connector. Null if the connector isn't
+    /// The NpgsqlConnectionOrig that (currently) owns this connector. Null if the connector isn't
     /// owned (i.e. idle in the pool)
     /// </summary>
-    internal NpgsqlConnection? Connection { get; set; }
+    internal NpgsqlConnectionOrig? Connection { get; set; }
 
     /// <summary>
     /// The number of messages that were prepended to the current message chain, but not yet sent.
@@ -312,7 +312,7 @@ public partial class NpgsqlConnector : IDisposable
 
     #region Constructors
 
-    internal NpgsqlConnector(NpgsqlDataSource dataSource, NpgsqlConnection conn)
+    internal NpgsqlConnector(NpgsqlDataSource dataSource, NpgsqlConnectionOrig conn)
         : this(dataSource)
     {
         if (conn.ProvideClientCertificatesCallback is not null)
@@ -526,7 +526,7 @@ public partial class NpgsqlConnector : IDisposable
             {
                 Debug.Assert(DataSource.ConnectionInitializer is not null);
 
-                var tempConnection = new NpgsqlConnection(DataSource, this);
+                var tempConnection = new NpgsqlConnectionOrig(DataSource, this);
 
                 try
                 {
@@ -537,8 +537,8 @@ public partial class NpgsqlConnector : IDisposable
                 }
                 finally
                 {
-                    // Note that we can't just close/dispose the NpgsqlConnection, since that puts the connector back in the pool.
-                    // But we transition it to disposed immediately, in case the user decides to capture the NpgsqlConnection and use it
+                    // Note that we can't just close/dispose the NpgsqlConnectionOrig, since that puts the connector back in the pool.
+                    // But we transition it to disposed immediately, in case the user decides to capture the NpgsqlConnectionOrig and use it
                     // later.
                     Connection?.MakeDisposed();
                     Connection = null;

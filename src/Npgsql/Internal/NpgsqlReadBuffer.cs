@@ -24,7 +24,7 @@ public sealed partial class NpgsqlReadBuffer : IDisposable
 {
     #region Fields and Properties
 
-    public NpgsqlConnection Connection => Connector.Connection!;
+    public NpgsqlConnectionOrig Connection => Connector.Connection!;
 
     internal readonly NpgsqlConnector Connector;
 
@@ -563,7 +563,7 @@ public sealed partial class NpgsqlReadBuffer : IDisposable
     {
         if (_preparedTextReader is not { IsDisposed: true })
             _preparedTextReader = new PreparedTextReader();
-        
+
         _preparedTextReader.Init(str, (ColumnStream)stream);
         return _preparedTextReader;
     }

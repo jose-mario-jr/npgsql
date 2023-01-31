@@ -22,5 +22,5 @@ public sealed record NpgsqlDataSourceConfiguration(
     List<TypeHandlerResolverFactory> ResolverFactories,
     Dictionary<string, IUserTypeMapping> UserTypeMappings,
     INpgsqlNameTranslator DefaultNameTranslator,
-    Action<NpgsqlConnection>? ConnectionInitializer,
-    Func<NpgsqlConnection, Task>? ConnectionInitializerAsync);
+    Action<NpgsqlConnectionOrig>? ConnectionInitializer,
+    Func<NpgsqlConnectionOrig, Task>? ConnectionInitializerAsync);

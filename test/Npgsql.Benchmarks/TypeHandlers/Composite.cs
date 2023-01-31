@@ -22,7 +22,7 @@ namespace Npgsql.Benchmarks.TypeHandlers
             DatabaseInfo = new TestDatabaseInfo();
             DatabaseInfo.ProcessTypes();
 
-            var connection = new NpgsqlConnection();
+            var connection = new NpgsqlConnectionOrig();
             var connector = connection.Connector = new NpgsqlConnector(connection);
             TypeMapper = connector.TypeMapper = new ConnectorTypeMapper(connector);
 
@@ -48,7 +48,7 @@ namespace Npgsql.Benchmarks.TypeHandlers
 
         class TestDatabaseInfo : PostgresDatabaseInfo
         {
-            internal TestDatabaseInfo(NpgsqlConnection conn) : base(conn) {}
+            internal TestDatabaseInfo(NpgsqlConnectionOrig conn) : base(conn) {}
 
             static readonly PostgresBaseType[] Types =
             {
@@ -62,7 +62,7 @@ namespace Npgsql.Benchmarks.TypeHandlers
 
         class TestTextHandlerFactory : NpgsqlTypeHandlerFactory<string>
         {
-            public override NpgsqlTypeHandler<string> Create(PostgresType postgresType, NpgsqlConnection conn)
+            public override NpgsqlTypeHandler<string> Create(PostgresType postgresType, NpgsqlConnectionOrig conn)
                 => new TextHandler(postgresType, PGUtil.UTF8Encoding);
         }
     }

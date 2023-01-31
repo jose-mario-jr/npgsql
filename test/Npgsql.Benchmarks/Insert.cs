@@ -6,7 +6,7 @@ namespace Npgsql.Benchmarks;
 
 public class Insert
 {
-    NpgsqlConnection _conn = default!;
+    NpgsqlConnectionOrig _conn = default!;
     NpgsqlCommandOrig _truncateCmd = default!;
 
     [Params(1, 100, 1000, 10000)]
@@ -19,7 +19,7 @@ public class Insert
         {
             Pooling = false
         }.ToString();
-        _conn = new NpgsqlConnection(connString);
+        _conn = new NpgsqlConnectionOrig(connString);
         _conn.Open();
 
         using (var cmd = new NpgsqlCommandOrig("CREATE TEMP TABLE data (int1 INT4, text1 TEXT, int2 INT4, text2 TEXT)", _conn))

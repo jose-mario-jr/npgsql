@@ -53,7 +53,7 @@ public sealed class NpgsqlDataAdapter : DbDataAdapter
     /// </summary>
     /// <param name="selectCommandText"></param>
     /// <param name="selectConnection"></param>
-    public NpgsqlDataAdapter(string selectCommandText, NpgsqlConnection selectConnection)
+    public NpgsqlDataAdapter(string selectCommandText, NpgsqlConnectionOrig selectConnection)
         : this(new NpgsqlCommandOrig(selectCommandText, selectConnection)) {}
 
     /// <summary>
@@ -62,7 +62,7 @@ public sealed class NpgsqlDataAdapter : DbDataAdapter
     /// <param name="selectCommandText"></param>
     /// <param name="selectConnectionString"></param>
     public NpgsqlDataAdapter(string selectCommandText, string selectConnectionString)
-        : this(selectCommandText, new NpgsqlConnection(selectConnectionString)) {}
+        : this(selectCommandText, new NpgsqlConnectionOrig(selectConnectionString)) {}
 
     /// <summary>
     /// Create row updated event.

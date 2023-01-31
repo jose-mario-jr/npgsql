@@ -151,7 +151,7 @@ sealed class GlobalTypeMapper : INpgsqlTypeMapper
         Lock.EnterWriteLock();
         try
         {
-            // Since EFCore.PG plugins (and possibly other users) repeatedly call NpgsqlConnection.GlobalTypeMapped.UseNodaTime,
+            // Since EFCore.PG plugins (and possibly other users) repeatedly call NpgsqlConnectionOrig.GlobalTypeMapped.UseNodaTime,
             // we replace an existing resolver of the same CLR type.
             var type = resolverFactory.GetType();
 

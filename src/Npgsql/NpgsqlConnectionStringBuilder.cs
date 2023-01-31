@@ -16,14 +16,14 @@ namespace Npgsql;
 
 /// <summary>
 /// Provides a simple way to create and manage the contents of connection strings used by
-/// the <see cref="NpgsqlConnection"/> class.
+/// the <see cref="NpgsqlConnectionOrig"/> class.
 /// </summary>
 public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBuilder, IDictionary<string, object?>
 {
     #region Fields
 
     /// <summary>
-    /// Cached DataSource value to reduce allocations on NpgsqlConnection.DataSource.get
+    /// Cached DataSource value to reduce allocations on NpgsqlConnectionOrig.DataSource.get
     /// </summary>
     string? _dataSourceCached;
 
@@ -207,7 +207,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Connection")]
     [Description("The hostname or IP address of the PostgreSQL server to connect to.")]
     [DisplayName("Host")]
-    [NpgsqlConnectionStringProperty("Server")]
+    [NpgsqlConnectionOrigStringProperty("Server")]
     public string? Host
     {
         get => _host;
@@ -226,8 +226,8 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Connection")]
     [Description("The TCP port of the PostgreSQL server.")]
     [DisplayName("Port")]
-    [NpgsqlConnectionStringProperty]
-    [DefaultValue(NpgsqlConnection.DefaultPort)]
+    [NpgsqlConnectionOrigStringProperty]
+    [DefaultValue(NpgsqlConnectionOrig.DefaultPort)]
     public int Port
     {
         get => _port;
@@ -249,7 +249,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Connection")]
     [Description("The PostgreSQL database to connect to.")]
     [DisplayName("Database")]
-    [NpgsqlConnectionStringProperty("DB")]
+    [NpgsqlConnectionOrigStringProperty("DB")]
     public string? Database
     {
         get => _database;
@@ -267,7 +267,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Connection")]
     [Description("The username to connect with. Not required if using IntegratedSecurity.")]
     [DisplayName("Username")]
-    [NpgsqlConnectionStringProperty("User Name", "UserId", "User Id", "UID")]
+    [NpgsqlConnectionOrigStringProperty("User Name", "UserId", "User Id", "UID")]
     public string? Username
     {
         get => _username;
@@ -286,7 +286,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Description("The password to connect with. Not required if using IntegratedSecurity.")]
     [PasswordPropertyText(true)]
     [DisplayName("Password")]
-    [NpgsqlConnectionStringProperty("PSW", "PWD")]
+    [NpgsqlConnectionOrigStringProperty("PSW", "PWD")]
     public string? Password
     {
         get => _password;
@@ -304,7 +304,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Connection")]
     [Description("Path to a PostgreSQL password file (PGPASSFILE), from which the password would be taken.")]
     [DisplayName("Passfile")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string? Passfile
     {
         get => _passfile;
@@ -323,7 +323,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Connection")]
     [Description("The optional application name parameter to be sent to the backend during connection initiation")]
     [DisplayName("Application Name")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string? ApplicationName
     {
         get => _applicationName;
@@ -342,7 +342,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Description("Whether to enlist in an ambient TransactionScope.")]
     [DisplayName("Enlist")]
     [DefaultValue(true)]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public bool Enlist
     {
         get => _enlist;
@@ -360,7 +360,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Connection")]
     [Description("Gets or sets the schema search path.")]
     [DisplayName("Search Path")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string? SearchPath
     {
         get => _searchPath;
@@ -378,7 +378,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Connection")]
     [Description("Gets or sets the client_encoding parameter.")]
     [DisplayName("Client Encoding")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string? ClientEncoding
     {
         get => _clientEncoding;
@@ -397,7 +397,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Description("Gets or sets the .NET encoding that will be used to encode/decode PostgreSQL string data.")]
     [DisplayName("Encoding")]
     [DefaultValue("UTF8")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string Encoding
     {
         get => _encoding;
@@ -415,7 +415,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Connection")]
     [Description("Gets or sets the PostgreSQL session timezone, in Olson/IANA database format.")]
     [DisplayName("Timezone")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string? Timezone
     {
         get => _timezone;
@@ -438,7 +438,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Description("Controls whether SSL is required, disabled or preferred, depending on server support.")]
     [DisplayName("SSL Mode")]
     [DefaultValue(SslMode.Prefer)]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public SslMode SslMode
     {
         get => _sslMode;
@@ -456,7 +456,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Security")]
     [Description("Whether to trust the server certificate without validating it.")]
     [DisplayName("Trust Server Certificate")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public bool TrustServerCertificate
     {
         get => _trustServerCertificate;
@@ -474,7 +474,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Security")]
     [Description("Location of a client certificate to be sent to the server.")]
     [DisplayName("SSL Certificate")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string? SslCertificate
     {
         get => _sslCertificate;
@@ -492,7 +492,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Security")]
     [Description("Location of a client key for a client certificate to be sent to the server.")]
     [DisplayName("SSL Key")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string? SslKey
     {
         get => _sslKey;
@@ -510,7 +510,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Security")]
     [Description("Password for a key for a client certificate.")]
     [DisplayName("SSL Password")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string? SslPassword
     {
         get => _sslPassword;
@@ -528,7 +528,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Security")]
     [Description("Location of a CA certificate used to validate the server certificate.")]
     [DisplayName("Root Certificate")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string? RootCertificate
     {
         get => _rootCertificate;
@@ -547,7 +547,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Security")]
     [Description("Whether to check the certificate revocation list during authentication.")]
     [DisplayName("Check Certificate Revocation")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public bool CheckCertificateRevocation
     {
         get => _checkCertificateRevocation;
@@ -565,7 +565,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Security")]
     [Description("Whether to use Windows integrated security to log in.")]
     [DisplayName("Integrated Security")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public bool IntegratedSecurity
     {
         get => _integratedSecurity;
@@ -587,7 +587,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Security")]
     [Description("The Kerberos service name to be used for authentication.")]
     [DisplayName("Kerberos Service Name")]
-    [NpgsqlConnectionStringProperty("Krbsrvname")]
+    [NpgsqlConnectionOrigStringProperty("Krbsrvname")]
     [DefaultValue("postgres")]
     public string KerberosServiceName
     {
@@ -606,7 +606,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Security")]
     [Description("The Kerberos realm to be used for authentication.")]
     [DisplayName("Include Realm")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public bool IncludeRealm
     {
         get => _includeRealm;
@@ -624,7 +624,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Security")]
     [Description("Gets or sets a Boolean value that indicates if security-sensitive information, such as the password, is not returned as part of the connection if the connection is open or has ever been in an open state.")]
     [DisplayName("Persist Security Info")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public bool PersistSecurityInfo
     {
         get => _persistSecurityInfo;
@@ -642,7 +642,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Security")]
     [Description("When enabled, parameter values are logged when commands are executed. Defaults to false.")]
     [DisplayName("Log Parameters")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public bool LogParameters
     {
         get => _logParameters;
@@ -663,7 +663,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Security")]
     [Description("When enabled, PostgreSQL error and notice details are included on PostgresException.Detail and PostgresNotice.Detail. These can contain sensitive data.")]
     [DisplayName(IncludeExceptionDetailDisplayName)]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public bool IncludeErrorDetail
     {
         get => _includeErrorDetail;
@@ -685,7 +685,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Pooling")]
     [Description("Whether connection pooling should be used.")]
     [DisplayName("Pooling")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(true)]
     public bool Pooling
     {
@@ -704,7 +704,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Pooling")]
     [Description("The minimum connection pool size.")]
     [DisplayName("Minimum Pool Size")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(0)]
     public int MinPoolSize
     {
@@ -726,7 +726,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Pooling")]
     [Description("The maximum connection pool size.")]
     [DisplayName("Maximum Pool Size")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(100)]
     public int MaxPoolSize
     {
@@ -750,7 +750,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Pooling")]
     [Description("The time to wait before closing unused connections in the pool if the count of all connections exceeds MinPoolSize.")]
     [DisplayName("Connection Idle Lifetime")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(300)]
     public int ConnectionIdleLifetime
     {
@@ -771,7 +771,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Pooling")]
     [Description("How many seconds the pool waits before attempting to prune idle connections that are beyond idle lifetime.")]
     [DisplayName("Connection Pruning Interval")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(10)]
     public int ConnectionPruningInterval
     {
@@ -793,7 +793,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Pooling")]
     [Description("The total maximum lifetime of connections (in seconds).")]
     [DisplayName("Connection Lifetime")]
-    [NpgsqlConnectionStringProperty("Load Balance Timeout")]
+    [NpgsqlConnectionOrigStringProperty("Load Balance Timeout")]
     public int ConnectionLifetime
     {
         get => _connectionLifetime;
@@ -816,15 +816,15 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Timeouts")]
     [Description("The time to wait (in seconds) while trying to establish a connection before terminating the attempt and generating an error.")]
     [DisplayName("Timeout")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(DefaultTimeout)]
     public int Timeout
     {
         get => _timeout;
         set
         {
-            if (value < 0 || value > NpgsqlConnection.TimeoutLimit)
-                throw new ArgumentOutOfRangeException(nameof(value), value, "Timeout must be between 0 and " + NpgsqlConnection.TimeoutLimit);
+            if (value < 0 || value > NpgsqlConnectionOrig.TimeoutLimit)
+                throw new ArgumentOutOfRangeException(nameof(value), value, "Timeout must be between 0 and " + NpgsqlConnectionOrig.TimeoutLimit);
 
             _timeout = value;
             SetValue(nameof(Timeout), value);
@@ -841,7 +841,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Timeouts")]
     [Description("The time to wait (in seconds) while trying to execute a command before terminating the attempt and generating an error. Set to zero for infinity.")]
     [DisplayName("Command Timeout")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(NpgsqlCommandOrig.DefaultTimeout)]
     public int CommandTimeout
     {
@@ -863,7 +863,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Timeouts")]
     [Description("The time to wait (in seconds) while trying to execute a an internal command before terminating the attempt and generating an error. -1 uses CommandTimeout, 0 means no timeout.")]
     [DisplayName("Internal Command Timeout")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(-1)]
     public int InternalCommandTimeout
     {
@@ -888,7 +888,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Timeouts")]
     [Description("After Command Timeout is reached (or user supplied cancellation token is cancelled) and command cancellation is attempted, Npgsql waits for this additional timeout (in milliseconds) before breaking the connection. Defaults to 2000, set to zero for infinity.")]
     [DisplayName("Cancellation Timeout")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(2000)]
     public int CancellationTimeout
     {
@@ -914,7 +914,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Failover and load balancing")]
     [Description("Determines the preferred PostgreSQL target server type.")]
     [DisplayName("Target Session Attributes")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string? TargetSessionAttributes
     {
         get => TargetSessionAttributesParsed switch
@@ -960,7 +960,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Failover and load balancing")]
     [Description("Enables balancing between multiple hosts by round-robin.")]
     [DisplayName("Load Balance Hosts")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public bool LoadBalanceHosts
     {
         get => _loadBalanceHosts;
@@ -979,7 +979,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Description("Controls for how long the host's cached state will be considered as valid.")]
     [DisplayName("Host Recheck Seconds")]
     [DefaultValue(10)]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public int HostRecheckSeconds
     {
         get => _hostRecheckSeconds;
@@ -1007,7 +1007,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Entity Framework")]
     [Description("The database template to specify when creating a database in Entity Framework. If not specified, PostgreSQL defaults to \"template1\".")]
     [DisplayName("EF Template Database")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string? EntityTemplateDatabase
     {
         get => _entityTemplateDatabase;
@@ -1027,7 +1027,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Entity Framework")]
     [Description("The database admin to specify when creating and dropping a database in Entity Framework. If not specified, defaults to \"template1\".")]
     [DisplayName("EF Admin Database")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string? EntityAdminDatabase
     {
         get => _entityAdminDatabase;
@@ -1050,7 +1050,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("The number of seconds of connection inactivity before Npgsql sends a keepalive query.")]
     [DisplayName("Keepalive")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public int KeepAlive
     {
         get => _keepAlive;
@@ -1071,7 +1071,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("Whether to use TCP keepalive with system defaults if overrides isn't specified.")]
     [DisplayName("TCP Keepalive")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public bool TcpKeepAlive
     {
         get => _tcpKeepAlive;
@@ -1091,7 +1091,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("The number of seconds of connection inactivity before a TCP keepalive query is sent.")]
     [DisplayName("TCP Keepalive Time")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public int TcpKeepAliveTime
     {
         get => _tcpKeepAliveTime;
@@ -1113,7 +1113,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("The interval, in seconds, between when successive keep-alive packets are sent if no acknowledgement is received.")]
     [DisplayName("TCP Keepalive Interval")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public int TcpKeepAliveInterval
     {
         get => _tcpKeepAliveInterval;
@@ -1134,7 +1134,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("Determines the size of the internal buffer Npgsql uses when reading. Increasing may improve performance if transferring large values from the database.")]
     [DisplayName("Read Buffer Size")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(NpgsqlReadBuffer.DefaultSize)]
     public int ReadBufferSize
     {
@@ -1153,7 +1153,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("Determines the size of the internal buffer Npgsql uses when writing. Increasing may improve performance if transferring large values to the database.")]
     [DisplayName("Write Buffer Size")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(NpgsqlWriteBuffer.DefaultSize)]
     public int WriteBufferSize
     {
@@ -1172,7 +1172,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("Determines the size of socket receive buffer.")]
     [DisplayName("Socket Receive Buffer Size")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public int SocketReceiveBufferSize
     {
         get => _socketReceiveBufferSize;
@@ -1190,7 +1190,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("Determines the size of socket send buffer.")]
     [DisplayName("Socket Send Buffer Size")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public int SocketSendBufferSize
     {
         get => _socketSendBufferSize;
@@ -1210,7 +1210,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("The maximum number SQL statements that can be automatically prepared at any given point. Beyond this number the least-recently-used statement will be recycled. Zero (the default) disables automatic preparation.")]
     [DisplayName("Max Auto Prepare")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public int MaxAutoPrepare
     {
         get => _maxAutoPrepare;
@@ -1232,7 +1232,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("The minimum number of usages an SQL statement is used before it's automatically prepared. Defaults to 5.")]
     [DisplayName("Auto Prepare Min Usages")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(5)]
     public int AutoPrepareMinUsages
     {
@@ -1255,7 +1255,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("If set to true, a pool connection's state won't be reset when it is closed (improves performance). Do not specify this unless you know what you're doing.")]
     [DisplayName("No Reset On Close")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public bool NoResetOnClose
     {
         get => _noResetOnClose;
@@ -1273,7 +1273,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("Load table composite type definitions, and not just free-standing composite types.")]
     [DisplayName("Load Table Composites")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public bool LoadTableComposites
     {
         get => _loadTableComposites;
@@ -1295,7 +1295,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     /// <see cref="PhysicalReplicationConnection"/>
     /// and <see cref="LogicalReplicationConnection"/>.
     /// </remarks>
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DisplayName("Replication Mode")]
     internal ReplicationMode ReplicationMode
     {
@@ -1314,7 +1314,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("Set PostgreSQL configuration parameter default values for the connection.")]
     [DisplayName("Options")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public string? Options
     {
         get => _options;
@@ -1333,7 +1333,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Advanced")]
     [Description("Configure the way arrays of value types are returned when requested as object instances.")]
     [DisplayName("Array Nullability Mode")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public ArrayNullabilityMode ArrayNullabilityMode
     {
         get => _arrayNullabilityMode;
@@ -1356,7 +1356,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Multiplexing")]
     [Description("Enables multiplexing, which allows more efficient use of connections.")]
     [DisplayName("Multiplexing")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(false)]
     public bool Multiplexing
     {
@@ -1377,7 +1377,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Description("When multiplexing is enabled, determines the maximum number of outgoing bytes to buffer before " +
                  "flushing to the network.")]
     [DisplayName("Write Coalescing Buffer Threshold Bytes")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [DefaultValue(1000)]
     public int WriteCoalescingBufferThresholdBytes
     {
@@ -1400,7 +1400,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Compatibility")]
     [Description("A compatibility mode for special PostgreSQL server types.")]
     [DisplayName("Server Compatibility Mode")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     public ServerCompatibilityMode ServerCompatibilityMode
     {
         get => _serverCompatibilityMode;
@@ -1422,7 +1422,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Compatibility")]
     [Description("Makes MaxValue and MinValue timestamps and dates readable as infinity and negative infinity.")]
     [DisplayName("Convert Infinity DateTime")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [Obsolete("The ConvertInfinityDateTime parameter is no longer supported.")]
     public bool ConvertInfinityDateTime
     {
@@ -1436,7 +1436,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Obsolete")]
     [Description("Obsolete, see https://www.npgsql.org/doc/release-notes/3.1.html")]
     [DisplayName("Continuous Processing")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [Obsolete("The ContinuousProcessing parameter is no longer supported.")]
     public bool ContinuousProcessing
     {
@@ -1450,7 +1450,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Obsolete")]
     [Description("Obsolete, see https://www.npgsql.org/doc/release-notes/3.1.html")]
     [DisplayName("Backend Timeouts")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [Obsolete("The BackendTimeouts parameter is no longer supported")]
     public bool BackendTimeouts
     {
@@ -1464,7 +1464,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Obsolete")]
     [Description("Obsolete, see https://www.npgsql.org/doc/v/3.0.html")]
     [DisplayName("Preload Reader")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [Obsolete("The PreloadReader parameter is no longer supported")]
     public bool PreloadReader
     {
@@ -1478,7 +1478,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Obsolete")]
     [Description("Obsolete, see https://www.npgsql.org/doc/release-notes/3.0.html")]
     [DisplayName("Use Extended Types")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [Obsolete("The UseExtendedTypes parameter is no longer supported")]
     public bool UseExtendedTypes
     {
@@ -1492,7 +1492,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Obsolete")]
     [Description("Obsolete, see https://www.npgsql.org/doc/release-notes/4.1.html")]
     [DisplayName("Use Ssl Stream")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [Obsolete("The UseSslStream parameter is no longer supported (always true)")]
     public bool UseSslStream
     {
@@ -1506,7 +1506,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Obsolete")]
     [Description("Writes connection performance information to performance counters.")]
     [DisplayName("Use Perf Counters")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [Obsolete("The UsePerfCounters parameter is no longer supported")]
     public bool UsePerfCounters
     {
@@ -1520,7 +1520,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Obsolete")]
     [Description("Location of a client certificate to be sent to the server.")]
     [DisplayName("Client Certificate")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [Obsolete("Use NpgsqlConnectionStringBuilder.SslKey instead")]
     public string? ClientCertificate
     {
@@ -1534,7 +1534,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Obsolete")]
     [Description("Key for a client certificate to be sent to the server.")]
     [DisplayName("Client Certificate Key")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [Obsolete("Use NpgsqlConnectionStringBuilder.SslPassword instead")]
     public string? ClientCertificateKey
     {
@@ -1549,7 +1549,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
     [Category("Obsolete")]
     [Description("When enabled, PostgreSQL error and notice details are included on PostgresException.Detail and PostgresNotice.Detail. These can contain sensitive data.")]
     [DisplayName("Include Error Details")]
-    [NpgsqlConnectionStringProperty]
+    [NpgsqlConnectionOrigStringProperty]
     [Obsolete("Use NpgsqlConnectionStringBuilder.IncludeErrorDetail instead")]
     public bool IncludeErrorDetails
     {
@@ -1717,7 +1717,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
         var toRemove = propertyDescriptors.Values
             .Cast<PropertyDescriptor>()
             .Where(d =>
-                !d.Attributes.Cast<Attribute>().Any(a => a is NpgsqlConnectionStringPropertyAttribute) ||
+                !d.Attributes.Cast<Attribute>().Any(a => a is NpgsqlConnectionOrigStringPropertyAttribute) ||
                 d.Attributes.Cast<Attribute>().Any(a => a is ObsoleteAttribute)
             )
             .ToList();
@@ -1735,7 +1735,7 @@ public sealed partial class NpgsqlConnectionStringBuilder : DbConnectionStringBu
 /// string. Optionally holds a set of synonyms for the property.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-sealed class NpgsqlConnectionStringPropertyAttribute : Attribute
+sealed class NpgsqlConnectionOrigStringPropertyAttribute : Attribute
 {
     /// <summary>
     /// Holds a list of synonyms for the property.
@@ -1743,15 +1743,15 @@ sealed class NpgsqlConnectionStringPropertyAttribute : Attribute
     public string[] Synonyms { get; }
 
     /// <summary>
-    /// Creates a <see cref="NpgsqlConnectionStringPropertyAttribute"/>.
+    /// Creates a <see cref="NpgsqlConnectionOrigStringPropertyAttribute"/>.
     /// </summary>
-    public NpgsqlConnectionStringPropertyAttribute()
+    public NpgsqlConnectionOrigStringPropertyAttribute()
         => Synonyms = Array.Empty<string>();
 
     /// <summary>
-    /// Creates a <see cref="NpgsqlConnectionStringPropertyAttribute"/>.
+    /// Creates a <see cref="NpgsqlConnectionOrigStringPropertyAttribute"/>.
     /// </summary>
-    public NpgsqlConnectionStringPropertyAttribute(params string[] synonyms)
+    public NpgsqlConnectionOrigStringPropertyAttribute(params string[] synonyms)
         => Synonyms = synonyms;
 }
 

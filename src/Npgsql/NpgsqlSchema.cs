@@ -16,7 +16,7 @@ namespace Npgsql;
 /// </summary>
 static class NpgsqlSchema
 {
-    public static Task<DataTable> GetSchema(NpgsqlConnection conn, string? collectionName, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
+    public static Task<DataTable> GetSchema(NpgsqlConnectionOrig conn, string? collectionName, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
     {
         if (collectionName is null)
             throw new ArgumentNullException(nameof(collectionName));
@@ -113,10 +113,10 @@ static class NpgsqlSchema
         return table;
     }
 
-    static NpgsqlCommandOrig BuildCommand(NpgsqlConnection conn, StringBuilder query, string?[]? restrictions, params string[]? names)
+    static NpgsqlCommandOrig BuildCommand(NpgsqlConnectionOrig conn, StringBuilder query, string?[]? restrictions, params string[]? names)
         => BuildCommand(conn, query, restrictions, true, names);
 
-    static NpgsqlCommandOrig BuildCommand(NpgsqlConnection conn, StringBuilder query, string?[]? restrictions, bool addWhere, params string[]? names)
+    static NpgsqlCommandOrig BuildCommand(NpgsqlConnectionOrig conn, StringBuilder query, string?[]? restrictions, bool addWhere, params string[]? names)
     {
         var command = new NpgsqlCommandOrig();
 
@@ -153,7 +153,7 @@ static class NpgsqlSchema
     static string RemoveSpecialChars(string paramName)
         => paramName.Replace("(", "").Replace(")", "").Replace(".", "");
 
-    static async Task<DataTable> GetDatabases(NpgsqlConnection conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
+    static async Task<DataTable> GetDatabases(NpgsqlConnectionOrig conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
     {
         var databases = new DataTable("Databases") { Locale = CultureInfo.InvariantCulture };
 
@@ -174,7 +174,7 @@ static class NpgsqlSchema
         return databases;
     }
 
-    static async Task<DataTable> GetSchemata(NpgsqlConnection conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
+    static async Task<DataTable> GetSchemata(NpgsqlConnectionOrig conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
     {
         var schemata = new DataTable("Schemata") { Locale = CultureInfo.InvariantCulture };
 
@@ -201,7 +201,7 @@ SELECT * FROM (
     }
 
 
-    static async Task<DataTable> GetTables(NpgsqlConnection conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
+    static async Task<DataTable> GetTables(NpgsqlConnectionOrig conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
     {
         var tables = new DataTable("Tables") { Locale = CultureInfo.InvariantCulture };
 
@@ -228,7 +228,7 @@ WHERE
         return tables;
     }
 
-    static async Task<DataTable> GetColumns(NpgsqlConnection conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
+    static async Task<DataTable> GetColumns(NpgsqlConnectionOrig conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
     {
         var columns = new DataTable("Columns") { Locale = CultureInfo.InvariantCulture };
 
@@ -268,7 +268,7 @@ JOIN pg_type AS typ ON typnamespace = ns.oid AND typname = udt_name");
         return columns;
     }
 
-    static async Task<DataTable> GetViews(NpgsqlConnection conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
+    static async Task<DataTable> GetViews(NpgsqlConnectionOrig conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
     {
         var views = new DataTable("Views") { Locale = CultureInfo.InvariantCulture };
 
@@ -289,7 +289,7 @@ WHERE table_schema NOT IN ('pg_catalog', 'information_schema')");
         return views;
     }
 
-    static async Task<DataTable> GetUsers(NpgsqlConnection conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
+    static async Task<DataTable> GetUsers(NpgsqlConnectionOrig conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
     {
         var users = new DataTable("Users") { Locale = CultureInfo.InvariantCulture };
 
@@ -306,7 +306,7 @@ WHERE table_schema NOT IN ('pg_catalog', 'information_schema')");
         return users;
     }
 
-    static async Task<DataTable> GetIndexes(NpgsqlConnection conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
+    static async Task<DataTable> GetIndexes(NpgsqlConnectionOrig conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
     {
         var indexes = new DataTable("Indexes") { Locale = CultureInfo.InvariantCulture };
 
@@ -339,7 +339,7 @@ WHERE
         return indexes;
     }
 
-    static async Task<DataTable> GetIndexColumns(NpgsqlConnection conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
+    static async Task<DataTable> GetIndexColumns(NpgsqlConnectionOrig conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
     {
         var indexColumns = new DataTable("IndexColumns") { Locale = CultureInfo.InvariantCulture };
 
@@ -379,7 +379,7 @@ WHERE
         return indexColumns;
     }
 
-    static async Task<DataTable> GetConstraints(NpgsqlConnection conn, string?[]? restrictions, string? constraintType, bool async, CancellationToken cancellationToken = default)
+    static async Task<DataTable> GetConstraints(NpgsqlConnectionOrig conn, string?[]? restrictions, string? constraintType, bool async, CancellationToken cancellationToken = default)
     {
         var getConstraints = new StringBuilder(@"
 SELECT
@@ -422,7 +422,7 @@ FROM
         return table;
     }
 
-    static async Task<DataTable> GetConstraintColumns(NpgsqlConnection conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
+    static async Task<DataTable> GetConstraintColumns(NpgsqlConnectionOrig conn, string?[]? restrictions, bool async, CancellationToken cancellationToken = default)
     {
         var getConstraintColumns = new StringBuilder(@"
 SELECT current_database() AS constraint_catalog,
@@ -457,7 +457,7 @@ FROM pg_constraint c
         return table;
     }
 
-    static DataTable GetDataSourceInformation(NpgsqlConnection conn)
+    static DataTable GetDataSourceInformation(NpgsqlConnectionOrig conn)
     {
         var table = new DataTable("DataSourceInformation");
         var row = table.Rows.Add();
@@ -523,7 +523,7 @@ FROM pg_constraint c
 
     #region DataTypes
 
-    static DataTable GetDataTypes(NpgsqlConnection conn)
+    static DataTable GetDataTypes(NpgsqlConnectionOrig conn)
     {
         using var _ = conn.StartTemporaryBindingScope(out var connector);
 
