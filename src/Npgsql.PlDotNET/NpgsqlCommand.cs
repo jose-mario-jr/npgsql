@@ -26,17 +26,30 @@ namespace Npgsql
             this.InternalConnection = this.InternalConnection ?? new NpgsqlConnection();
         }
 
+        public NpgsqlCommand(string? cmdText)
+        {
+            _commandText = cmdText ?? string.Empty;
+            InternalConnection = new NpgsqlConnection();
+        }
+
         public NpgsqlCommand(string? cmdText, NpgsqlConnection? connection)
         {
             _commandText = cmdText ?? string.Empty;
             InternalConnection = connection ?? new NpgsqlConnection();
         }
 
+        public NpgsqlCommand(string? cmdText, NpgsqlConnection? connection, NpgsqlTransaction? transaction)
+            : this(cmdText, connection)
+            => Transaction = transaction;
+
         public new Task<NpgsqlDataReader> ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken = default)
         {
             using (NoSynchronizationContextScope.Enter())
                 return ExecuteReader(behavior, async: true, cancellationToken).AsTask();
         }
+
+        public new NpgsqlDataReader ExecuteReader(CommandBehavior behavior = CommandBehavior.Default)
+            => ExecuteReader(behavior, async: false, CancellationToken.None).GetAwaiter().GetResult();
 
         public new async ValueTask<NpgsqlDataReader> ExecuteReader(CommandBehavior behavior, bool async, CancellationToken cancellationToken){
 
