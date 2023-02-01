@@ -19,6 +19,46 @@ namespace Npgsql
     [System.ComponentModel.DesignerCategory("")]
     public class NpgsqlConnection : NpgsqlConnectionOrig
     {
+        NpgsqlMultiHostDataSource? _dataSource;
 
+        /// <inheritdoc />
+        public NpgsqlConnection()
+        {
+        }
+
+        /// <inheritdoc />
+        public NpgsqlConnection(string? connectionString) : this()
+            => ConnectionString = connectionString;
+
+        internal static NpgsqlConnection FromDataSource(NpgsqlMultiHostDataSource dataSource)
+        => new()
+        {
+            _dataSource = dataSource,
+        };
+
+        /// <inheritdoc />
+        public override Task OpenAsync(CancellationToken cancellationToken)
+        {
+            using (NoSynchronizationContextScope.Enter())
+                return Open(true, cancellationToken);
+        }
+
+        internal Task Open(bool async, CancellationToken cancellationToken)
+        {
+            this._dataSource = NpgsqlMultiHostDataSource.Create();
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Get private attribute DataSource
+        /// </summary>
+        public NpgsqlMultiHostDataSource getDataSource()
+        {
+            if (this._dataSource == null)
+            {
+                this._dataSource = NpgsqlMultiHostDataSource.Create();
+            }
+            return this._dataSource;
+        }
     }
 }

@@ -18,39 +18,47 @@ namespace Npgsql
 {
     public class NpgsqlCommand : NpgsqlCommandOrig
     {
-        private readonly string query;
-        private readonly NpgsqlMultiHostDataSource dataSource;
-        private readonly IntPtr cmdPointer;
+        IntPtr _cmdPointer = IntPtr.Zero;
+        public NpgsqlConnection InternalConnection { get; private set; }
 
-        public NpgsqlCommand(string query, NpgsqlMultiHostDataSource dataSource)
+        public NpgsqlCommand()
         {
-            this.query = query;
-            this.dataSource = dataSource;
-
-            pldotnet_SPIPrepare(this.query, ref this.cmdPointer);
+            this.InternalConnection = this.InternalConnection ?? new NpgsqlConnection();
         }
 
-        [DllImport("@PKG_LIBDIR/pldotnet.so")]
-        public static extern void pldotnet_SPIPrepare(string command, ref IntPtr cmdPointer);
-
-        [DllImport("@PKG_LIBDIR/pldotnet.so")]
-        public static extern void pldotnet_SPICursorOpen(IntPtr cmdPointer, ref IntPtr cursorPointer);
-
-        public new NpgsqlDataReader ExecuteDbDataReader(CommandBehavior behavior)
-            => this.ExecuteReader();
-
-        public new NpgsqlDataReader ExecuteReader()
+        public NpgsqlCommand(string? cmdText, NpgsqlConnection? connection)
         {
+            _commandText = cmdText ?? string.Empty;
+            InternalConnection = connection ?? new NpgsqlConnection();
+        }
+
+        public new Task<NpgsqlDataReader> ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken = default)
+        {
+            using (NoSynchronizationContextScope.Enter())
+                return ExecuteReader(behavior, async: true, cancellationToken).AsTask();
+        }
+
+        public new async ValueTask<NpgsqlDataReader> ExecuteReader(CommandBehavior behavior, bool async, CancellationToken cancellationToken){
+
             IntPtr cursorPointer = IntPtr.Zero;
 
-            pldotnet_SPICursorOpen(this.cmdPointer, ref cursorPointer);
+            // pldotnet_SPICursorOpen(this._cmdPointer, ref cursorPointer);
 
-            var r = new NpgsqlDataReader(new NpgsqlConnector(this.dataSource))
+            var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.getDataSource()))
             {
                 CursorPointer = cursorPointer,
             };
 
-            return r;
+            return await Task.FromResult(r);
         }
+
     }
 }
+
+
+
+
+
+
+
+

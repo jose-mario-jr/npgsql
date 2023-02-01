@@ -36,11 +36,15 @@ namespace Npgsql
             return new NpgsqlMultiHostDataSource(Sts, Dsb.PrepareConfiguration());
         }
 
+        /// <inheritdoc />
+        public new NpgsqlConnection CreateConnection()
+            => NpgsqlConnection.FromDataSource(this);
+
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
         [return: MarshalAs(UnmanagedType.I1)]
         public static extern bool pldotnet_SPIReady();
 
-        public new NpgsqlCommand CreateCommand(string query)
-            => new (query, this);
+        // public new NpgsqlCommand CreateCommand(string query)
+        //     => new (query);
     }
 }

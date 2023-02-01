@@ -227,10 +227,7 @@ public class NpgsqlCommandOrig : DbCommand, ICloneable, IComponent
     [Category("Data")]
     public override CommandType CommandType { get; set; }
 
-    /// <summary>
-    /// NpgsqlConnection.
-    /// </summary>
-    public NpgsqlConnectionOrig? InternalConnection { get; private set; }
+    internal NpgsqlConnectionOrig? InternalConnection { get; private set; }
 
     /// <summary>
     /// DB connection.
