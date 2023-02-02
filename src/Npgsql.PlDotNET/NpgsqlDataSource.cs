@@ -64,7 +64,6 @@ namespace Npgsql
             }
         }
 
-
         /// <inheritdoc />
         public new async ValueTask<NpgsqlConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
         {

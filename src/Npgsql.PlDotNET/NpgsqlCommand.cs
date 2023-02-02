@@ -42,6 +42,11 @@ namespace Npgsql
             : this(cmdText, connection)
             => Transaction = transaction;
 
+        /// <inheritdoc />
+        public new Task<NpgsqlDataReader> ExecuteReaderAsync(CancellationToken cancellationToken = default)
+            => ExecuteReaderAsync(CommandBehavior.Default, cancellationToken);
+
+
         public new Task<NpgsqlDataReader> ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken = default)
         {
             using (NoSynchronizationContextScope.Enter())
