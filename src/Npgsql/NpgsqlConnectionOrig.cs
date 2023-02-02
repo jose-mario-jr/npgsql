@@ -179,7 +179,7 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
     void SetupDataSource()
     {
         // Fast path: a pool already corresponds to this exact version of the connection string.
-        if (PoolManager.Pools.TryGetValue(_connectionString, out _dataSource))
+        if (PoolManagerOrig.Pools.TryGetValue(_connectionString, out _dataSource))
         {
             Settings = _dataSource.Settings;  // Great, we already have a pool
             return;
@@ -203,7 +203,7 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
         // Note that we remove TargetSessionAttributes to make all connection strings that are otherwise identical point to the same pool.
         var canonical = settings.ConnectionStringForMultipleHosts;
 
-        if (PoolManager.Pools.TryGetValue(canonical, out _dataSource))
+        if (PoolManagerOrig.Pools.TryGetValue(canonical, out _dataSource))
         {
             // If this is a multi-host data source and the user specified a TargetSessionAttributes, create a wrapper in front of the
             // MultiHostDataSource with that TargetSessionAttributes.
@@ -212,7 +212,7 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
 
             // The pool was found, but only under the canonical key - we're using a different version
             // for the first time. Map it via our own key for next time.
-            _dataSource = PoolManager.Pools.GetOrAdd(_connectionString, _dataSource);
+            _dataSource = PoolManagerOrig.Pools.GetOrAdd(_connectionString, _dataSource);
             return;
         }
 
@@ -224,7 +224,7 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
         dataSourceBuilder.EnableParameterLogging(NpgsqlLoggingConfiguration.GlobalIsParameterLoggingEnabled);
         var newDataSource = dataSourceBuilder.Build();
 
-        _dataSource = PoolManager.Pools.GetOrAdd(canonical, newDataSource);
+        _dataSource = PoolManagerOrig.Pools.GetOrAdd(canonical, newDataSource);
         if (_dataSource == newDataSource)
         {
             Debug.Assert(_dataSource is not MultiHostDataSourceWrapper);
@@ -244,7 +244,7 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
         if (_dataSource is NpgsqlMultiHostDataSourceOrig multiHostDataSource2 && settings.TargetSessionAttributesParsed.HasValue)
             _dataSource = multiHostDataSource2.WithTargetSession(settings.TargetSessionAttributesParsed.Value);
 
-        _dataSource = PoolManager.Pools.GetOrAdd(_connectionString, _dataSource);
+        _dataSource = PoolManagerOrig.Pools.GetOrAdd(_connectionString, _dataSource);
     }
 
     internal Task Open(bool async, CancellationToken cancellationToken)
@@ -1858,14 +1858,14 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
     /// immediately closed, and any busy connections which were opened before <see cref="ClearPool"/> was called
     /// will be closed when returned to the pool.
     /// </summary>
-    public static void ClearPool(NpgsqlConnectionOrig connection) => PoolManager.Clear(connection._connectionString);
+    public static void ClearPool(NpgsqlConnectionOrig connection) => PoolManagerOrig.Clear(connection._connectionString);
 
     /// <summary>
     /// Clear all connection pools. All idle physical connections in all pools are immediately closed, and any busy
     /// connections which were opened before <see cref="ClearAllPools"/> was called will be closed when returned
     /// to their pool.
     /// </summary>
-    public static void ClearAllPools() => PoolManager.ClearAll();
+    public static void ClearAllPools() => PoolManagerOrig.ClearAll();
 
     /// <summary>
     /// Unprepares all prepared statements on this connection.

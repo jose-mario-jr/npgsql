@@ -11,7 +11,7 @@ namespace Npgsql;
 /// <remarks>
 /// Note that pools created directly as <see cref="NpgsqlDataSourceOrig" /> are referenced directly by users, and aren't managed here.
 /// </remarks>
-static class PoolManager
+static class PoolManagerOrig
 {
     internal static ConcurrentDictionary<string, NpgsqlDataSourceOrig> Pools { get; } = new();
 
@@ -29,7 +29,7 @@ static class PoolManager
             pool.Clear();
     }
 
-    static PoolManager()
+    static PoolManagerOrig()
     {
         // When the appdomain gets unloaded (e.g. web app redeployment) attempt to nicely
         // close idle connectors to prevent errors in PostgreSQL logs (#491).

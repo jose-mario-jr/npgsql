@@ -10,6 +10,6 @@ public class NpgsqlMultiHostDataSource : NpgsqlDataSource
 
     /// <inheritdoc />
     public new NpgsqlMultiHostDataSource WithTargetSession(TargetSessionAttributes targetSessionAttributes)
-    => (NpgsqlMultiHostDataSource) Create();
+        => (NpgsqlMultiHostDataSource) Create();
 }
 
