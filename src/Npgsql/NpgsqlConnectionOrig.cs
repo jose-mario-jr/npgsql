@@ -60,9 +60,9 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
 
     static readonly NpgsqlConnectionStringBuilder DefaultSettings = new();
 
-    NpgsqlDataSource? _dataSource;
+    NpgsqlDataSourceOrig? _dataSource;
 
-    internal NpgsqlDataSource NpgsqlDataSource
+    internal NpgsqlDataSourceOrig NpgsqlDataSourceOrig
     {
         get
         {
@@ -91,9 +91,9 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
     public static INpgsqlTypeMapper GlobalTypeMapper => TypeMapping.GlobalTypeMapper.Instance;
 
     /// <summary>
-    /// Connection-level type mapping is no longer supported. See the 7.0 release notes for configuring type mapping on NpgsqlDataSource.
+    /// Connection-level type mapping is no longer supported. See the 7.0 release notes for configuring type mapping on NpgsqlDataSourceOrig.
     /// </summary>
-    [Obsolete("Connection-level type mapping is no longer supported. See the 7.0 release notes for configuring type mapping on NpgsqlDataSource.", true)]
+    [Obsolete("Connection-level type mapping is no longer supported. See the 7.0 release notes for configuring type mapping on NpgsqlDataSourceOrig.", true)]
     public INpgsqlTypeMapper TypeMapper
         => throw new NotSupportedException();
 
@@ -135,7 +135,7 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
     public NpgsqlConnectionOrig(string? connectionString) : this()
         => ConnectionString = connectionString;
 
-    internal NpgsqlConnectionOrig(NpgsqlDataSource dataSource, NpgsqlConnector connector) : this()
+    internal NpgsqlConnectionOrig(NpgsqlDataSourceOrig dataSource, NpgsqlConnector connector) : this()
     {
         _dataSource = dataSource;
         Settings = dataSource.Settings;
@@ -147,7 +147,7 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
         FullState = ConnectionState.Open;
     }
 
-    internal static NpgsqlConnectionOrig FromDataSource(NpgsqlDataSource dataSource)
+    internal static NpgsqlConnectionOrig FromDataSource(NpgsqlDataSourceOrig dataSource)
         => new()
         {
             _dataSource = dataSource,
@@ -351,7 +351,7 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
                 EndBindingScope(ConnectorBindingScope.Connection);
 
                 LogMessages.OpenedMultiplexingConnection(_connectionLogger, Settings.Host!, Settings.Port, Settings.Database!, _userFacingConnectionString);
-                ((MultiplexingDataSource)NpgsqlDataSource).StartupCheckPerformed = true;
+                ((MultiplexingDataSource)NpgsqlDataSourceOrig).StartupCheckPerformed = true;
 
                 FullState = ConnectionState.Open;
             }
@@ -404,7 +404,7 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
     /// that was previously opened from the pool.
     /// </p>
     /// </remarks>
-    [Obsolete("Use NpgsqlDataSourceBuilder.UsePeriodicPasswordProvider or inject passwords directly into NpgsqlDataSource.Password")]
+    [Obsolete("Use NpgsqlDataSourceBuilder.UsePeriodicPasswordProvider or inject passwords directly into NpgsqlDataSourceOrig.Password")]
     public ProvidePasswordCallback? ProvidePasswordCallback { get; set; }
 
     #endregion Connection string management
@@ -2012,7 +2012,7 @@ public delegate void ProvideClientCertificatesCallback(X509CertificateCollection
 /// <param name="database">Database Name</param>
 /// <param name="username">User</param>
 /// <returns>A valid password for connecting to the database</returns>
-[Obsolete("Use NpgsqlDataSourceBuilder.UsePeriodicPasswordProvider or inject passwords directly into NpgsqlDataSource.Password")]
+[Obsolete("Use NpgsqlDataSourceBuilder.UsePeriodicPasswordProvider or inject passwords directly into NpgsqlDataSourceOrig.Password")]
 public delegate string ProvidePasswordCallback(string host, int port, string database, string username);
 
 #endregion

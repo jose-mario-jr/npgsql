@@ -21,20 +21,20 @@ app.MapGet("/", async (NpgsqlConnectionOrig connection) =>
 });
 ```
 
-But wait! If all you want is to execute some simple SQL, just use the singleton [`NpgsqlDataSource`](https://www.npgsql.org/doc/api/Npgsql.NpgsqlDataSource.html) to execute a command directly:
+But wait! If all you want is to execute some simple SQL, just use the singleton [`NpgsqlDataSourceOrig`](https://www.npgsql.org/doc/api/Npgsql.NpgsqlDataSourceOrig.html) to execute a command directly:
 
 ```csharp
-app.MapGet("/", async (NpgsqlDataSource dataSource) =>
+app.MapGet("/", async (NpgsqlDataSourceOrig dataSource) =>
 {
     await using var command = dataSource.CreateCommand("SELECT number FROM data LIMIT 1");
     return "Hello World: " + await command.ExecuteScalarAsync();
 });
 ```
 
-[`NpgsqlDataSource`](https://www.npgsql.org/doc/api/Npgsql.NpgsqlDataSource.html) can also come in handy when you need more than one connection:
+[`NpgsqlDataSourceOrig`](https://www.npgsql.org/doc/api/Npgsql.NpgsqlDataSourceOrig.html) can also come in handy when you need more than one connection:
 
 ```csharp
-app.MapGet("/", async (NpgsqlDataSource dataSource) =>
+app.MapGet("/", async (NpgsqlDataSourceOrig dataSource) =>
 {
     await using var connection1 = await dataSource.OpenConnectionAsync();
     await using var connection2 = await dataSource.OpenConnectionAsync();

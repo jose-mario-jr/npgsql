@@ -16,7 +16,7 @@ using PlDotNET.Handler;
 
 namespace Npgsql
 {
-    public class NpgsqlMultiHostDataSource : NpgsqlMultiHostDataSourceOrig
+    public class NpgsqlDataSource : NpgsqlMultiHostDataSourceOrig
     {
 	    // We don't use the connection string, so we use dummy
 	    // values for when Npgsql wants to look at it.
@@ -25,15 +25,15 @@ namespace Npgsql
         public static NpgsqlDataSourceBuilder Dsb = new NpgsqlDataSourceBuilder(Cs);
         public static NpgsqlConnectionStringBuilder Sts = new NpgsqlConnectionStringBuilder(Cs);
 
-        internal NpgsqlMultiHostDataSource(NpgsqlConnectionStringBuilder settings, NpgsqlDataSourceConfiguration dataSourceConfig)
+        internal NpgsqlDataSource(NpgsqlConnectionStringBuilder settings, NpgsqlDataSourceConfiguration dataSourceConfig)
         : base(settings, dataSourceConfig)
         {
         }
 
-        public static new NpgsqlMultiHostDataSource Create(string connectionString = "")
+        public static new NpgsqlDataSource Create(string connectionString = "")
         {
             pldotnet_SPIReady();
-            return new NpgsqlMultiHostDataSource(Sts, Dsb.PrepareConfiguration());
+            return new NpgsqlDataSource(Sts, Dsb.PrepareConfiguration());
         }
 
         /// <inheritdoc />

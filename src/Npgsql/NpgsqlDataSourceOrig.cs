@@ -20,7 +20,7 @@ using Npgsql.Util;
 namespace Npgsql;
 
 /// <inheritdoc />
-public abstract class NpgsqlDataSource : DbDataSource
+public abstract class NpgsqlDataSourceOrig : DbDataSource
 {
     /// <inheritdoc />
     public override string ConnectionString { get; }
@@ -79,7 +79,7 @@ public abstract class NpgsqlDataSource : DbDataSource
     /// </summary>
     readonly SemaphoreSlim _setupMappingsSemaphore = new(1);
 
-    internal NpgsqlDataSource(
+    internal NpgsqlDataSourceOrig(
         NpgsqlConnectionStringBuilder settings,
         NpgsqlDataSourceConfiguration dataSourceConfig)
     {
@@ -179,28 +179,28 @@ public abstract class NpgsqlDataSource : DbDataSource
         => CreateBatch();
 
     /// <summary>
-    /// Creates a command ready for use against this <see cref="NpgsqlDataSource" />.
+    /// Creates a command ready for use against this <see cref="NpgsqlDataSourceOrig" />.
     /// </summary>
     /// <param name="commandText">An optional SQL for the command.</param>
     public new NpgsqlCommandOrig CreateCommand(string? commandText = null)
         => new NpgsqlDataSourceCommand(CreateConnection()) { CommandText = commandText };
 
     /// <summary>
-    /// Creates a batch ready for use against this <see cref="NpgsqlDataSource" />.
+    /// Creates a batch ready for use against this <see cref="NpgsqlDataSourceOrig" />.
     /// </summary>
     public new NpgsqlBatch CreateBatch()
         => new NpgsqlDataSourceBatch(CreateConnection());
 
     /// <summary>
-    /// Creates a new <see cref="NpgsqlDataSource" /> for the given <paramref name="connectionString" />.
+    /// Creates a new <see cref="NpgsqlDataSourceOrig" /> for the given <paramref name="connectionString" />.
     /// </summary>
-    public static NpgsqlDataSource Create(string connectionString)
+    public static NpgsqlDataSourceOrig Create(string connectionString)
         => new NpgsqlDataSourceBuilder(connectionString).Build();
 
     /// <summary>
-    /// Creates a new <see cref="NpgsqlDataSource" /> for the given <paramref name="connectionStringBuilder" />.
+    /// Creates a new <see cref="NpgsqlDataSourceOrig" /> for the given <paramref name="connectionStringBuilder" />.
     /// </summary>
-    public static NpgsqlDataSource Create(NpgsqlConnectionStringBuilder connectionStringBuilder)
+    public static NpgsqlDataSourceOrig Create(NpgsqlConnectionStringBuilder connectionStringBuilder)
         => Create(connectionStringBuilder.ToString());
 
     internal async Task Bootstrap(

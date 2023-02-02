@@ -9,11 +9,11 @@ namespace Npgsql;
 /// Provides lookup for a pool based on a connection string.
 /// </summary>
 /// <remarks>
-/// Note that pools created directly as <see cref="NpgsqlDataSource" /> are referenced directly by users, and aren't managed here.
+/// Note that pools created directly as <see cref="NpgsqlDataSourceOrig" /> are referenced directly by users, and aren't managed here.
 /// </remarks>
 static class PoolManager
 {
-    internal static ConcurrentDictionary<string, NpgsqlDataSource> Pools { get; } = new();
+    internal static ConcurrentDictionary<string, NpgsqlDataSourceOrig> Pools { get; } = new();
 
     internal static void Clear(string connString)
     {

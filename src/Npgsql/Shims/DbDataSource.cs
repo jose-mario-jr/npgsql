@@ -14,19 +14,19 @@ public abstract class DbDataSource : IDisposable, IAsyncDisposable
 
     protected abstract DbConnection CreateDbConnection();
 
-    // No need for an actual implementation in this compat shim - it's only implementation will be NpgsqlDataSource, which overrides this.
+    // No need for an actual implementation in this compat shim - it's only implementation will be NpgsqlDataSourceOrig, which overrides this.
     protected virtual DbConnection OpenDbConnection()
         => throw new NotSupportedException();
 
-    // No need for an actual implementation in this compat shim - it's only implementation will be NpgsqlDataSource, which overrides this.
+    // No need for an actual implementation in this compat shim - it's only implementation will be NpgsqlDataSourceOrig, which overrides this.
     protected virtual ValueTask<DbConnection> OpenDbConnectionAsync(CancellationToken cancellationToken = default)
         => throw new NotSupportedException();
 
-    // No need for an actual implementation in this compat shim - it's only implementation will be NpgsqlDataSource, which overrides this.
+    // No need for an actual implementation in this compat shim - it's only implementation will be NpgsqlDataSourceOrig, which overrides this.
     protected virtual DbCommand CreateDbCommand(string? commandText = null)
         => throw new NotSupportedException();
 
-    // No need for an actual implementation in this compat shim - it's only implementation will be NpgsqlDataSource, which overrides this.
+    // No need for an actual implementation in this compat shim - it's only implementation will be NpgsqlDataSourceOrig, which overrides this.
     protected virtual DbBatch CreateDbBatch()
         => throw new NotSupportedException();
 

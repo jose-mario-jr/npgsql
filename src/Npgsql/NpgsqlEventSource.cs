@@ -28,7 +28,7 @@ sealed class NpgsqlEventSource : EventSource
 
     PollingCounter? _poolsCounter;
     readonly object _dataSourcesLock = new();
-    readonly Dictionary<NpgsqlDataSource, (PollingCounter IdleConnectionsCounter, PollingCounter BusyConnectionsCounter)?> _dataSources = new();
+    readonly Dictionary<NpgsqlDataSourceOrig, (PollingCounter IdleConnectionsCounter, PollingCounter BusyConnectionsCounter)?> _dataSources = new();
 
     PollingCounter? _multiplexingAverageCommandsPerBatchCounter;
     PollingCounter? _multiplexingAverageWriteTimePerBatchCounter;
@@ -76,7 +76,7 @@ sealed class NpgsqlEventSource : EventSource
 
     internal void CommandFailed() => Interlocked.Increment(ref _failedCommands);
 
-    internal void DataSourceCreated(NpgsqlDataSource dataSource)
+    internal void DataSourceCreated(NpgsqlDataSourceOrig dataSource)
     {
 #if !NETSTANDARD2_0
         lock (_dataSourcesLock)

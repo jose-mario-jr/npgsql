@@ -589,16 +589,16 @@ Npgsql.NpgsqlDataReaderOrig.IsOnRow.get -> bool
 Npgsql.NpgsqlDataReaderOrig.ReaderClosed -> System.EventHandler?
 Npgsql.NpgsqlDataReaderOrig.Rows.get -> ulong
 Npgsql.NpgsqlDataReaderOrig.Statements.get -> System.Collections.Generic.IReadOnlyList<Npgsql.NpgsqlBatchCommand!>!
-Npgsql.NpgsqlDataSource
-Npgsql.NpgsqlDataSource.CreateBatch() -> Npgsql.NpgsqlBatch!
-Npgsql.NpgsqlDataSource.CreateCommand(string? commandText = null) -> Npgsql.NpgsqlCommandOrig!
-Npgsql.NpgsqlDataSource.CreateConnection() -> Npgsql.NpgsqlConnectionOrig!
-Npgsql.NpgsqlDataSource.OpenConnection() -> Npgsql.NpgsqlConnectionOrig!
-Npgsql.NpgsqlDataSource.OpenConnectionAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<Npgsql.NpgsqlConnectionOrig!>
-Npgsql.NpgsqlDataSource.Password.set -> void
+Npgsql.NpgsqlDataSourceOrig
+Npgsql.NpgsqlDataSourceOrig.CreateBatch() -> Npgsql.NpgsqlBatch!
+Npgsql.NpgsqlDataSourceOrig.CreateCommand(string? commandText = null) -> Npgsql.NpgsqlCommandOrig!
+Npgsql.NpgsqlDataSourceOrig.CreateConnection() -> Npgsql.NpgsqlConnectionOrig!
+Npgsql.NpgsqlDataSourceOrig.OpenConnection() -> Npgsql.NpgsqlConnectionOrig!
+Npgsql.NpgsqlDataSourceOrig.OpenConnectionAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<Npgsql.NpgsqlConnectionOrig!>
+Npgsql.NpgsqlDataSourceOrig.Password.set -> void
 Npgsql.NpgsqlDataSourceBuilder
 Npgsql.NpgsqlDataSourceBuilder.AddTypeResolverFactory(Npgsql.Internal.TypeHandling.TypeHandlerResolverFactory! resolverFactory) -> void
-Npgsql.NpgsqlDataSourceBuilder.Build() -> Npgsql.NpgsqlDataSource!
+Npgsql.NpgsqlDataSourceBuilder.Build() -> Npgsql.NpgsqlDataSourceOrig!
 Npgsql.NpgsqlDataSourceBuilder.BuildMultiHost() -> Npgsql.NpgsqlMultiHostDataSourceOrig!
 Npgsql.NpgsqlDataSourceBuilder.ConnectionString.get -> string!
 Npgsql.NpgsqlDataSourceBuilder.ConnectionStringBuilder.get -> Npgsql.NpgsqlConnectionStringBuilder!
@@ -656,7 +656,7 @@ Npgsql.NpgsqlMultiHostDataSourceOrig.ClearDatabaseStates() -> void
 Npgsql.NpgsqlMultiHostDataSourceOrig.CreateConnection(Npgsql.TargetSessionAttributes targetSessionAttributes) -> Npgsql.NpgsqlConnectionOrig!
 Npgsql.NpgsqlMultiHostDataSourceOrig.OpenConnection(Npgsql.TargetSessionAttributes targetSessionAttributes) -> Npgsql.NpgsqlConnectionOrig!
 Npgsql.NpgsqlMultiHostDataSourceOrig.OpenConnectionAsync(Npgsql.TargetSessionAttributes targetSessionAttributes, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<Npgsql.NpgsqlConnectionOrig!>
-Npgsql.NpgsqlMultiHostDataSourceOrig.WithTargetSession(Npgsql.TargetSessionAttributes targetSessionAttributes) -> Npgsql.NpgsqlDataSource!
+Npgsql.NpgsqlMultiHostDataSourceOrig.WithTargetSession(Npgsql.TargetSessionAttributes targetSessionAttributes) -> Npgsql.NpgsqlDataSourceOrig!
 Npgsql.NpgsqlNestedDataReader
 Npgsql.NpgsqlNestedDataReader.GetData(int ordinal) -> Npgsql.NpgsqlNestedDataReader!
 Npgsql.NpgsqlNoticeEventArgs
@@ -1616,7 +1616,7 @@ override Npgsql.NpgsqlDataReaderOrig.ReadAsync(System.Threading.CancellationToke
 override Npgsql.NpgsqlDataReaderOrig.RecordsAffected.get -> int
 override Npgsql.NpgsqlDataReaderOrig.this[int ordinal].get -> object!
 override Npgsql.NpgsqlDataReaderOrig.this[string! name].get -> object!
-override Npgsql.NpgsqlDataSource.ConnectionString.get -> string!
+override Npgsql.NpgsqlDataSourceOrig.ConnectionString.get -> string!
 override Npgsql.NpgsqlException.DbBatchCommand.get -> System.Data.Common.DbBatchCommand?
 override Npgsql.NpgsqlException.IsTransient.get -> bool
 override Npgsql.NpgsqlFactory.CanCreateBatch.get -> bool
@@ -1841,8 +1841,8 @@ static Npgsql.NpgsqlCommandBuilder.DeriveParameters(Npgsql.NpgsqlCommandOrig! co
 static Npgsql.NpgsqlConnectionOrig.ClearAllPools() -> void
 static Npgsql.NpgsqlConnectionOrig.ClearPool(Npgsql.NpgsqlConnectionOrig! connection) -> void
 static Npgsql.NpgsqlConnectionOrig.GlobalTypeMapper.get -> Npgsql.TypeMapping.INpgsqlTypeMapper!
-static Npgsql.NpgsqlDataSource.Create(Npgsql.NpgsqlConnectionStringBuilder! connectionStringBuilder) -> Npgsql.NpgsqlDataSource!
-static Npgsql.NpgsqlDataSource.Create(string! connectionString) -> Npgsql.NpgsqlDataSource!
+static Npgsql.NpgsqlDataSourceOrig.Create(Npgsql.NpgsqlConnectionStringBuilder! connectionStringBuilder) -> Npgsql.NpgsqlDataSourceOrig!
+static Npgsql.NpgsqlDataSourceOrig.Create(string! connectionString) -> Npgsql.NpgsqlDataSourceOrig!
 static Npgsql.NpgsqlLoggingConfiguration.InitializeLogging(Microsoft.Extensions.Logging.ILoggerFactory! loggerFactory, bool parameterLoggingEnabled = false) -> void
 static Npgsql.Replication.Internal.LogicalReplicationConnectionExtensions.CreateLogicalReplicationSlot(this Npgsql.Replication.LogicalReplicationConnection! connection, string! slotName, string! outputPlugin, bool isTemporary = false, Npgsql.Replication.LogicalSlotSnapshotInitMode? slotSnapshotInitMode = null, bool twoPhase = false, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Npgsql.Replication.ReplicationSlotOptions>!
 static Npgsql.Replication.Internal.LogicalReplicationConnectionExtensions.StartLogicalReplication(this Npgsql.Replication.LogicalReplicationConnection! connection, Npgsql.Replication.Internal.LogicalReplicationSlot! slot, System.Threading.CancellationToken cancellationToken, NpgsqlTypes.NpgsqlLogSequenceNumber? walLocation = null, System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string!, string?>>? options = null, bool bypassingStream = false) -> System.Collections.Generic.IAsyncEnumerable<Npgsql.Replication.XLogDataMessage!>!

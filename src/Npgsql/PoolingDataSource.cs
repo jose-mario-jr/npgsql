@@ -12,7 +12,7 @@ using Npgsql.Util;
 
 namespace Npgsql;
 
-class PoolingDataSource : NpgsqlDataSource
+class PoolingDataSource : NpgsqlDataSourceOrig
 {
     #region Fields and properties
 

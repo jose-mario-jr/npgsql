@@ -7,7 +7,7 @@ using Npgsql.Util;
 
 namespace Npgsql;
 
-sealed class UnpooledDataSource : NpgsqlDataSource
+sealed class UnpooledDataSource : NpgsqlDataSourceOrig
 {
     public UnpooledDataSource(NpgsqlConnectionStringBuilder settings, NpgsqlDataSourceConfiguration dataSourceConfig)
         : base(settings, dataSourceConfig)

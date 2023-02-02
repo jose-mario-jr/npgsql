@@ -236,7 +236,7 @@ public partial class NpgsqlConnector : IDisposable
     /// Note that in multi-host scenarios, this references the host-specific <see cref="PoolingDataSource"/> rather than the
     /// <see cref="NpgsqlMultiHostDataSourceOrig"/>.
     /// </summary>
-    internal NpgsqlDataSource DataSource { get; }
+    internal NpgsqlDataSourceOrig DataSource { get; }
 
     internal string UserFacingConnectionString => DataSource.ConnectionString;
 
@@ -312,7 +312,7 @@ public partial class NpgsqlConnector : IDisposable
 
     #region Constructors
 
-    internal NpgsqlConnector(NpgsqlDataSource dataSource, NpgsqlConnectionOrig conn)
+    internal NpgsqlConnector(NpgsqlDataSourceOrig dataSource, NpgsqlConnectionOrig conn)
         : this(dataSource)
     {
         if (conn.ProvideClientCertificatesCallback is not null)
@@ -336,7 +336,7 @@ public partial class NpgsqlConnector : IDisposable
     /// <summary>
     /// Constructor by a dataSource
     /// </summary>
-    public NpgsqlConnector(NpgsqlDataSource dataSource)
+    public NpgsqlConnector(NpgsqlDataSourceOrig dataSource)
     {
         Debug.Assert(dataSource.OwnsConnectors);
 

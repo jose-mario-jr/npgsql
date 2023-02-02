@@ -46,7 +46,7 @@ public class NpgsqlLoggingConfiguration
     /// </para>
     /// <para>
     /// This is a legacy-only, backwards compatibility API. New applications should set the logger factory on
-    /// <see cref="NpgsqlDataSourceBuilder" /> and use the resulting <see cref="NpgsqlDataSource "/> instead.
+    /// <see cref="NpgsqlDataSourceBuilder" /> and use the resulting <see cref="NpgsqlDataSourceOrig "/> instead.
     /// </para>
     /// </summary>
     /// <param name="loggerFactory">The logging factory to use when logging from Npgsql.</param>

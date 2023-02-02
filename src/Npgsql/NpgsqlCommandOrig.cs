@@ -1467,7 +1467,7 @@ GROUP BY pg_proc.proargnames, pg_proc.proargtypes, pg_proc.proallargtypes, pg_pr
                 Debug.Assert(conn.Settings.Multiplexing);
 
                 // The connection isn't bound to a connector - it's multiplexing time.
-                var dataSource = (MultiplexingDataSource)conn.NpgsqlDataSource;
+                var dataSource = (MultiplexingDataSource)conn.NpgsqlDataSourceOrig;
 
                 if (!async)
                 {

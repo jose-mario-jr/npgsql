@@ -16,7 +16,7 @@ using NpgsqlTypes;
 namespace Npgsql;
 
 /// <summary>
-/// Provides a simple API for configuring and creating an <see cref="NpgsqlDataSource" />, from which database connections can be obtained.
+/// Provides a simple API for configuring and creating an <see cref="NpgsqlDataSourceOrig" />, from which database connections can be obtained.
 /// </summary>
 public class NpgsqlDataSourceBuilder : INpgsqlTypeMapper
 {
@@ -334,9 +334,9 @@ public class NpgsqlDataSourceBuilder : INpgsqlTypeMapper
     }
 
     /// <summary>
-    /// Builds and returns an <see cref="NpgsqlDataSource" /> which is ready for use.
+    /// Builds and returns an <see cref="NpgsqlDataSourceOrig" /> which is ready for use.
     /// </summary>
-    public NpgsqlDataSource Build()
+    public NpgsqlDataSourceOrig Build()
     {
         var config = PrepareConfiguration();
 

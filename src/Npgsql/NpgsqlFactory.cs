@@ -75,7 +75,7 @@ public sealed class NpgsqlFactory : DbProviderFactory, IServiceProvider
 #if NET7_0_OR_GREATER
     /// <inheritdoc/>
     public override DbDataSource CreateDataSource(string connectionString)
-        => NpgsqlDataSource.Create(connectionString);
+        => NpgsqlDataSourceOrig.Create(connectionString);
 #endif
 
     #region IServiceProvider Members

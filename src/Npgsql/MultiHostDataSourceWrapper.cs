@@ -11,7 +11,7 @@ namespace Npgsql;
 /// MultiHostDataSourceWrapper class is a wrapper for the NpgsqlMultiHostDataSourceOrig class.
 /// This class provides additional functionality specific to working with a multi-host data source.
 /// </summary>
-public class MultiHostDataSourceWrapper : NpgsqlDataSource
+public class MultiHostDataSourceWrapper : NpgsqlDataSourceOrig
 {
     /// <summary>
     /// Indicates whether this data source owns its connectors.

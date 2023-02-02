@@ -12,19 +12,19 @@ using System.Transactions;
 namespace Npgsql;
 
 /// <summary>
-/// An <see cref="NpgsqlDataSource" /> which manages connections for multiple hosts, is aware of their states (primary, secondary,
+/// An <see cref="NpgsqlDataSourceOrig" /> which manages connections for multiple hosts, is aware of their states (primary, secondary,
 /// offline...) and can perform failover and load balancing across them.
 /// </summary>
 /// <remarks>
 /// See <see href="https://www.npgsql.org/doc/failover-and-load-balancing.html" />.
 /// </remarks>
-public class NpgsqlMultiHostDataSourceOrig : NpgsqlDataSource
+public class NpgsqlMultiHostDataSourceOrig : NpgsqlDataSourceOrig
 {
     internal override bool OwnsConnectors => false;
 
-    readonly NpgsqlDataSource[] _pools;
+    readonly NpgsqlDataSourceOrig[] _pools;
 
-    internal NpgsqlDataSource[] Pools => _pools;
+    internal NpgsqlDataSourceOrig[] Pools => _pools;
 
     readonly MultiHostDataSourceWrapper[] _wrappers;
 
@@ -37,7 +37,7 @@ public class NpgsqlMultiHostDataSourceOrig : NpgsqlDataSource
         : base(settings, dataSourceConfig)
     {
         var hosts = settings.Host!.Split(',');
-        _pools = new NpgsqlDataSource[hosts.Length];
+        _pools = new NpgsqlDataSourceOrig[hosts.Length];
         for (var i = 0; i < hosts.Length; i++)
         {
             var poolSettings = settings.Clone();
@@ -117,10 +117,10 @@ public class NpgsqlMultiHostDataSourceOrig : NpgsqlDataSource
     }
 
     /// <summary>
-    /// Returns an <see cref="NpgsqlDataSource" /> that wraps this multi-host one with the given server type.
+    /// Returns an <see cref="NpgsqlDataSourceOrig" /> that wraps this multi-host one with the given server type.
     /// </summary>
     /// <param name="targetSessionAttributes">Specifies the server type (e.g. primary, standby).</param>
-    public NpgsqlDataSource WithTargetSession(TargetSessionAttributes targetSessionAttributes)
+    public NpgsqlDataSourceOrig WithTargetSession(TargetSessionAttributes targetSessionAttributes)
         => _wrappers[(int)targetSessionAttributes];
 
     static bool IsPreferred(DatabaseState state, TargetSessionAttributes preferredType)
