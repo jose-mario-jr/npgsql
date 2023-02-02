@@ -50,15 +50,18 @@ namespace Npgsql
         }
 
         /// <summary>
-        /// Get private attribute DataSource
+        /// DB.
         /// </summary>
-        public NpgsqlDataSource getDataSource()
+        public NpgsqlDataSource NpgsqlDataSource
         {
-            if (this._dataSource == null)
+            get
             {
-                this._dataSource = NpgsqlDataSource.Create();
+                if (_dataSource == null)
+                {
+                    _dataSource = NpgsqlDataSource.Create();
+                }
+                return _dataSource;
             }
-            return this._dataSource;
         }
     }
 }

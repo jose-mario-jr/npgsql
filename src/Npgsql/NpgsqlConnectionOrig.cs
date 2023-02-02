@@ -219,7 +219,7 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
         // Really unseen, need to create a new pool
         // The canonical pool is the 'base' pool so we need to set that up first. If someone beats us to it use what they put.
         // The connection string pool can either be added here or above, if it's added above we should just use that.
-        var dataSourceBuilder = new NpgsqlDataSourceBuilder(canonical);
+        var dataSourceBuilder = new NpgsqlDataSourceBuilderOrig(canonical);
         dataSourceBuilder.UseLoggerFactory(NpgsqlLoggingConfiguration.GlobalLoggerFactory);
         dataSourceBuilder.EnableParameterLogging(NpgsqlLoggingConfiguration.GlobalIsParameterLoggingEnabled);
         var newDataSource = dataSourceBuilder.Build();
@@ -404,7 +404,7 @@ public class NpgsqlConnectionOrig : DbConnection, ICloneable, IComponent
     /// that was previously opened from the pool.
     /// </p>
     /// </remarks>
-    [Obsolete("Use NpgsqlDataSourceBuilder.UsePeriodicPasswordProvider or inject passwords directly into NpgsqlDataSourceOrig.Password")]
+    [Obsolete("Use NpgsqlDataSourceBuilderOrig.UsePeriodicPasswordProvider or inject passwords directly into NpgsqlDataSourceOrig.Password")]
     public ProvidePasswordCallback? ProvidePasswordCallback { get; set; }
 
     #endregion Connection string management
@@ -2012,7 +2012,7 @@ public delegate void ProvideClientCertificatesCallback(X509CertificateCollection
 /// <param name="database">Database Name</param>
 /// <param name="username">User</param>
 /// <returns>A valid password for connecting to the database</returns>
-[Obsolete("Use NpgsqlDataSourceBuilder.UsePeriodicPasswordProvider or inject passwords directly into NpgsqlDataSourceOrig.Password")]
+[Obsolete("Use NpgsqlDataSourceBuilderOrig.UsePeriodicPasswordProvider or inject passwords directly into NpgsqlDataSourceOrig.Password")]
 public delegate string ProvidePasswordCallback(string host, int port, string database, string username);
 
 #endregion

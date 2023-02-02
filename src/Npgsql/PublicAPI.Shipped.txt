@@ -596,29 +596,29 @@ Npgsql.NpgsqlDataSourceOrig.CreateConnection() -> Npgsql.NpgsqlConnectionOrig!
 Npgsql.NpgsqlDataSourceOrig.OpenConnection() -> Npgsql.NpgsqlConnectionOrig!
 Npgsql.NpgsqlDataSourceOrig.OpenConnectionAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<Npgsql.NpgsqlConnectionOrig!>
 Npgsql.NpgsqlDataSourceOrig.Password.set -> void
-Npgsql.NpgsqlDataSourceBuilder
-Npgsql.NpgsqlDataSourceBuilder.AddTypeResolverFactory(Npgsql.Internal.TypeHandling.TypeHandlerResolverFactory! resolverFactory) -> void
-Npgsql.NpgsqlDataSourceBuilder.Build() -> Npgsql.NpgsqlDataSourceOrig!
-Npgsql.NpgsqlDataSourceBuilder.BuildMultiHost() -> Npgsql.NpgsqlMultiHostDataSourceOrig!
-Npgsql.NpgsqlDataSourceBuilder.ConnectionString.get -> string!
-Npgsql.NpgsqlDataSourceBuilder.ConnectionStringBuilder.get -> Npgsql.NpgsqlConnectionStringBuilder!
-Npgsql.NpgsqlDataSourceBuilder.DefaultNameTranslator.get -> Npgsql.INpgsqlNameTranslator!
-Npgsql.NpgsqlDataSourceBuilder.DefaultNameTranslator.set -> void
-Npgsql.NpgsqlDataSourceBuilder.EnableParameterLogging(bool parameterLoggingEnabled = true) -> Npgsql.NpgsqlDataSourceBuilder!
-Npgsql.NpgsqlDataSourceBuilder.MapComposite(System.Type! clrType, string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> Npgsql.TypeMapping.INpgsqlTypeMapper!
-Npgsql.NpgsqlDataSourceBuilder.MapComposite<T>(string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> Npgsql.TypeMapping.INpgsqlTypeMapper!
-Npgsql.NpgsqlDataSourceBuilder.MapEnum<TEnum>(string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> Npgsql.TypeMapping.INpgsqlTypeMapper!
-Npgsql.NpgsqlDataSourceBuilder.NpgsqlDataSourceBuilder(string? connectionString = null) -> void
-Npgsql.NpgsqlDataSourceBuilder.UnmapComposite(System.Type! clrType, string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> bool
-Npgsql.NpgsqlDataSourceBuilder.UnmapComposite<T>(string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> bool
-Npgsql.NpgsqlDataSourceBuilder.UnmapEnum<TEnum>(string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> bool
-Npgsql.NpgsqlDataSourceBuilder.UseClientCertificate(System.Security.Cryptography.X509Certificates.X509Certificate? clientCertificate) -> Npgsql.NpgsqlDataSourceBuilder!
-Npgsql.NpgsqlDataSourceBuilder.UseClientCertificates(System.Security.Cryptography.X509Certificates.X509CertificateCollection? clientCertificates) -> Npgsql.NpgsqlDataSourceBuilder!
-Npgsql.NpgsqlDataSourceBuilder.UseClientCertificatesCallback(System.Action<System.Security.Cryptography.X509Certificates.X509CertificateCollection!>? clientCertificatesCallback) -> Npgsql.NpgsqlDataSourceBuilder!
-Npgsql.NpgsqlDataSourceBuilder.UseLoggerFactory(Microsoft.Extensions.Logging.ILoggerFactory? loggerFactory) -> Npgsql.NpgsqlDataSourceBuilder!
-Npgsql.NpgsqlDataSourceBuilder.UsePeriodicPasswordProvider(System.Func<Npgsql.NpgsqlConnectionStringBuilder!, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<string!>>? passwordProvider, System.TimeSpan successRefreshInterval, System.TimeSpan failureRefreshInterval) -> Npgsql.NpgsqlDataSourceBuilder!
-Npgsql.NpgsqlDataSourceBuilder.UsePhysicalConnectionInitializer(System.Action<Npgsql.NpgsqlConnectionOrig!>? connectionInitializer, System.Func<Npgsql.NpgsqlConnectionOrig!, System.Threading.Tasks.Task!>? connectionInitializerAsync) -> Npgsql.NpgsqlDataSourceBuilder!
-Npgsql.NpgsqlDataSourceBuilder.UseUserCertificateValidationCallback(System.Net.Security.RemoteCertificateValidationCallback! userCertificateValidationCallback) -> Npgsql.NpgsqlDataSourceBuilder!
+Npgsql.NpgsqlDataSourceBuilderOrig
+Npgsql.NpgsqlDataSourceBuilderOrig.AddTypeResolverFactory(Npgsql.Internal.TypeHandling.TypeHandlerResolverFactory! resolverFactory) -> void
+Npgsql.NpgsqlDataSourceBuilderOrig.Build() -> Npgsql.NpgsqlDataSourceOrig!
+Npgsql.NpgsqlDataSourceBuilderOrig.BuildMultiHost() -> Npgsql.NpgsqlMultiHostDataSourceOrig!
+Npgsql.NpgsqlDataSourceBuilderOrig.ConnectionString.get -> string!
+Npgsql.NpgsqlDataSourceBuilderOrig.ConnectionStringBuilder.get -> Npgsql.NpgsqlConnectionStringBuilder!
+Npgsql.NpgsqlDataSourceBuilderOrig.DefaultNameTranslator.get -> Npgsql.INpgsqlNameTranslator!
+Npgsql.NpgsqlDataSourceBuilderOrig.DefaultNameTranslator.set -> void
+Npgsql.NpgsqlDataSourceBuilderOrig.EnableParameterLogging(bool parameterLoggingEnabled = true) -> Npgsql.NpgsqlDataSourceBuilderOrig!
+Npgsql.NpgsqlDataSourceBuilderOrig.MapComposite(System.Type! clrType, string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> Npgsql.TypeMapping.INpgsqlTypeMapper!
+Npgsql.NpgsqlDataSourceBuilderOrig.MapComposite<T>(string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> Npgsql.TypeMapping.INpgsqlTypeMapper!
+Npgsql.NpgsqlDataSourceBuilderOrig.MapEnum<TEnum>(string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> Npgsql.TypeMapping.INpgsqlTypeMapper!
+Npgsql.NpgsqlDataSourceBuilderOrig.NpgsqlDataSourceBuilderOrig(string? connectionString = null) -> void
+Npgsql.NpgsqlDataSourceBuilderOrig.UnmapComposite(System.Type! clrType, string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> bool
+Npgsql.NpgsqlDataSourceBuilderOrig.UnmapComposite<T>(string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> bool
+Npgsql.NpgsqlDataSourceBuilderOrig.UnmapEnum<TEnum>(string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> bool
+Npgsql.NpgsqlDataSourceBuilderOrig.UseClientCertificate(System.Security.Cryptography.X509Certificates.X509Certificate? clientCertificate) -> Npgsql.NpgsqlDataSourceBuilderOrig!
+Npgsql.NpgsqlDataSourceBuilderOrig.UseClientCertificates(System.Security.Cryptography.X509Certificates.X509CertificateCollection? clientCertificates) -> Npgsql.NpgsqlDataSourceBuilderOrig!
+Npgsql.NpgsqlDataSourceBuilderOrig.UseClientCertificatesCallback(System.Action<System.Security.Cryptography.X509Certificates.X509CertificateCollection!>? clientCertificatesCallback) -> Npgsql.NpgsqlDataSourceBuilderOrig!
+Npgsql.NpgsqlDataSourceBuilderOrig.UseLoggerFactory(Microsoft.Extensions.Logging.ILoggerFactory? loggerFactory) -> Npgsql.NpgsqlDataSourceBuilderOrig!
+Npgsql.NpgsqlDataSourceBuilderOrig.UsePeriodicPasswordProvider(System.Func<Npgsql.NpgsqlConnectionStringBuilder!, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<string!>>? passwordProvider, System.TimeSpan successRefreshInterval, System.TimeSpan failureRefreshInterval) -> Npgsql.NpgsqlDataSourceBuilderOrig!
+Npgsql.NpgsqlDataSourceBuilderOrig.UsePhysicalConnectionInitializer(System.Action<Npgsql.NpgsqlConnectionOrig!>? connectionInitializer, System.Func<Npgsql.NpgsqlConnectionOrig!, System.Threading.Tasks.Task!>? connectionInitializerAsync) -> Npgsql.NpgsqlDataSourceBuilderOrig!
+Npgsql.NpgsqlDataSourceBuilderOrig.UseUserCertificateValidationCallback(System.Net.Security.RemoteCertificateValidationCallback! userCertificateValidationCallback) -> Npgsql.NpgsqlDataSourceBuilderOrig!
 Npgsql.NpgsqlException
 Npgsql.NpgsqlException.BatchCommand.get -> Npgsql.NpgsqlBatchCommand?
 Npgsql.NpgsqlException.BatchCommand.set -> void

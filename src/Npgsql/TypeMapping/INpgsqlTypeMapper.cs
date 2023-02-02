@@ -11,7 +11,7 @@ namespace Npgsql.TypeMapping;
 /// A type mapper, managing how to read and write CLR values to PostgreSQL data types.
 /// </summary>
 /// <remarks>
-/// The preferred way to manage type mappings is on <see cref="NpgsqlDataSourceBuilder" />. An alternative, but discouraged, method, is to
+/// The preferred way to manage type mappings is on <see cref="NpgsqlDataSourceBuilderOrig" />. An alternative, but discouraged, method, is to
 /// manage them globally via <see cref="NpgsqlConnectionOrig.GlobalTypeMapper"/>).
 /// </remarks>
 public interface INpgsqlTypeMapper

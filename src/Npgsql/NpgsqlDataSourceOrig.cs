@@ -195,7 +195,7 @@ public abstract class NpgsqlDataSourceOrig : DbDataSource
     /// Creates a new <see cref="NpgsqlDataSourceOrig" /> for the given <paramref name="connectionString" />.
     /// </summary>
     public static NpgsqlDataSourceOrig Create(string connectionString)
-        => new NpgsqlDataSourceBuilder(connectionString).Build();
+        => new NpgsqlDataSourceBuilderOrig(connectionString).Build();
 
     /// <summary>
     /// Creates a new <see cref="NpgsqlDataSourceOrig" /> for the given <paramref name="connectionStringBuilder" />.
@@ -252,7 +252,7 @@ public abstract class NpgsqlDataSourceOrig : DbDataSource
 
     /// <summary>
     /// Manually sets the password to be used the next time a physical connection is opened.
-    /// Consider using <see cref="NpgsqlDataSourceBuilder.UsePeriodicPasswordProvider" /> instead.
+    /// Consider using <see cref="NpgsqlDataSourceBuilderOrig.UsePeriodicPasswordProvider" /> instead.
     /// </summary>
     public string Password
     {

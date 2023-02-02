@@ -18,7 +18,7 @@ public static class NpgsqlServiceCollectionExtensions
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <param name="connectionString">An Npgsql connection string.</param>
     /// <param name="dataSourceBuilderAction">
-    /// An action to configure the <see cref="NpgsqlDataSourceBuilder" /> for further customizations of the <see cref="NpgsqlDataSourceOrig" />.
+    /// An action to configure the <see cref="NpgsqlDataSourceBuilderOrig" /> for further customizations of the <see cref="NpgsqlDataSourceOrig" />.
     /// </param>
     /// <param name="connectionLifetime">
     /// The lifetime with which to register the <see cref="NpgsqlConnectionOrig" /> in the container.
@@ -32,7 +32,7 @@ public static class NpgsqlServiceCollectionExtensions
     public static IServiceCollection AddNpgsqlDataSource(
         this IServiceCollection serviceCollection,
         string connectionString,
-        Action<NpgsqlDataSourceBuilder> dataSourceBuilderAction,
+        Action<NpgsqlDataSourceBuilderOrig> dataSourceBuilderAction,
         ServiceLifetime connectionLifetime = ServiceLifetime.Transient,
         ServiceLifetime dataSourceLifetime = ServiceLifetime.Singleton)
         => AddNpgsqlDataSourceCore(serviceCollection, connectionString, dataSourceBuilderAction, connectionLifetime, dataSourceLifetime);
@@ -65,7 +65,7 @@ public static class NpgsqlServiceCollectionExtensions
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <param name="connectionString">An Npgsql connection string.</param>
     /// <param name="dataSourceBuilderAction">
-    /// An action to configure the <see cref="NpgsqlDataSourceBuilder" /> for further customizations of the <see cref="NpgsqlDataSourceOrig" />.
+    /// An action to configure the <see cref="NpgsqlDataSourceBuilderOrig" /> for further customizations of the <see cref="NpgsqlDataSourceOrig" />.
     /// </param>
     /// <param name="connectionLifetime">
     /// The lifetime with which to register the <see cref="NpgsqlConnectionOrig" /> in the container.
@@ -79,7 +79,7 @@ public static class NpgsqlServiceCollectionExtensions
     public static IServiceCollection AddMultiHostNpgsqlDataSource(
         this IServiceCollection serviceCollection,
         string connectionString,
-        Action<NpgsqlDataSourceBuilder> dataSourceBuilderAction,
+        Action<NpgsqlDataSourceBuilderOrig> dataSourceBuilderAction,
         ServiceLifetime connectionLifetime = ServiceLifetime.Transient,
         ServiceLifetime dataSourceLifetime = ServiceLifetime.Singleton)
         => AddNpgsqlMultiHostDataSourceOrigCore(
@@ -111,7 +111,7 @@ public static class NpgsqlServiceCollectionExtensions
     static IServiceCollection AddNpgsqlDataSourceCore(
         this IServiceCollection serviceCollection,
         string connectionString,
-        Action<NpgsqlDataSourceBuilder>? dataSourceBuilderAction,
+        Action<NpgsqlDataSourceBuilderOrig>? dataSourceBuilderAction,
         ServiceLifetime connectionLifetime,
         ServiceLifetime dataSourceLifetime)
     {
@@ -120,7 +120,7 @@ public static class NpgsqlServiceCollectionExtensions
                 typeof(NpgsqlDataSourceOrig),
                 sp =>
                 {
-                    var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+                    var dataSourceBuilder = new NpgsqlDataSourceBuilderOrig(connectionString);
                     dataSourceBuilder.UseLoggerFactory(sp.GetService<ILoggerFactory>());
                     dataSourceBuilderAction?.Invoke(dataSourceBuilder);
                     return dataSourceBuilder.Build();
@@ -135,7 +135,7 @@ public static class NpgsqlServiceCollectionExtensions
     static IServiceCollection AddNpgsqlMultiHostDataSourceOrigCore(
         this IServiceCollection serviceCollection,
         string connectionString,
-        Action<NpgsqlDataSourceBuilder>? dataSourceBuilderAction,
+        Action<NpgsqlDataSourceBuilderOrig>? dataSourceBuilderAction,
         ServiceLifetime connectionLifetime,
         ServiceLifetime dataSourceLifetime)
     {
@@ -144,7 +144,7 @@ public static class NpgsqlServiceCollectionExtensions
                 typeof(NpgsqlMultiHostDataSourceOrig),
                 sp =>
                 {
-                    var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+                    var dataSourceBuilder = new NpgsqlDataSourceBuilderOrig(connectionString);
                     dataSourceBuilder.UseLoggerFactory(sp.GetService<ILoggerFactory>());
                     dataSourceBuilderAction?.Invoke(dataSourceBuilder);
                     return dataSourceBuilder.BuildMultiHost();

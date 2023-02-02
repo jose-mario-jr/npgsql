@@ -57,7 +57,7 @@ namespace Npgsql
 
             // pldotnet_SPICursorOpen(this._cmdPointer, ref cursorPointer);
 
-            var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.getDataSource()))
+            var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.NpgsqlDataSource))
             {
                 CursorPointer = cursorPointer,
             };
