@@ -17,80 +17,59 @@ using PlDotNET.Handler;
 
 namespace Npgsql.PlDotNET
 {
+    /// <summary>
+    /// Represents a data reader for PostgreSQL data.
+    /// </summary>
     public class NpgsqlDataReader : NpgsqlDataReaderOrig
     {
-        public static TextHandler TextHandlerObject = new ();
-        public static BoolHandler BoolHandlerObject = new ();
-        public static IntHandler IntHandlerObject = new ();
-        public static ShortHandler ShortHandlerObject = new ();
+        /// <summary>
+        /// The number of rows retrieved by the data reader.
+        /// </summary>
+        private int NRows = 0;
 
-        public static Dictionary<OID, Type> TypeByOid =
-                       new ()
-        {
-            { OID.BOOLOID, typeof(bool) },
-            { OID.INT2OID, typeof(short) },
-            { OID.INT4OID, typeof(int) },
-            { OID.TEXTOID, typeof(string) },
-        };
+        /// <summary>
+        /// The number of columns in the result set.
+        /// </summary>
+        private int NCols = 0;
 
-        public int NRows = 0;
-        public int NCols = 0;
-        public DataTable ReturnedTable;
-        public DataRow CurrentRow;
-        public new int FieldCount;
-        public string[] ColumnNames;
-        public int[] ColumnTypes;
+        /// <summary>
+        /// The number of columns in the result set.
+        /// </summary>
+        private new int FieldCount;
 
-        public IntPtr CursorPointer;
+        /// <summary>
+        /// The type of the columns in the result set.
+        /// </summary>
+        private int[] ColumnTypes;
 
-        public NpgsqlDataReader(NpgsqlConnector connector)
+        /// <summary>
+        /// The name of the columns in the result set.
+        /// </summary>
+        private string[] ColumnNames;
+
+        /// <summary>
+        /// The current row of the result set, where each item is a PostgreSQL datum.
+        /// </summary>
+        private IntPtr[] CurrentRow;
+
+        /// <summary>
+        /// The cursor pointer for the data reader.
+        /// </summary>
+        private IntPtr CursorPointer;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public NpgsqlDataReader(NpgsqlConnector connector, IntPtr cursorPoint)
         : base(connector)
         {
+            CursorPointer = (IntPtr)cursorPoint;
         }
 
-        // set a .NET type to the data row using reference...
-        public static void SetValueInRow(ref DataRow row, string key, uint type, IntPtr datum)
-        {
-            row[key] = type switch
-            {
-                (uint)OID.BOOLOID => BoolHandlerObject.InputValue(datum),
-                (uint)OID.INT2OID => ShortHandlerObject.InputValue(datum),
-                (uint)OID.INT4OID => IntHandlerObject.InputValue(datum),
-                (uint)OID.TEXTOID => TextHandlerObject.InputValue(datum),
-                _ => throw new NotImplementedException($"Datum to {(OID)type} is not supported! Check SetValueInRow"),
-            };
-        }
-
-        public static DataTable TuptableToDataTable(IntPtr[] datums, int[] columnTypes, string[] columnNames, int ncols, int nrows)
-        {
-            DataTable userDataTable = new ();
-            for (int j = 0; j < ncols; j++)
-            {
-                OID type = (OID)columnTypes[j];
-                if (TypeByOid.ContainsKey(type))
-                {
-                    userDataTable.Columns.Add(columnNames[j], TypeByOid[type]);
-                }
-                else
-                {
-                    throw new NotImplementedException($"Datum to {(OID)type} is not supported!");
-                }
-            }
-
-            for (int i = 0; i < nrows; i++)
-            {
-                DataRow row = userDataTable.NewRow();
-                for (int j = 0; j < ncols; j++)
-                {
-                    SetValueInRow(ref row, columnNames[j], (uint)columnTypes[j], datums[(i * ncols) + j]);
-                }
-
-                userDataTable.Rows.Add(row);
-            }
-
-            return userDataTable;
-        }
-
+        /// <summary>
+        /// Advances the reader to the next row in a result set.
+        /// </summary>
+        /// <returns><b>true</b> if there are more rows; otherwise <b>false</b>.</returns>
         public override bool Read()
         {
             pldotnet_SPICursorFetch(this.CursorPointer);
@@ -102,7 +81,7 @@ namespace Npgsql.PlDotNET
                 return false;
             }
 
-            IntPtr[] datums = new IntPtr[this.NCols];
+            this.CurrentRow = new IntPtr[this.NCols];
 
             if (this.ColumnNames == null && this.ColumnTypes == null)
             {
@@ -112,12 +91,9 @@ namespace Npgsql.PlDotNET
                 this.ColumnNames = columnNamePts.ToList().Select(namePts => Marshal.PtrToStringAuto(namePts)).ToArray();
             }
 
-            pldotnet_GetTable(datums);
+            pldotnet_GetTable(this.CurrentRow);
 
-            this.ReturnedTable = TuptableToDataTable(datums, this.ColumnTypes, this.ColumnNames, this.NCols, this.NRows);
-
-            this.CurrentRow = this.ReturnedTable.Rows[0];
-            this.FieldCount = this.ReturnedTable.Columns.Count;
+            this.FieldCount = this.NCols;
 
             return true;
         }
@@ -127,14 +103,24 @@ namespace Npgsql.PlDotNET
             pldotnet_SPIFinish();
         }
 
+        /// <summary>
+        /// Gets the name of the column, given the zero-based column ordinal.
+        /// </summary>
+        /// <param name="ordinal">The zero-based column ordinal.</param>
+        /// <returns>The name of the specified column.</returns>
         public override string GetName(int ordinal)
             => this.ColumnNames[ordinal];
 
+        /// <summary>
+        /// Gets the column ordinal given the name of the column.
+        /// </summary>
+        /// <param name="name">The name of the column.</param>
+        /// <returns>The zero-based column ordinal.</returns>
         public override int GetOrdinal(string name)
         {
-            for (int i = 0; i < this.ReturnedTable.Columns.Count; i++)
+            for (int i = 0; i < this.ColumnNames.Length; i++)
             {
-                if (this.ReturnedTable.Columns[i].ColumnName == name)
+                if (this.ColumnNames[i].ToLower() == name.ToLower())
                 {
                     return i;
                 }
@@ -143,61 +129,82 @@ namespace Npgsql.PlDotNET
             throw new ArgumentException("Column not found", nameof(name));
         }
 
+        /// <summary>
+        /// Synchronously gets the value of the specified column as a type.
+        /// </summary>
+        /// <typeparam name="T">Synchronously gets the value of the specified column as a type.</typeparam>
+        /// <param name="ordinal">The column to be retrieved.</param>
+        /// <returns>The column to be retrieved.</returns>
         public override T GetFieldValue<T>(int ordinal)
-            => (T)this.CurrentRow[ordinal];
+        {
+            return (T)DatumConversion.InputValue(CurrentRow[ordinal], (OID)ColumnTypes[ordinal]);
+        }
 
+        /// <summary>
+        /// Populates an array of objects with the column values of the current row.
+        /// </summary>
+        /// <param name="values">An array of Object into which to copy the attribute columns.</param>
+        /// <returns>The number of instances of <see cref="object"/> in the array.</returns>
         public override int GetValues(object[] values)
         {
-            for (int i = 0; i < this.FieldCount; i++)
-            {
-                values[i] = this.CurrentRow[i];
-            }
-
-            return this.FieldCount;
+            var count = Math.Min(FieldCount, values.Length);
+            for (var i = 0; i < count; i++)
+                values[i] = GetValue(i);
+            return count;
         }
 
-        public string getTableLinesMd()
+        /// <summary>
+        /// Gets the value of the specified column as an instance of <see cref="object"/>.
+        /// </summary>
+        /// <param name="ordinal">The zero-based column ordinal.</param>
+        /// <returns>The value of the specified column.</returns>
+        public override object GetValue(int ordinal)
         {
-            var sb = new System.Text.StringBuilder();
-
-            foreach (DataRow dataRow in this.ReturnedTable.Rows)
-            {
-                sb.Append($"| {string.Join(" | ", dataRow.ItemArray)} |\n");
-            }
-
-            return sb.ToString();
+            return DatumConversion.InputValue(CurrentRow[ordinal], (OID)ColumnTypes[ordinal]);
         }
 
-        public string getTableHeaderMd()
-        {
-            List<string> columnNamesDT = new ();
-            var sb = new System.Text.StringBuilder();
-            var divisor = new System.Text.StringBuilder();
+        // public string getTableLinesMd()
+        // {
+        //     var sb = new System.Text.StringBuilder();
 
-            foreach (DataColumn column in this.ReturnedTable.Columns)
-            {
-                columnNamesDT.Add(column.ColumnName);
-                divisor.Append("| - ");
-            }
+        //     foreach (DataRow dataRow in this.ReturnedTable.Rows)
+        //     {
+        //         sb.Append($"| {string.Join(" | ", dataRow.ItemArray)} |\n");
+        //     }
 
-            divisor.Append("|\n");
+        //     return sb.ToString();
+        // }
 
-            sb.Append($"| {string.Join(" | ", columnNamesDT.ToArray())} |\n");
-            sb.Append(divisor);
+        // public string getTableHeaderMd()
+        // {
+        //     List<string> columnNamesDT = new ();
+        //     var sb = new System.Text.StringBuilder();
+        //     var divisor = new System.Text.StringBuilder();
 
-            return sb.ToString();
-        }
+        //     foreach (DataColumn column in this.ReturnedTable.Columns)
+        //     {
+        //         columnNamesDT.Add(column.ColumnName);
+        //         divisor.Append("| - ");
+        //     }
 
-        public override string ToString()
-        {
-            _ = new List<string>();
+        //     divisor.Append("|\n");
 
-            var sb = new System.Text.StringBuilder();
-            sb.Append(this.getTableHeaderMd());
-            sb.Append(this.getTableLinesMd());
+        //     sb.Append($"| {string.Join(" | ", columnNamesDT.ToArray())} |\n");
+        //     sb.Append(divisor);
 
-            return sb.ToString();
-        }
+        //     return sb.ToString();
+        // }
+
+        // public override string ToString()
+        // {
+        //     _ = new List<string>();
+
+        //     var sb = new System.Text.StringBuilder();
+        //     // sb.Append(this.getTableHeaderMd());
+        //     // sb.Append(this.getTableLinesMd());
+
+        //     return sb.ToString();
+        // }
 
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
         public static extern void pldotnet_SPIFinish();
