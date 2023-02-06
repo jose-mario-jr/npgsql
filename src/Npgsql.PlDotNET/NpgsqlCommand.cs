@@ -66,6 +66,9 @@ namespace Npgsql
         public new NpgsqlDataReader ExecuteReader(CommandBehavior behavior = CommandBehavior.Default)
             => ExecuteReader(behavior, async: false, CancellationToken.None).GetAwaiter().GetResult();
 
+        public new NpgsqlDataReader ExecuteDbDataReader(CommandBehavior behavior)
+            => ExecuteReader(behavior);
+
         public new async ValueTask<NpgsqlDataReader> ExecuteReader(CommandBehavior behavior, bool async, CancellationToken cancellationToken){
 
             IntPtr cursorPointer = IntPtr.Zero;
@@ -73,7 +76,7 @@ namespace Npgsql
             Elog.Info("Open Cursor");
             pldotnet_SPICursorOpen(this._cmdPointer, ref cursorPointer);
 
-            var r = new NpgsqlDataReader(new NpgsqlConnector(this.dataSource), cursorPointer);
+            var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.NpgsqlDataSource), cursorPointer);
 
             return await Task.FromResult(r);
         }
