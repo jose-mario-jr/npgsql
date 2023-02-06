@@ -73,10 +73,7 @@ namespace Npgsql
             Elog.Info("Open Cursor");
             pldotnet_SPICursorOpen(this._cmdPointer, ref cursorPointer);
 
-            var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.NpgsqlDataSource))
-            {
-                CursorPointer = cursorPointer,
-            };
+            var r = new NpgsqlDataReader(new NpgsqlConnector(this.dataSource), cursorPointer);
 
             return await Task.FromResult(r);
         }
