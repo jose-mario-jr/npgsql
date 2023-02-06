@@ -11,6 +11,7 @@ using Npgsql;
 using Npgsql.Internal;
 using Npgsql.PostgresTypes;
 using PlDotNET.Handler;
+using PlDotNET.Common;
 
 #pragma warning disable CS1591
 
@@ -32,6 +33,7 @@ namespace Npgsql
 
         public static new NpgsqlDataSource Create(string connectionString = "")
         {
+            Elog.Info("Create NpgsqlDataSource!");
             pldotnet_SPIReady();
             return new NpgsqlDataSource(Sts, Dsb.PrepareConfiguration());
         }
@@ -44,8 +46,11 @@ namespace Npgsql
         [return: MarshalAs(UnmanagedType.I1)]
         public static extern bool pldotnet_SPIReady();
 
-        // public new NpgsqlCommand CreateCommand(string query)
-        //     => new (query);
+        public new NpgsqlCommand CreateCommand(string query)
+        {
+            Elog.Info("Create CreateCommand inside datasource!");
+            return new NpgsqlCommand(query);
+        }
 
         /// <inheritdoc />
         public new NpgsqlConnection OpenConnection()

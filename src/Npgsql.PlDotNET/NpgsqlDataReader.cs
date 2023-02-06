@@ -91,6 +91,17 @@ namespace Npgsql
             return userDataTable;
         }
 
+        public override Task<bool> ReadAsync(CancellationToken cancellationToken)
+        {
+            using (NoSynchronizationContextScope.Enter())
+                return Read(true, cancellationToken);
+        }
+
+        async Task<bool> Read(bool async, CancellationToken cancellationToken = default)
+        {
+            return await Task.Run(() => Read());
+        }
+
         public override bool Read()
         {
             pldotnet_SPICursorFetch(this.CursorPointer);
@@ -120,11 +131,6 @@ namespace Npgsql
             this.FieldCount = this.ReturnedTable.Columns.Count;
 
             return true;
-        }
-
-        public override void Close()
-        {
-            pldotnet_SPIFinish();
         }
 
         public override string GetName(int ordinal)
@@ -213,5 +219,25 @@ namespace Npgsql
 
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
         public static extern void pldotnet_SPICursorFetch(IntPtr cursorPointer);
+
+        public override void Close() => Close(connectionClosing: false, async: false, isDisposing: false).GetAwaiter().GetResult();
+
+        internal async Task Close(bool connectionClosing, bool async, bool isDisposing)
+        {
+            pldotnet_SPIFinish();
+            await Task.Run(() => Elog.Info("Async close ran"));
+        }
+
+        public override ValueTask DisposeAsync()
+        {
+            using (NoSynchronizationContextScope.Enter())
+                return DisposeAsyncCore();
+
+            async ValueTask DisposeAsyncCore()
+            {
+                await Close(connectionClosing: false, async: true, isDisposing: true);
+            }
+
+        }
     }
 }
