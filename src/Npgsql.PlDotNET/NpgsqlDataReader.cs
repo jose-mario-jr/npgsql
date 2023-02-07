@@ -246,5 +246,24 @@ namespace Npgsql
             }
 
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            Close();
+        }
+
+        public override bool NextResult() => NextResult(false).GetAwaiter().GetResult();
+
+        public override Task<bool> NextResultAsync(CancellationToken cancellationToken)
+        {
+            using var _ = NoSynchronizationContextScope.Enter();
+
+            return NextResult(async: true, cancellationToken: cancellationToken);
+        }
+
+        async Task<bool> NextResult(bool async, bool isConsuming = false, CancellationToken cancellationToken = default)
+        {
+            return await Task.Run(() => Read());
+        }
     }
 }

@@ -24,14 +24,13 @@ namespace Npgsql
 
         public NpgsqlCommand()
         {
-            this.InternalConnection = this.InternalConnection ?? new NpgsqlConnection();
-            Prepare();
+            this.InternalConnection = new NpgsqlConnection();
         }
 
         public NpgsqlCommand(string? cmdText) : this()
         {
             _commandText = cmdText ?? string.Empty;
-            InternalConnection = new NpgsqlConnection();
+            Prepare();
         }
 
         public NpgsqlCommand(string? cmdText, NpgsqlConnection? connection) : this(cmdText)
@@ -79,6 +78,30 @@ namespace Npgsql
             var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.NpgsqlDataSource), cursorPointer);
 
             return await Task.FromResult(r);
+        }
+
+        public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
+        {
+            using (NoSynchronizationContextScope.Enter())
+                return ExecuteNonQuery(true, cancellationToken);
+        }
+
+        async Task<int> ExecuteNonQuery(bool async, CancellationToken cancellationToken)
+        {
+            var reader = await ExecuteReader(CommandBehavior.Default, async, cancellationToken);
+            try
+            {
+                while (async ? await reader.NextResultAsync(cancellationToken) : reader.NextResult()) ;
+
+                return reader.RecordsAffected;
+            }
+            finally
+            {
+                if (async)
+                    await reader.DisposeAsync();
+                else
+                    reader.Dispose();
+            }
         }
 
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
