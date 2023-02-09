@@ -83,7 +83,6 @@ namespace Npgsql
             }
 
             var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.NpgsqlDataSource), cursorPointer);
-            r.isNonQuery = isNonQuery;
 
             return await Task.FromResult(r);
         }
