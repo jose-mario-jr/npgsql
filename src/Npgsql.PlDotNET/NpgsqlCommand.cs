@@ -20,6 +20,7 @@ namespace Npgsql
     public class NpgsqlCommand : NpgsqlCommandOrig
     {
         IntPtr _cmdPointer = IntPtr.Zero;
+        public bool isNonQuery;
         public NpgsqlConnection InternalConnection { get; private set; }
 
         public NpgsqlCommand()
@@ -30,6 +31,7 @@ namespace Npgsql
         public NpgsqlCommand(string? cmdText) : this()
         {
             _commandText = cmdText ?? string.Empty;
+            this.isNonQuery = !_commandText.ToLower().StartsWith("select");
             Prepare();
         }
 
@@ -46,8 +48,11 @@ namespace Npgsql
 
         Task Prepare(bool async, CancellationToken cancellationToken = default)
         {
-            Elog.Info("Prepare SPI statement");
-            pldotnet_SPIPrepare(this._commandText, ref this._cmdPointer);
+            if (!isNonQuery)
+            {
+                Elog.Info("Prepare SPI statement");
+                pldotnet_SPIPrepare(this._commandText, ref this._cmdPointer);
+            }
             return Task.CompletedTask;
         }
 
@@ -71,9 +76,11 @@ namespace Npgsql
         public new async ValueTask<NpgsqlDataReader> ExecuteReader(CommandBehavior behavior, bool async, CancellationToken cancellationToken){
 
             IntPtr cursorPointer = IntPtr.Zero;
-
-            Elog.Info("Open Cursor");
-            pldotnet_SPICursorOpen(this._cmdPointer, ref cursorPointer);
+            if (!isNonQuery)
+            {
+                Elog.Info("Open Cursor");
+                pldotnet_SPICursorOpen(this._cmdPointer, ref cursorPointer);
+            }
 
             var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.NpgsqlDataSource), cursorPointer);
 
@@ -91,7 +98,8 @@ namespace Npgsql
             var reader = await ExecuteReader(CommandBehavior.Default, async, cancellationToken);
             try
             {
-                while (async ? await reader.NextResultAsync(cancellationToken) : reader.NextResult()) ;
+                // while (async ? await reader.NextResultAsync(cancellationToken) : reader.NextResult()) ;
+                pldotnet_SPIExecute(_commandText, false, 0);
 
                 return reader.RecordsAffected;
             }
