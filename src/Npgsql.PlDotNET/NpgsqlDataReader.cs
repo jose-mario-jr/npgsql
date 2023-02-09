@@ -142,9 +142,15 @@ namespace Npgsql
         /// <param name="ordinal">The column to be retrieved.</param>
         /// <returns>The column to be retrieved.</returns>
         public override T GetFieldValue<T>(int ordinal)
-        {
-            return (T)DatumConversion.InputValue(CurrentRow[ordinal], (OID)ColumnTypes[ordinal]);
-        }
+            => (T)DatumConversion.InputValue(CurrentRow[ordinal], (OID)ColumnTypes[ordinal]);
+
+        /// <summary>
+        /// Synchronously gets the type of the specified column.
+        /// </summary>
+        /// <param name="ordinal">The column to be retrieved.</param>
+        /// <returns>The type of the column.</returns>
+        public override Type GetFieldType(int ordinal)
+            => typeof(OID);
 
         /// <summary>
         /// Populates an array of objects with the column values of the current row.
