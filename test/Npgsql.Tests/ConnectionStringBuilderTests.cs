@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Npgsql.Tests;
 
-class ConnectionStringBuilderTests
+public class ConnectionStringBuilderTests
 {
     [Test]
     public void Basic()

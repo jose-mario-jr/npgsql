@@ -8,7 +8,7 @@ using static Npgsql.Tests.TestUtil;
 
 namespace Npgsql.Tests;
 
-class CommandBuilderTests : TestBase
+public class CommandBuilderTests : TestBase
 {
     // See function parameter derivation tests in FunctionTests, and stored procedure derivation tests in StoredProcedureTests
 
