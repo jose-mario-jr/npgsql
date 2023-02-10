@@ -44,16 +44,13 @@ namespace Npgsql
             : this(cmdText, connection)
             => Transaction = transaction;
 
-        public override void Prepare() => Prepare(false).GetAwaiter().GetResult();
-
-        Task Prepare(bool async, CancellationToken cancellationToken = default)
+        public override void Prepare()
         {
             if (!isNonQuery)
             {
                 Elog.Info("Prepare SPI statement");
                 pldotnet_SPIPrepare(this._commandText, ref this._cmdPointer);
             }
-            return Task.CompletedTask;
         }
 
         /// <inheritdoc />

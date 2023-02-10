@@ -233,12 +233,9 @@ namespace Npgsql
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
         public static extern void pldotnet_SPICursorFetch(IntPtr cursorPointer);
 
-        public override void Close() => Close(connectionClosing: false, async: false, isDisposing: false).GetAwaiter().GetResult();
-
-        internal async Task Close(bool connectionClosing, bool async, bool isDisposing)
+        public override void Close()
         {
             pldotnet_SPIFinish();
-            await Task.Run(() => Elog.Info("Async close ran"));
         }
 
         public override ValueTask DisposeAsync()
@@ -248,7 +245,8 @@ namespace Npgsql
 
             async ValueTask DisposeAsyncCore()
             {
-                await Close(connectionClosing: false, async: true, isDisposing: true);
+                Close();
+                await Task.Run(() => Elog.Info("Async close ran"));
             }
 
         }
@@ -258,18 +256,14 @@ namespace Npgsql
             Close();
         }
 
-        public override bool NextResult() => NextResult(false).GetAwaiter().GetResult();
+        public override bool NextResult(){
+            return Read();
+        }
 
         public override Task<bool> NextResultAsync(CancellationToken cancellationToken)
         {
-            using var _ = NoSynchronizationContextScope.Enter();
-
-            return NextResult(async: true, cancellationToken: cancellationToken);
+            return Task.Run(() => Read());
         }
 
-        async Task<bool> NextResult(bool async, bool isConsuming = false, CancellationToken cancellationToken = default)
-        {
-            return await Task.Run(() => Read());
-        }
     }
 }
