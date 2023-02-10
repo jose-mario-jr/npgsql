@@ -63,5 +63,14 @@ namespace Npgsql
                 return _dataSource;
             }
         }
+
+        /// <summary>
+        /// Creates and returns a <see cref="NpgsqlCommand"/> object associated with the <see cref="NpgsqlConnectionOrig"/>.
+        /// </summary>
+        /// <returns>A <see cref="NpgsqlCommand"/> object.</returns>
+        public new NpgsqlCommand CreateCommand()
+        {
+            return new NpgsqlCommand();
+        }
     }
 }

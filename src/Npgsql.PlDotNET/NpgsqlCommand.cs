@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.ComponentModel;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -30,9 +32,7 @@ namespace Npgsql
 
         public NpgsqlCommand(string? cmdText) : this()
         {
-            _commandText = cmdText ?? string.Empty;
-            this.isNonQuery = !_commandText.ToLower().StartsWith("select");
-            Prepare();
+            this.CommandText = cmdText ?? string.Empty;
         }
 
         public NpgsqlCommand(string? cmdText, NpgsqlConnection? connection) : this(cmdText)
@@ -44,6 +44,26 @@ namespace Npgsql
             : this(cmdText, connection)
             => Transaction = transaction;
 
+        /// <summary>
+        /// Gets or sets the SQL statement or function (stored procedure) to execute at the data source.
+        /// </summary>
+        /// <value>The SQL statement or function (stored procedure) to execute. The default is an empty string.</value>
+        [AllowNull, DefaultValue("")]
+        [Category("Data")]
+        public override string CommandText
+        {
+            get => _commandText;
+            set
+            {
+                if (value == null || value == string.Empty){
+                    throw new Exception("Null command error!");
+                }
+                _commandText = value;
+                this.isNonQuery = !_commandText.ToLower().StartsWith("select");
+
+                Prepare();
+            }
+        }
         public override void Prepare()
         {
             if (!isNonQuery)
