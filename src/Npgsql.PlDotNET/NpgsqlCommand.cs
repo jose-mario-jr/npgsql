@@ -125,6 +125,8 @@ namespace Npgsql
             }
         }
 
+        public override int ExecuteNonQuery() => ExecuteNonQuery(false, CancellationToken.None).GetAwaiter().GetResult();
+
         async Task<int> ExecuteNonQuery(bool async, CancellationToken cancellationToken)
         {
             var reader = await ExecuteReader(CommandBehavior.Default, async, cancellationToken);
