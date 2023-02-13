@@ -11,6 +11,7 @@ using Npgsql;
 using Npgsql.Internal;
 using Npgsql.PostgresTypes;
 using PlDotNET.Handler;
+using PlDotNET.Common;
 
 namespace Npgsql
 {
@@ -24,17 +25,23 @@ namespace Npgsql
         /// <inheritdoc />
         public NpgsqlConnection()
         {
+            Elog.Info("Created connection with no arguments");
         }
 
         /// <inheritdoc />
         public NpgsqlConnection(string? connectionString) : this()
-            => ConnectionString = connectionString;
+        {
+            Elog.Info("Created connection with connectionString");
+            ConnectionString = connectionString;
+        }
 
         internal static NpgsqlConnection FromDataSource(NpgsqlDataSource dataSource)
-        => new()
         {
-            _dataSource = dataSource,
-        };
+            Elog.Info("Created connection with FromDataSource");
+            var conn = new NpgsqlConnection();
+            conn._dataSource = dataSource;
+            return conn;
+        }
 
         /// <inheritdoc />
         public override Task OpenAsync(CancellationToken cancellationToken)
@@ -43,10 +50,17 @@ namespace Npgsql
                 return Open(true, cancellationToken);
         }
 
-        internal Task Open(bool async, CancellationToken cancellationToken)
+        /// <inheritdoc />
+        public Task Open(bool async, CancellationToken cancellationToken)
         {
             this._dataSource = NpgsqlDataSource.Create();
             return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public override void Open()
+        {
+            this._dataSource = NpgsqlDataSource.Create();
         }
 
         /// <summary>

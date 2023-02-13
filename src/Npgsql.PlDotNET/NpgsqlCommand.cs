@@ -27,22 +27,29 @@ namespace Npgsql
 
         public NpgsqlCommand()
         {
+            Elog.Info("Created NpgsqlCommand with void const");
+            pldotnet_SPIReady();
             this.InternalConnection = new NpgsqlConnection();
         }
 
         public NpgsqlCommand(string? cmdText) : this()
         {
+            Elog.Info("Created NpgsqlCommand with string const");
             this.CommandText = cmdText ?? string.Empty;
         }
 
         public NpgsqlCommand(string? cmdText, NpgsqlConnection? connection) : this(cmdText)
         {
+            Elog.Info("Created NpgsqlCommand with string and conn const");
             InternalConnection = connection ?? new NpgsqlConnection();
         }
 
         public NpgsqlCommand(string? cmdText, NpgsqlConnection? connection, NpgsqlTransaction? transaction)
             : this(cmdText, connection)
-            => Transaction = transaction;
+        {
+            Elog.Info("Created NpgsqlCommand with string, conn and transaction const");
+            Transaction = transaction;
+        }
 
         /// <summary>
         /// Gets or sets the SQL statement or function (stored procedure) to execute at the data source.
@@ -115,7 +122,9 @@ namespace Npgsql
             var reader = await ExecuteReader(CommandBehavior.Default, async, cancellationToken);
             try
             {
-                // while (async ? await reader.NextResultAsync(cancellationToken) : reader.NextResult()) ;
+                Elog.Info("ExecuteNonQuery -> pldotnet_SPIReady before pldotnet_SPIExecute!");
+                pldotnet_SPIReady();
+
                 pldotnet_SPIExecute(_commandText, false, 0);
 
                 return reader.RecordsAffected;
@@ -128,6 +137,10 @@ namespace Npgsql
                     reader.Dispose();
             }
         }
+
+        [DllImport("@PKG_LIBDIR/pldotnet.so")]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static extern bool pldotnet_SPIReady();
 
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
         public static extern void pldotnet_SPIPrepare(string command, ref IntPtr cmdPointer);
