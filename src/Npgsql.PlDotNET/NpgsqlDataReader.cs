@@ -69,7 +69,11 @@ namespace Npgsql
         public override Task<bool> ReadAsync(CancellationToken cancellationToken)
         {
             using (NoSynchronizationContextScope.Enter())
-                return Read(true, cancellationToken);
+            {
+                var task = Read(true, cancellationToken);
+                task.Wait();
+                return task;
+            }
         }
 
         async Task<bool> Read(bool async, CancellationToken cancellationToken = default)

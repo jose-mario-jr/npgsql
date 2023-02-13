@@ -47,7 +47,11 @@ namespace Npgsql
         public override Task OpenAsync(CancellationToken cancellationToken)
         {
             using (NoSynchronizationContextScope.Enter())
-                return Open(true, cancellationToken);
+            {
+                var task = Open(true, cancellationToken);
+                task.Wait();
+                return task;
+            }
         }
 
         /// <inheritdoc />

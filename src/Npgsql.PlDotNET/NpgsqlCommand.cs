@@ -88,7 +88,11 @@ namespace Npgsql
         public new Task<NpgsqlDataReader> ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken = default)
         {
             using (NoSynchronizationContextScope.Enter())
-                return ExecuteReader(behavior, async: true, cancellationToken).AsTask();
+            {
+                var task = ExecuteReader(behavior, async: true, cancellationToken).AsTask();
+                task.Wait();
+                return task;
+            }
         }
 
         public new NpgsqlDataReader ExecuteReader(CommandBehavior behavior = CommandBehavior.Default)
@@ -114,7 +118,11 @@ namespace Npgsql
         public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
         {
             using (NoSynchronizationContextScope.Enter())
-                return ExecuteNonQuery(true, cancellationToken);
+            {
+                var task = ExecuteNonQuery(true, cancellationToken);
+                task.Wait();
+                return task;
+            }
         }
 
         async Task<int> ExecuteNonQuery(bool async, CancellationToken cancellationToken)
