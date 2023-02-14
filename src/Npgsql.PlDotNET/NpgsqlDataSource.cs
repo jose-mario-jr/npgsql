@@ -33,7 +33,7 @@ namespace Npgsql
 
         public static new NpgsqlDataSource Create(string connectionString = "")
         {
-            Elog.Info("Create NpgsqlDataSource!");
+            Elog.Info("Calling NpgsqlDataSource.Create");
             pldotnet_SPIReady();
             return new NpgsqlDataSource(Sts, Dsb.PrepareConfiguration());
         }
@@ -48,13 +48,15 @@ namespace Npgsql
 
         public new NpgsqlCommand CreateCommand(string query)
         {
-            Elog.Info("Create CreateCommand inside datasource!");
+            Elog.Info("Calling NpgsqlDataSource.CreateCommand");
             return new NpgsqlCommand(query);
         }
 
         /// <inheritdoc />
         public new NpgsqlConnection OpenConnection()
         {
+            Elog.Info($"Calling NpgsqlDataSource.OpenConnection.");
+
             var connection = this.CreateConnection();
 
             try
@@ -72,6 +74,8 @@ namespace Npgsql
         /// <inheritdoc />
         public new async ValueTask<NpgsqlConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
         {
+            Elog.Info($"Calling NpgsqlDataSource.OpenConnectionAsync.");
+
             var connection = this.CreateConnection();
 
             try

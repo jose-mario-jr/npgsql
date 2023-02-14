@@ -25,19 +25,19 @@ namespace Npgsql
         /// <inheritdoc />
         public NpgsqlConnection()
         {
-            Elog.Info("Created connection with no arguments");
+            Elog.Info("Created connection with void constructor");
         }
 
         /// <inheritdoc />
         public NpgsqlConnection(string? connectionString) : this()
         {
-            Elog.Info("Created connection with connectionString");
+            Elog.Info($"Created connection with string constructor. String values: ***{connectionString}***");
             ConnectionString = connectionString;
         }
 
         internal static NpgsqlConnection FromDataSource(NpgsqlDataSource dataSource)
         {
-            Elog.Info("Created connection with FromDataSource");
+            Elog.Info("Created connection with FromDataSource function");
             var conn = new NpgsqlConnection();
             conn._dataSource = dataSource;
             return conn;

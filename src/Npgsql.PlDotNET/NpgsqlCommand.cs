@@ -27,27 +27,27 @@ namespace Npgsql
 
         public NpgsqlCommand()
         {
-            Elog.Info("Created NpgsqlCommand with void const");
+            Elog.Info("Created NpgsqlCommand with void constructor");
             pldotnet_SPIReady();
             this.InternalConnection = new NpgsqlConnection();
         }
 
         public NpgsqlCommand(string? cmdText) : this()
         {
-            Elog.Info("Created NpgsqlCommand with string const");
+            Elog.Info($"Created NpgsqlCommand with string constructor: ***{cmdText}***");
             this.CommandText = cmdText ?? string.Empty;
         }
 
         public NpgsqlCommand(string? cmdText, NpgsqlConnection? connection) : this(cmdText)
         {
-            Elog.Info("Created NpgsqlCommand with string and conn const");
+            Elog.Info("Created NpgsqlCommand with string and connection constructor");
             InternalConnection = connection ?? new NpgsqlConnection();
         }
 
         public NpgsqlCommand(string? cmdText, NpgsqlConnection? connection, NpgsqlTransaction? transaction)
             : this(cmdText, connection)
         {
-            Elog.Info("Created NpgsqlCommand with string, conn and transaction const");
+            Elog.Info("Created NpgsqlCommand with string, connection and transaction constructor");
             Transaction = transaction;
         }
 
@@ -66,8 +66,9 @@ namespace Npgsql
                     throw new Exception("Null command error!");
                 }
                 _commandText = value;
+                Elog.Info($"Setting query using NpgsqlCommand.CommandText. Value: ***{_commandText}***");
                 this.isNonQuery = !_commandText.ToLower().StartsWith("select");
-
+                Elog.Info($"Is non query? {this.isNonQuery}");
                 Prepare();
             }
         }
@@ -102,7 +103,7 @@ namespace Npgsql
             => ExecuteReader(behavior);
 
         public new async ValueTask<NpgsqlDataReader> ExecuteReader(CommandBehavior behavior, bool async, CancellationToken cancellationToken){
-
+            Elog.Info($"Calling NpgsqlCommand.ExecuteReader. Async? {async}");
             IntPtr cursorPointer = IntPtr.Zero;
             if (!isNonQuery)
             {
@@ -117,6 +118,7 @@ namespace Npgsql
 
         public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
         {
+            Elog.Info($"Calling NpgsqlCommand.ExecuteNonQueryAsync.");
             using (NoSynchronizationContextScope.Enter())
             {
                 var task = ExecuteNonQuery(true, cancellationToken);
@@ -129,22 +131,25 @@ namespace Npgsql
 
         async Task<int> ExecuteNonQuery(bool async, CancellationToken cancellationToken)
         {
+            Elog.Info($"Calling NpgsqlCommand.ExecuteNonQuery.");
             var reader = await ExecuteReader(CommandBehavior.Default, async, cancellationToken);
             try
             {
-                Elog.Info("ExecuteNonQuery -> pldotnet_SPIReady before pldotnet_SPIExecute!");
                 pldotnet_SPIReady();
-
+                Elog.Info("Calling pldotnet_SPIExecute...");
                 pldotnet_SPIExecute(_commandText, false, 0);
-
+                Elog.Info($"Returning reader.RecordsAffected = {reader.RecordsAffected}");
                 return reader.RecordsAffected;
             }
             finally
             {
+                Elog.Info($"Accessing finally statement of NpgsqlCommand.ExecuteNonQuery");
                 if (async)
-                    await reader.DisposeAsync();
+               {     Elog.Info($"Calling reader.DisposeAsync()");
+                    await reader.DisposeAsync();}
                 else
-                    reader.Dispose();
+              {      Elog.Info($"Calling reader.Dispose()");
+                    reader.Dispose();}
             }
         }
 

@@ -239,18 +239,20 @@ namespace Npgsql
 
         public override void Close()
         {
+            Elog.Info("Calling NpgsqlDataReader.Close");
             pldotnet_SPIFinish();
         }
 
         public override ValueTask DisposeAsync()
         {
+            Elog.Info("Calling NpgsqlDataReader.DisposeAsync");
+
             using (NoSynchronizationContextScope.Enter())
                 return DisposeAsyncCore();
 
             async ValueTask DisposeAsyncCore()
             {
-                Close();
-                await Task.Run(() => Elog.Info("Async close ran"));
+                await Task.Run(() => Close());
             }
 
         }
