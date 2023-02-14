@@ -53,6 +53,11 @@ namespace Npgsql
         private IntPtr[] CurrentRow;
 
         /// <summary>
+        /// The nullmap of the current row.
+        /// </summary>
+        private byte[] IsNull;
+
+        /// <summary>
         /// The cursor pointer for the data reader.
         /// </summary>
         private IntPtr CursorPointer;
@@ -96,17 +101,17 @@ namespace Npgsql
                 return false;
             }
 
-            this.CurrentRow = new IntPtr[this.NCols];
-
             if (this.ColumnNames == null && this.ColumnTypes == null)
             {
-                IntPtr[] columnNamePts = new IntPtr[this.NCols];
                 this.ColumnTypes = new int[this.NCols];
+                this.CurrentRow = new IntPtr[this.NCols];
+                this.IsNull = new byte[this.NCols];
+                IntPtr[] columnNamePts = new IntPtr[this.NCols];
                 pldotnet_GetColProps(this.ColumnTypes, columnNamePts);
                 this.ColumnNames = columnNamePts.ToList().Select(namePts => Marshal.PtrToStringAuto(namePts)).ToArray();
             }
 
-            pldotnet_GetTable(this.CurrentRow);
+            pldotnet_GetTable(this.CurrentRow, this.IsNull);
 
             this.FieldCount = this.NCols;
 
@@ -146,7 +151,21 @@ namespace Npgsql
         /// <param name="ordinal">The column to be retrieved.</param>
         /// <returns>The column to be retrieved.</returns>
         public override T GetFieldValue<T>(int ordinal)
-            => (T)DatumConversion.InputValue(CurrentRow[ordinal], (OID)ColumnTypes[ordinal]);
+        {
+            // Check if the value of the column is non-null
+            if (this.IsNull[ordinal] == 0)
+            {
+                return (T)DatumConversion.InputValue(this.CurrentRow[ordinal], (OID)this.ColumnTypes[ordinal]);
+            }
+
+            // It will be true if T is nullable or a reference type, false otherwise
+            if (Nullable.GetUnderlyingType(typeof(T)) != null || !typeof(T).IsValueType)
+            {
+                return (T)DatumConversion.InputNullableValue(this.CurrentRow[ordinal], (OID)this.ColumnTypes[ordinal], true);
+            }
+
+            throw new InvalidCastException($"Column '{this.ColumnNames[ordinal]}' is null.");
+        }
 
         /// <summary>
         /// Synchronously gets the type of the specified column.
@@ -229,7 +248,7 @@ namespace Npgsql
         public static extern void pldotnet_GetTableDimensions(ref int nrows, ref int ncols);
 
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
-        public static extern void pldotnet_GetTable(IntPtr[] datums);
+        public static extern void pldotnet_GetTable(IntPtr[] datums, byte[] isNull);
 
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
         public static extern void pldotnet_GetColProps(int[] columnTypes, IntPtr[] columnNames);
@@ -262,7 +281,8 @@ namespace Npgsql
             Close();
         }
 
-        public override bool NextResult(){
+        public override bool NextResult()
+        {
             return Read();
         }
 
