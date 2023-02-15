@@ -85,6 +85,15 @@ namespace Npgsql
         public new Task<NpgsqlDataReader> ExecuteReaderAsync(CancellationToken cancellationToken = default)
             => ExecuteReaderAsync(CommandBehavior.Default, cancellationToken);
 
+        public new Task<object?> ExecuteScalarAsync(CancellationToken cancellationToken = default)
+        {
+            using (NoSynchronizationContextScope.Enter())
+            {
+                var task = ExecuteScalar(true, cancellationToken).AsTask();
+                task.Wait();
+                return task;
+            }
+        }
 
         public new Task<NpgsqlDataReader> ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken = default)
         {
@@ -114,6 +123,24 @@ namespace Npgsql
             var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.NpgsqlDataSource), cursorPointer);
 
             return await Task.FromResult(r);
+        }
+
+        public override object? ExecuteScalar() => ExecuteScalar(false, CancellationToken.None).GetAwaiter().GetResult();
+
+        async ValueTask<object?> ExecuteScalar(bool async, CancellationToken cancellationToken)
+        {
+            Elog.Info($"Calling NpgsqlCommand.ExecuteScalar. Async? {async}");
+
+            var reader = await ExecuteReader(CommandBehavior.Default, async, cancellationToken);
+
+            var read = reader.Read();
+
+            var value = read && reader.FieldCount != 0 ? reader.GetValue(0) : null;
+
+            // // Npgsql read the whole result set to trigger any errors
+            // while (async ? await reader.NextResultAsync(cancellationToken) : reader.NextResult()) ;
+
+            return value;
         }
 
         public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)

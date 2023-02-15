@@ -35,7 +35,10 @@ namespace Npgsql
         /// <summary>
         /// The number of columns in the result set.
         /// </summary>
-        private new int FieldCount;
+        public override int FieldCount
+        {
+            get => this.NCols;
+        }
 
         /// <summary>
         /// The type of the columns in the result set.
@@ -112,8 +115,6 @@ namespace Npgsql
             }
 
             pldotnet_GetTable(this.CurrentRow, this.IsNull);
-
-            this.FieldCount = this.NCols;
 
             return true;
         }
@@ -195,6 +196,7 @@ namespace Npgsql
         /// <returns>The value of the specified column.</returns>
         public override object GetValue(int ordinal)
         {
+            // TODO: (Rosicley) Handle null values here
             return DatumConversion.InputValue(CurrentRow[ordinal], (OID)ColumnTypes[ordinal]);
         }
 
