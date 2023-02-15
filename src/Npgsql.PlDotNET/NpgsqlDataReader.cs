@@ -41,9 +41,9 @@ namespace Npgsql
         }
 
         /// <summary>
-        /// The type of the columns in the result set.
+        /// The OID of the columns in the result set.
         /// </summary>
-        private int[] ColumnTypes;
+        private OID[] ColumnTypes;
 
         /// <summary>
         /// The name of the columns in the result set.
@@ -106,11 +106,15 @@ namespace Npgsql
 
             if (this.ColumnNames == null && this.ColumnTypes == null)
             {
-                this.ColumnTypes = new int[this.NCols];
                 this.CurrentRow = new IntPtr[this.NCols];
                 this.IsNull = new byte[this.NCols];
+
                 IntPtr[] columnNamePts = new IntPtr[this.NCols];
-                pldotnet_GetColProps(this.ColumnTypes, columnNamePts);
+                int[] oidTypes = new int[this.NCols];
+
+                pldotnet_GetColProps(oidTypes, columnNamePts);
+
+                this.ColumnTypes = oidTypes.Select(i => (OID)i).ToArray();
                 this.ColumnNames = columnNamePts.ToList().Select(namePts => Marshal.PtrToStringAuto(namePts)).ToArray();
             }
 
@@ -156,13 +160,19 @@ namespace Npgsql
             // Check if the value of the column is non-null
             if (this.IsNull[ordinal] == 0)
             {
-                return (T)DatumConversion.InputValue(this.CurrentRow[ordinal], (OID)this.ColumnTypes[ordinal]);
+                return (T)DatumConversion.InputValue(this.CurrentRow[ordinal], this.ColumnTypes[ordinal]);
+            }
+
+            // If the value is null and T is "object", Npgsql returns (T)(object)DBNull.Value
+            if (typeof(T) == typeof(object))
+            {
+                return (T)(object)DBNull.Value;
             }
 
             // It will be true if T is nullable or a reference type, false otherwise
             if (Nullable.GetUnderlyingType(typeof(T)) != null || !typeof(T).IsValueType)
             {
-                return (T)DatumConversion.InputNullableValue(this.CurrentRow[ordinal], (OID)this.ColumnTypes[ordinal], true);
+                return (T)DatumConversion.InputNullableValue(this.CurrentRow[ordinal], this.ColumnTypes[ordinal], true);
             }
 
             throw new InvalidCastException($"Column '{this.ColumnNames[ordinal]}' is null.");
@@ -174,7 +184,9 @@ namespace Npgsql
         /// <param name="ordinal">The column to be retrieved.</param>
         /// <returns>The type of the column.</returns>
         public override Type GetFieldType(int ordinal)
-            => typeof(OID);
+        {
+            return DatumConversion.GetFieldType(ColumnTypes[ordinal]);
+        }
 
         /// <summary>
         /// Populates an array of objects with the column values of the current row.
@@ -196,8 +208,14 @@ namespace Npgsql
         /// <returns>The value of the specified column.</returns>
         public override object GetValue(int ordinal)
         {
-            // TODO: (Rosicley) Handle null values here
-            return DatumConversion.InputValue(CurrentRow[ordinal], (OID)ColumnTypes[ordinal]);
+            // Check if the value of the column is null
+            // If so, it should return DBNull.Value in the same way as Npgsql
+            if (this.IsNull[ordinal] != 0)
+            {
+                return DBNull.Value;
+            }
+
+            return DatumConversion.InputValue(CurrentRow[ordinal], ColumnTypes[ordinal]);
         }
 
         // public string getTableLinesMd()
