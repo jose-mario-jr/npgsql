@@ -69,7 +69,6 @@ namespace Npgsql
                 Elog.Info($"Setting query using NpgsqlCommand.CommandText. Value: ***{_commandText}***");
                 this.isNonQuery = !_commandText.ToLower().StartsWith("select");
                 Elog.Info($"Is non query? {this.isNonQuery}");
-                Prepare();
             }
         }
         public override void Prepare()
@@ -116,6 +115,22 @@ namespace Npgsql
             IntPtr cursorPointer = IntPtr.Zero;
             if (!isNonQuery)
             {
+                Elog.Info(Parameters.ToString());
+                foreach(PropertyDescriptor descriptor in TypeDescriptor.GetProperties(Parameters))
+                {
+                    string name = descriptor.Name;
+                    object value = descriptor.GetValue(Parameters) ?? "";
+                    Console.WriteLine("{0}={1}", name, value);
+                }
+                Elog.Info("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                Elog.Info(Parameters.InternalList[0].NpgsqlDbType.ToString());
+                foreach(PropertyDescriptor descriptor in TypeDescriptor.GetProperties(Parameters.InternalList[0].NpgsqlDbType))
+                {
+                    string name = descriptor.Name;
+                    object value = descriptor.GetValue(Parameters.InternalList[0].NpgsqlDbType) ?? "";
+                    Console.WriteLine("{0}={1}", name, value);
+                }
+                Prepare();
                 Elog.Info("Open Cursor");
                 pldotnet_SPICursorOpen(this._cmdPointer, ref cursorPointer);
             }
