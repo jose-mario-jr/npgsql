@@ -18,7 +18,10 @@ public sealed class NpgsqlParameterCollection : DbParameterCollection, IList<Npg
 {
     internal const int LookupThreshold = 5;
 
-    internal List<NpgsqlParameter> InternalList { get; } = new(5);
+    /// <summary>
+    /// Parameter list
+    /// </summary>
+    public List<NpgsqlParameter> InternalList { get; } = new(5);
 #if DEBUG
     internal static bool TwoPassCompatMode;
 #else

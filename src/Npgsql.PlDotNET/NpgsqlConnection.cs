@@ -90,5 +90,10 @@ namespace Npgsql
         {
             return new NpgsqlCommand();
         }
+
+        /// <inheritdoc />
+        public new void UnprepareAll()
+        {
+        }
     }
 }
