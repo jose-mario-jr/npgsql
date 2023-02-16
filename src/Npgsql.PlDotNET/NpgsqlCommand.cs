@@ -73,11 +73,11 @@ namespace Npgsql
         }
         public override void Prepare()
         {
-            if (!isNonQuery)
-            {
-                Elog.Info("Prepare SPI statement");
-                pldotnet_SPIPrepare(this._commandText, ref this._cmdPointer);
-            }
+            // if (!isNonQuery)
+            // {
+            //     Elog.Info("Prepare SPI statement will be made on the reader");
+            //     // pldotnet_SPIPrepare(ref this._cmdPointer, this._commandText);
+            // }
         }
 
         /// <inheritdoc />
@@ -115,24 +115,25 @@ namespace Npgsql
             IntPtr cursorPointer = IntPtr.Zero;
             if (!isNonQuery)
             {
-                // Elog.Info(Parameters.ToString());
-                // foreach(PropertyDescriptor descriptor in TypeDescriptor.GetProperties(Parameters))
-                // {
-                //     string name = descriptor.Name;
-                //     object value = descriptor.GetValue(Parameters) ?? "";
-                //     Console.WriteLine("{0}={1}", name, value);
-                // }
-                // Elog.Info("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-                // Elog.Info(Parameters.InternalList[0].NpgsqlDbType.ToString());
-                // foreach(PropertyDescriptor descriptor in TypeDescriptor.GetProperties(Parameters.InternalList[0].NpgsqlDbType))
-                // {
-                //     string name = descriptor.Name;
-                //     object value = descriptor.GetValue(Parameters.InternalList[0].NpgsqlDbType) ?? "";
-                //     Console.WriteLine("{0}={1}", name, value);
-                // }
-                Prepare();
+                uint[] paramTypesOid = new uint[Parameters.Count];
+                IntPtr[] paramValues = new IntPtr[Parameters.Count];
+
+                for (int i = 0; i< Parameters.Count; i++)
+                {
+                    Elog.Info($"Parameter {i}");
+                    Elog.Info(Parameters[i].Value?.ToString());
+                    Elog.Info(Parameters[i].NpgsqlDbType.ToString());
+
+                    IntHandler IntHandlerObj = new ();
+                    paramValues[i] = IntHandlerObj.OutputNullableValue((int?)Parameters[i].Value);
+
+                    // TODO: Get the OID of types dynamically
+                    paramTypesOid[i] = 23;
+                }
+
                 Elog.Info("Open Cursor");
-                pldotnet_SPICursorOpen(this._cmdPointer, ref cursorPointer);
+                pldotnet_SPIPrepare(ref this._cmdPointer, this._commandText, Parameters.Count, paramTypesOid);
+                pldotnet_SPICursorOpen(ref cursorPointer, this._cmdPointer, paramValues);
             }
 
             var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.NpgsqlDataSource), cursorPointer);
@@ -200,13 +201,13 @@ namespace Npgsql
         public static extern bool pldotnet_SPIReady();
 
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
-        public static extern void pldotnet_SPIPrepare(string command, ref IntPtr cmdPointer);
+        public static extern void pldotnet_SPIPrepare(ref IntPtr cmdPointer, string command, int nargs, uint[] paramTypesOid);
 
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
         public static extern int pldotnet_SPIExecute(string command, [MarshalAs(UnmanagedType.I1)] bool read_only, long count);
 
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
-        public static extern void pldotnet_SPICursorOpen(IntPtr cmdPointer, ref IntPtr cursorPointer);
+        public static extern void pldotnet_SPICursorOpen(ref IntPtr cursorPointer, IntPtr cmdPointer, IntPtr[] paramValues);
 
     }
 }
