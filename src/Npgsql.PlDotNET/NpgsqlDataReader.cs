@@ -218,6 +218,11 @@ namespace Npgsql
             return DatumConversion.InputValue(CurrentRow[ordinal], ColumnTypes[ordinal]);
         }
 
+        /// <summary>
+        /// Gets the value of the specified column as a <see cref="DateOnly"/> object.
+        /// </summary>
+        public DateOnly GetDateOnly(int ordinal) => GetFieldValue<DateOnly>(ordinal);
+
         // public string getTableLinesMd()
         // {
         //     var sb = new System.Text.StringBuilder();

@@ -14,13 +14,48 @@ using Npgsql.Internal;
 using Npgsql.PostgresTypes;
 using PlDotNET.Handler;
 using PlDotNET.Common;
+using NpgsqlTypes;
 
-#pragma warning disable CS1591
+#pragma warning disable CS1591, CS8604
 
 namespace Npgsql
 {
+    public static class NpgsqlDbTypeExtensions
+    {
+        public static BuiltInPostgresType GetPostgresTypeInfo(this NpgsqlDbType npgsqlDbType)
+        {
+            var type = typeof(NpgsqlDbType);
+            var memInfo = type.GetMember(npgsqlDbType.ToString());
+            var attributes = memInfo[0].GetCustomAttributes(typeof(BuiltInPostgresType), false);
+
+            return (BuiltInPostgresType)attributes[0];
+        }
+    }
+
     public class NpgsqlCommand : NpgsqlCommandOrig
     {
+        public static Dictionary<string, uint> RangeArrays =
+                       new()
+        {
+            { "int4range", 3905 },
+            { "numrange", 3907 },
+            { "tsrange", 3909 },
+            { "tstzrange", 3911 },
+            { "daterange", 3913 },
+            { "int8range", 3927 },
+        };
+
+        public static Dictionary<string, uint> MultirangeArrays =
+                       new()
+        {
+            { "int4multirange", 6150 },
+            { "nummultirange", 6151 },
+            { "tsmultirange", 6152 },
+            { "tstzmultirange", 6153 },
+            { "datemultirange", 6155 },
+            { "int8multirange", 6157 },
+        };
+
         IntPtr _cmdPointer = IntPtr.Zero;
         public bool isNonQuery;
         public NpgsqlConnection InternalConnection { get; private set; }
@@ -73,11 +108,7 @@ namespace Npgsql
         }
         public override void Prepare()
         {
-            // if (!isNonQuery)
-            // {
-            //     Elog.Info("Prepare SPI statement will be made on the reader");
-            //     // pldotnet_SPIPrepare(ref this._cmdPointer, this._commandText);
-            // }
+            Elog.Info("Prepare() called...");
         }
 
         /// <inheritdoc />
@@ -124,11 +155,8 @@ namespace Npgsql
                     Elog.Info(Parameters[i].Value?.ToString());
                     Elog.Info(Parameters[i].NpgsqlDbType.ToString());
 
-                    IntHandler IntHandlerObj = new ();
-                    paramValues[i] = IntHandlerObj.OutputNullableValue((int?)Parameters[i].Value);
-
-                    // TODO: Get the OID of types dynamically
-                    paramTypesOid[i] = 23;
+                    paramTypesOid[i] = FindOid(Parameters[i].NpgsqlDbType);
+                    paramValues[i] = DatumConversion.OutputNullableValue((OID)paramTypesOid[i], Parameters[i].Value);
                 }
 
                 Elog.Info("Open Cursor");
@@ -139,6 +167,58 @@ namespace Npgsql
             var r = new NpgsqlDataReader(new NpgsqlConnector(this.InternalConnection.NpgsqlDataSource), cursorPointer);
 
             return await Task.FromResult(r);
+
+            uint FindOid(NpgsqlDbType type)
+            {
+                int array = (int)NpgsqlDbType.Array; // -2,147,483,648
+                int multiRange = (int)NpgsqlDbType.Multirange; // 536,870,921
+                int range = (int)NpgsqlDbType.Range; // 1,073,741,824
+
+                int typeValue = (int)type;
+
+                if (typeValue > range)
+                {
+                    // it is a range!
+                    Elog.Info($"Range of {(NpgsqlDbType)(typeValue - range)}.");
+                    return ((NpgsqlDbType)(typeValue - range)).GetPostgresTypeInfo().RangeOID;
+                }
+                else if (typeValue > multiRange)
+                {
+                    // it is a multirange!
+                    Elog.Info($"Multirange of {(NpgsqlDbType)(typeValue - multiRange)}.");
+                    return ((NpgsqlDbType)(typeValue - multiRange)).GetPostgresTypeInfo().MultirangeOID;
+                }
+                else if (typeValue > 0)
+                {
+                    // it is a base!
+                    Elog.Info($"Just {(NpgsqlDbType)(typeValue)}.");
+                    return ((NpgsqlDbType)(typeValue)).GetPostgresTypeInfo().BaseOID;
+                }
+                else
+                {
+                    // it is an array!
+
+                    int arrayAux = typeValue - array;
+
+                    if (arrayAux > range)
+                    {
+                        // it is an array of range!
+                        Elog.Info($"Array of {(NpgsqlDbType)(arrayAux - range)} range.");
+                        // TODO: resolve CS8604 in these lines!
+                        return RangeArrays[((NpgsqlDbType)(arrayAux - range)).GetPostgresTypeInfo().RangeName];
+                    }
+                    else if (arrayAux > multiRange)
+                    {
+                        // it is an array of multirange!
+                        Elog.Info($"Array of {(NpgsqlDbType)(arrayAux - multiRange)} multirange.");
+                        return MultirangeArrays[((NpgsqlDbType)(arrayAux - multiRange)).GetPostgresTypeInfo().MultirangeName];
+                    }
+
+                    // It is an array of base!
+                    Elog.Info($"Array of {(NpgsqlDbType)(typeValue - array)}.");
+                    return ((NpgsqlDbType)(arrayAux)).GetPostgresTypeInfo().ArrayOID;
+                }
+            }
         }
 
         public override object? ExecuteScalar() => ExecuteScalar(false, CancellationToken.None).GetAwaiter().GetResult();
@@ -195,6 +275,9 @@ namespace Npgsql
                     reader.Dispose();}
             }
         }
+
+        public new void Unprepare()
+            => Elog.Info("Unprepare called...");
 
         [DllImport("@PKG_LIBDIR/pldotnet.so")]
         [return: MarshalAs(UnmanagedType.I1)]
