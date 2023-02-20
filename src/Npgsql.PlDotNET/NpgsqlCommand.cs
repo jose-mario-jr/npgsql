@@ -149,14 +149,40 @@ namespace Npgsql
                 uint[] paramTypesOid = new uint[Parameters.Count];
                 IntPtr[] paramValues = new IntPtr[Parameters.Count];
 
-                for (int i = 0; i< Parameters.Count; i++)
+                if(Parameters.Count > 0)
                 {
-                    Elog.Info($"Parameter {i}");
-                    Elog.Info(Parameters[i].Value?.ToString());
-                    Elog.Info(Parameters[i].NpgsqlDbType.ToString());
+                    if(string.IsNullOrEmpty(Parameters[0].ParameterName))
+                    {
+                        for (int i = 0; i< Parameters.Count; i++)
+                        {
+                            if(!string.IsNullOrEmpty(Parameters[i].ParameterName))
+                            {
+                                throw new NotSupportedException();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i< Parameters.Count; i++)
+                        {
+                            if(string.IsNullOrEmpty(Parameters[i].ParameterName))
+                            {
+                                throw new NotSupportedException();
+                            }
 
-                    paramTypesOid[i] = FindOid(Parameters[i].NpgsqlDbType);
-                    paramValues[i] = DatumConversion.OutputNullableValue((OID)paramTypesOid[i], Parameters[i].Value);
+                            CommandText = CommandText.Replace($"@{Parameters[i].ParameterName}", $"${i+1}");
+                        }
+                    }
+
+                    for (int i = 0; i< Parameters.Count; i++)
+                    {
+                        Elog.Info($"Parameter {i}");
+                        Elog.Info(Parameters[i].Value?.ToString());
+                        Elog.Info(Parameters[i].NpgsqlDbType.ToString());
+
+                        paramTypesOid[i] = FindOid(Parameters[i].NpgsqlDbType);
+                        paramValues[i] = DatumConversion.OutputNullableValue((OID)paramTypesOid[i], Parameters[i].Value);
+                    }
                 }
 
                 Elog.Info("Open Cursor");
