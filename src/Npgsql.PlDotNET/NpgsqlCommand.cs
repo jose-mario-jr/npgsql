@@ -97,7 +97,8 @@ namespace Npgsql
             get => _commandText;
             set
             {
-                if (value == null || value == string.Empty){
+                if (value == null || value == string.Empty)
+                {
                     throw new Exception("Null command error!");
                 }
                 _commandText = value;
@@ -141,7 +142,8 @@ namespace Npgsql
         public new NpgsqlDataReader ExecuteDbDataReader(CommandBehavior behavior)
             => ExecuteReader(behavior);
 
-        public new async ValueTask<NpgsqlDataReader> ExecuteReader(CommandBehavior behavior, bool async, CancellationToken cancellationToken){
+        public new async ValueTask<NpgsqlDataReader> ExecuteReader(CommandBehavior behavior, bool async, CancellationToken cancellationToken)
+        {
             Elog.Info($"Calling NpgsqlCommand.ExecuteReader. Async? {async}");
             IntPtr cursorPointer = IntPtr.Zero;
             if (!isNonQuery)
@@ -149,13 +151,13 @@ namespace Npgsql
                 uint[] paramTypesOid = new uint[Parameters.Count];
                 IntPtr[] paramValues = new IntPtr[Parameters.Count];
 
-                if(Parameters.Count > 0)
+                if (Parameters.Count > 0)
                 {
-                    if(string.IsNullOrEmpty(Parameters[0].ParameterName))
+                    if (string.IsNullOrEmpty(Parameters[0].ParameterName))
                     {
-                        for (int i = 0; i< Parameters.Count; i++)
+                        for (int i = 0; i < Parameters.Count; i++)
                         {
-                            if(!string.IsNullOrEmpty(Parameters[i].ParameterName))
+                            if (!string.IsNullOrEmpty(Parameters[i].ParameterName))
                             {
                                 throw new NotSupportedException();
                             }
@@ -165,22 +167,23 @@ namespace Npgsql
                     {
                         for (int i = 0; i < Parameters.Count; i++)
                         {
-                            if(string.IsNullOrEmpty(Parameters[i].ParameterName))
+                            string parameterName = Parameters[i].ParameterName;
+                            if (string.IsNullOrEmpty(parameterName))
                             {
                                 throw new NotSupportedException();
                             }
-                            if(i < Parameters.Count - 1)
+                            if (i < Parameters.Count - 1)
                             {
-                                this._commandText = this._commandText.Replace($"{Parameters[i].ParameterName},", $"${i+1},");
+                                this._commandText = this._commandText.Replace(parameterName.StartsWith("@") ? $"{parameterName}," : $"@{parameterName},", $"${i + 1},");
                             }
                             else
                             {
-                                this._commandText = this._commandText.Replace($"{Parameters[i].ParameterName}", $"${i+1}");
+                                this._commandText = this._commandText.Replace(parameterName.StartsWith("@") ? $"{parameterName}" : $"@{parameterName}", $"${i + 1}");
                             }
                         }
                     }
 
-                    for (int i = 0; i< Parameters.Count; i++)
+                    for (int i = 0; i < Parameters.Count; i++)
                     {
                         Elog.Info($"Parameter {i}");
                         Elog.Info(Parameters[i].Value?.ToString());
@@ -300,11 +303,15 @@ namespace Npgsql
             {
                 Elog.Info($"Accessing finally statement of NpgsqlCommand.ExecuteNonQuery");
                 if (async)
-               {     Elog.Info($"Calling reader.DisposeAsync()");
-                    await reader.DisposeAsync();}
+                {
+                    Elog.Info($"Calling reader.DisposeAsync()");
+                    await reader.DisposeAsync();
+                }
                 else
-              {      Elog.Info($"Calling reader.Dispose()");
-                    reader.Dispose();}
+                {
+                    Elog.Info($"Calling reader.Dispose()");
+                    reader.Dispose();
+                }
             }
         }
 
