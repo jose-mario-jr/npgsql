@@ -101,9 +101,9 @@ namespace Npgsql
                     throw new Exception("Null command error!");
                 }
                 _commandText = value;
-                Elog.Info($"Setting query using NpgsqlCommand.CommandText. Value: ***{_commandText}***");
+                // Elog.Info($"Setting query using NpgsqlCommand.CommandText. Value: ***{_commandText}***");
                 this.isNonQuery = !_commandText.ToLower().StartsWith("select");
-                Elog.Info($"Is non query? {this.isNonQuery}");
+                // Elog.Info($"Is non query? {this.isNonQuery}");
             }
         }
         public override void Prepare()
@@ -163,14 +163,20 @@ namespace Npgsql
                     }
                     else
                     {
-                        for (int i = 0; i< Parameters.Count; i++)
+                        for (int i = 0; i < Parameters.Count; i++)
                         {
                             if(string.IsNullOrEmpty(Parameters[i].ParameterName))
                             {
                                 throw new NotSupportedException();
                             }
-
-                            CommandText = CommandText.Replace($"@{Parameters[i].ParameterName}", $"${i+1}");
+                            if(i < Parameters.Count - 1)
+                            {
+                                this._commandText = this._commandText.Replace($"{Parameters[i].ParameterName},", $"${i+1},");
+                            }
+                            else
+                            {
+                                this._commandText = this._commandText.Replace($"{Parameters[i].ParameterName}", $"${i+1}");
+                            }
                         }
                     }
 
